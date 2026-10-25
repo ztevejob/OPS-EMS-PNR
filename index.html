@@ -278,7 +278,6 @@
     }
 
     function renderCharts(ops, ems, PNR) {
-        // Ambil label sampel (misal baris pertama sebagai kategori atau indeks baris)
         const opsLabels = ops.slice(0, 10).map((_, i) => `Data #${i + 1}`);
         const opsValues = ops.slice(0, 10).map(row => {
             for (let k in row) {
