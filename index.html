@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPS EMS PnR - Live Dashboard</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f8f9fa; }
+        .sidebar { min-height: 100vh; background-color: #212529; color: #fff; }
+        .sidebar a { color: #adb5bd; text-decoration: none; padding: 12px 20px; display: block; transition: 0.2s; }
+        .sidebar a:hover, .sidebar a.active { color: #fff; background-color: #343a40; }
+        .card-stat { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .dashboard-container { background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .table-responsive { max-height: 500px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block sidebar collapse p-0">
+            <div class="position-sticky pt-3">
+                <h4 class="text-center text-white mb-4"><i class="fa-solid fa-chart-pie me-2"></i>Dashboard OPS</h4>
+                <ul class="nav flex-column" id="sheetTabList" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="ops-tab" data-bs-toggle="tab" data-bs-target="#ops-content" type="button" role="tab"><i class="fa-solid fa-clipboard-list me-2"></i> Sheet: OPS</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="ems-tab" data-bs-toggle="tab" data-bs-target="#ems-content" type="button" role="tab"><i class="fa-solid fa-laptop-code me-2"></i> Sheet: EMS</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="pnr-tab" data-bs-toggle="tab" data-bs-target="#pnr-content" type="button" role="tab"><i class="fa-solid fa-address-book me-2"></i> Sheet: PnR</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Real-Time Operational Dashboard</h1>
+                <div>
+                    <button class="btn btn-sm btn-primary me-2" onclick="loadData()"><i class="fa-solid fa-rotate me-1"></i> Refresh Data</button>
+                    <span id="loadingStatus" class="text-muted small">Memuat data...</span>
+                </div>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="sheetTabContent">
+                
+                <!-- 1. OPS Content -->
+                <div class="tab-pane fade show active" id="ops-content" role="tabpanel">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Baris Data OPS</h6><h3 class="fw-bold" id="count-ops">0</h3></div></div>
+                        <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Status Koneksi</h6><h3 class="fw-bold text-success">Live</h3></div></div>
+                        <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Sinkronisasi</h6><h3 class="fw-bold text-primary">Apps Script</h3></div></div>
+                    </div>
+                    <div class="dashboard-container">
+                        <h4 class="mb-3 text-primary"><i class="fa-solid fa-table me-2"></i>Tabel Data: OPS</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover align-middle" id="table-ops">
+                                <thead class="table-dark"></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. EMS Content -->
+                <div class="tab-pane fade" id="ems-content" role="tabpanel">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Baris Data EMS</h6><h3 class="fw-bold" id="count-ems">0</h3></div></div>
+                        <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Status Koneksi</h6><h3 class="fw-bold text-success">Live</h3></div></div>
+                        <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Sinkronisasi</h6><h3 class="fw-bold text-success">Apps Script</h3></div></div>
+                    </div>
+                    <div class="dashboard-container">
+                        <h4 class="mb-3 text-success"><i class="fa-solid fa-table me-2"></i>Tabel Data: EMS</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover align-middle" id="table-ems">
+                                <thead class="table-success"></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. PnR Content -->
+                <div class="tab-pane fade" id="pnr-content" role="tabpanel">
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Baris Data PnR</h6><h3 class="fw-bold" id="count-pnr">0</h3></div></div>
+                        <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Status Koneksi</h6><h3 class="fw-bold text-success">Live</h3></div></div>
+                        <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Sinkronisasi</h6><h3 class="fw-bold text-warning">Apps Script</h3></div></div>
+                    </div>
+                    <div class="dashboard-container">
+                        <h4 class="mb-3 text-warning"><i class="fa-solid fa-table me-2"></i>Tabel Data: PnR</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover align-middle" id="table-pnr">
+                                <thead class="table-warning"></thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Bootstrap JS & Script Fetch -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const WEB_APP_URL = 'URL_WEB_APP_ANDA_DISINI';
+
+    function loadData() {
+        document.getElementById('loadingStatus').innerText = 'Menyinkronkan data...';
+        fetch(WEB_APP_URL)
+            .then(response => response.json())
+            .then(data => {
+                renderTable('ops', data.OPS);
+                renderTable('ems', data.EMS);
+                renderTable('pnr', data.PnR);
+                document.getElementById('loadingStatus').innerText = 'Data berhasil diperbarui!';
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+                document.getElementById('loadingStatus').innerText = 'Gagal memuat data.';
+            });
+    }
+
+    function renderTable(sheetId, rows) {
+        const table = document.getElementById(`table-${sheetId}`);
+        const thead = table.querySelector('thead');
+        const tbody = table.querySelector('tbody');
+        document.getElementById(`count-${sheetId}`).innerText = rows ? rows.length : 0;
+
+        thead.innerHTML = '';
+        tbody.innerHTML = '';
+
+        if (!rows || rows.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-3">Tidak ada data ditemukan.</td></tr>`;
+            return;
+        }
+
+        // Buat Header berdasarkan keys objek pertama
+        const headers = Object.keys(rows[0]);
+        let headerRow = '<tr>';
+        headers.forEach(h => {
+            headerRow += `<th>${h}</th>`;
+        });
+        headerRow += '</tr>';
+        thead.innerHTML = headerRow;
+
+        // Buat Baris Data
+        rows.forEach(row => {
+            let tr = '<tr>';
+            headers.forEach(h => {
+                let val = row[h] !== undefined ? row[h] : '';
+                tr += `<td>${val}</td>`;
+            });
+            tr += '</tr>';
+            tbody.innerHTML += tr;
+        });
+    }
+
+    // Load data saat halaman pertama kali dibuka
+    window.onload = loadData;
+</script>
+</body>
+</html>
