@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPS EMS PNR - Live Dashboard with Charts</title>
+    <title>OPS EMS PNR - Live Dashboard with Month Filters</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
@@ -74,9 +74,14 @@
             </div>
 
             <div class="dashboard-container">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <h4 class="m-0 text-primary"><i class="fa-solid fa-table me-2"></i>Tabel Data: OPS</h4>
-                    <input type="text" id="search-ops" class="form-control w-25" placeholder="Cari Toko / Data OPS..." onkeyup="filterTable('ops')">
+                    <div class="d-flex gap-2 w-100 w-md-auto">
+                        <select id="filter-month-ops" class="form-select w-auto" onchange="applyFilters('ops')">
+                            <option value="">Semua Bulan (OPS)</option>
+                        </select>
+                        <input type="text" id="search-ops" class="form-control" placeholder="Cari Toko / Data OPS..." onkeyup="applyFilters('ops')">
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover align-middle" id="table-ops">
@@ -104,9 +109,14 @@
             </div>
 
             <div class="dashboard-container">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <h4 class="m-0 text-success"><i class="fa-solid fa-table me-2"></i>Tabel Data: EMS</h4>
-                    <input type="text" id="search-ems" class="form-control w-25" placeholder="Cari Toko / Trainer..." onkeyup="filterTable('ems')">
+                    <div class="d-flex gap-2 w-100 w-md-auto">
+                        <select id="filter-month-ems" class="form-select w-auto" onchange="applyFilters('ems')">
+                            <option value="">Semua Bulan (EMS)</option>
+                        </select>
+                        <input type="text" id="search-ems" class="form-control" placeholder="Cari Toko / Trainer..." onkeyup="applyFilters('ems')">
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover align-middle" id="table-ems">
@@ -134,9 +144,14 @@
             </div>
 
             <div class="dashboard-container">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <h4 class="m-0 text-warning"><i class="fa-solid fa-table me-2"></i>Tabel Data: PNR</h4>
-                    <input type="text" id="search-PNR" class="form-control w-25" placeholder="Cari Lokasi / Training..." onkeyup="filterTable('PNR')">
+                    <div class="d-flex gap-2 w-100 w-md-auto">
+                        <select id="filter-month-PNR" class="form-select w-auto" onchange="applyFilters('PNR')">
+                            <option value="">Semua Bulan (PNR)</option>
+                        </select>
+                        <input type="text" id="search-PNR" class="form-control" placeholder="Cari Lokasi / Training..." onkeyup="applyFilters('PNR')">
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover align-middle" id="table-PNR">
@@ -155,6 +170,13 @@
 <script>
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzAAm8dsSyuTA2paIJ-i-EO9phCsRrqTWWGsgxIL6kqN7OeUKe-Uxmzd5dpkn15PDBO/exec';
 
+    // Global raw data storage
+    let rawDataStore = {
+        ops: [],
+        ems: [],
+        PNR: []
+    };
+
     let opsChartInstance = null;
     let emsChartInstance = null;
     let PNRChartInstance = null;
@@ -170,16 +192,18 @@
                     return foundKey ? obj[foundKey] : [];
                 }
 
-                const opsData = getSheetData(data, 'OPS');
-                const emsData = getSheetData(data, 'EMS');
-                const PNRData = getSheetData(data, 'PNR');
+                rawDataStore.ops = getSheetData(data, 'OPS');
+                rawDataStore.ems = getSheetData(data, 'EMS');
+                rawDataStore.PNR = getSheetData(data, 'PNR');
 
-                renderTable('ops', opsData);
-                renderTable('ems', emsData);
-                renderTable('PNR', PNRData);
+                // Initialize dropdown filters & render all
+                initMonthDropdown('ops', rawDataStore.ops);
+                initMonthDropdown('ems', rawDataStore.ems);
+                initMonthDropdown('PNR', rawDataStore.PNR);
 
-                calculateSummary(opsData, emsData, PNRData);
-                renderCharts(opsData, emsData, PNRData);
+                applyFilters('ops');
+                applyFilters('ems');
+                applyFilters('PNR');
                 
                 document.getElementById('loadingStatus').innerText = 'Data berhasil diperbarui!';
             })
@@ -189,11 +213,122 @@
             });
     }
 
+    // Detect date/month column and populate dropdown options dynamically
+    function initMonthDropdown(sheetId, rows) {
+        const select = document.getElementById(`filter-month-${sheetId}`);
+        // Keep the default "All" option
+        const defaultText = select.options[0] ? select.options[0].text : `Semua Bulan`;
+        select.innerHTML = `<option value="">${defaultText}</option>`;
+
+        if (!rows || rows.length === 0) return;
+
+        const headers = Object.keys(rows[0]);
+        // Find a key that looks like date, time, timestamp, or month
+        const dateKey = headers.find(h => /date|tanggal|time|waktu|bulan|month|period/i.test(h));
+        if (!dateKey) return;
+
+        const monthsSet = new Set();
+        rows.forEach(row => {
+            const val = row[dateKey];
+            if (val) {
+                const monthStr = extractMonthString(val);
+                if (monthStr) monthsSet.add(monthStr);
+            }
+        });
+
+        const sortedMonths = Array.from(monthsSet).sort();
+        sortedMonths.forEach(m => {
+            const opt = document.createElement('option');
+            opt.value = m;
+            // Pretty label if formatted like YYYY-MM
+            opt.textContent = formatMonthLabel(m);
+            select.appendChild(opt);
+        });
+    }
+
+    function extractMonthString(val) {
+        if (!val) return null;
+        let str = String(val).trim();
+        
+        // Try parsing ISO dates or standard date formats
+        const parsed = Date.parse(str);
+        if (!isNaN(parsed)) {
+            const d = new Date(parsed);
+            const y = d.getFullYear();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            return `${y}-${m}`;
+        }
+
+        // Match regex like YYYY-MM, YYYY/MM, MM/YYYY, etc.
+        const matchYMD = str.match(/^(\d{4})[-/](\d{1,2})/);
+        if (matchYMD) {
+            return `${matchYMD[1]}-${matchYMD[2].padStart(2, '0')}`;
+        }
+
+        const matchDMY = str.match(/^\d{1,2}[-/]\d{1,2}[-/](\d{4})/);
+        if (matchDMY) {
+            // Difficult without knowing day/month order, try general ISO fallback
+        }
+
+        return null;
+    }
+
+    function formatMonthLabel(ym) {
+        const parts = ym.split('-');
+        if (parts.length !== 2) return ym;
+        const year = parts[0];
+        const monthNum = parseInt(parts[1], 10);
+        const monthNames = [
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+        if (monthNum >= 1 && monthNum <= 12) {
+            return `${monthNames[monthNum - 1]} ${year}`;
+        }
+        return ym;
+    }
+
+    // Filter rows based on search input and month dropdown
+    function applyFilters(sheetId) {
+        const rows = rawDataStore[sheetId] || [];
+        const searchInput = document.getElementById(`search-${sheetId}`).value.toLowerCase();
+        const selectedMonth = document.getElementById(`filter-month-${sheetId}`).value;
+
+        const headers = rows.length > 0 ? Object.keys(rows[0]) : [];
+        const dateKey = headers.find(h => /date|tanggal|time|waktu|bulan|month|period/i.test(h));
+
+        const filteredRows = rows.filter(row => {
+            // Month filter match
+            if (selectedMonth && dateKey) {
+                const rowMonth = extractMonthString(row[dateKey]);
+                if (rowMonth !== selectedMonth) return false;
+            }
+
+            // Search text match across columns
+            if (searchInput) {
+                let match = false;
+                for (let k in row) {
+                    if (String(row[k] !== undefined ? row[k] : '').toLowerCase().includes(searchInput)) {
+                        match = true;
+                        break;
+                    }
+                }
+                if (!match) return false;
+            }
+
+            return true;
+        });
+
+        renderTable(sheetId, filteredRows);
+        calculateSummary(sheetId, filteredRows);
+        renderChart(sheetId, filteredRows);
+    }
+
     function renderTable(sheetId, rows) {
         const table = document.getElementById(`table-${sheetId}`);
         const thead = table.querySelector('thead');
         const tbody = table.querySelector('tbody');
-        document.getElementById(`count-${sheetId}`).innerText = rows ? rows.length : 0;
+        document.getElementById(`count-${sheetId}`).innerText = rows.length;
 
         thead.innerHTML = '';
         tbody.innerHTML = '';
@@ -224,135 +359,129 @@
         tbody.appendChild(fragment);
     }
 
-    function filterTable(sheetId) {
-        const input = document.getElementById(`search-${sheetId}`).value.toLowerCase();
-        const table = document.getElementById(`table-${sheetId}`);
-        const trs = table.querySelectorAll('tbody tr');
-        trs.forEach(tr => {
-            const text = tr.textContent.toLowerCase();
-            tr.style.display = text.includes(input) ? '' : 'none';
-        });
-    }
-
-    function calculateSummary(ops, ems, PNR) {
+    function calculateSummary(sheetId, rows) {
         try {
-            let totalOpsPartisipan = 0;
-            ops.forEach(row => {
-                for (let key in row) {
-                    if (/partisipan|participant|jumlah|total/i.test(key)) {
-                        let val = parseFloat(row[key]) || 0;
-                        totalOpsPartisipan += val;
-                    }
-                }
-            });
-            document.getElementById('summary-ops-partisipan').innerText = totalOpsPartisipan;
-
-            let totalScore = 0, countScore = 0;
-            ems.forEach(row => {
-                for (let key in row) {
-                    if (/score|nilai|avg|rata/i.test(key)) {
-                        let val = parseFloat(row[key]);
-                        if (!isNaN(val)) {
-                            totalScore += val;
-                            countScore++;
+            if (sheetId === 'ops') {
+                let totalOpsPartisipan = 0;
+                rows.forEach(row => {
+                    for (let key in row) {
+                        if (/partisipan|participant|jumlah|total/i.test(key)) {
+                            let val = parseFloat(row[key]) || 0;
+                            totalOpsPartisipan += val;
                         }
                     }
-                }
-            });
-            let avgScore = countScore > 0 ? (totalScore / countScore).toFixed(1) : 0;
-            document.getElementById('summary-ems-score').innerText = avgScore;
-
-            let totalStaff = 0;
-            PNR.forEach(row => {
-                for (let key in row) {
-                    if (/staff|trained|employee|karyawan|peserta/i.test(key)) {
-                        let val = parseFloat(row[key]) || 0;
-                        totalStaff += val;
+                });
+                document.getElementById('summary-ops-partisipan').innerText = totalOpsPartisipan;
+            } else if (sheetId === 'ems') {
+                let totalScore = 0, countScore = 0;
+                rows.forEach(row => {
+                    for (let key in row) {
+                        if (/score|nilai|avg|rata/i.test(key)) {
+                            let val = parseFloat(row[key]);
+                            if (!isNaN(val)) {
+                                totalScore += val;
+                                countScore++;
+                            }
+                        }
                     }
-                }
-            });
-            document.getElementById('summary-PNR-staff').innerText = totalStaff;
+                });
+                let avgScore = countScore > 0 ? (totalScore / countScore).toFixed(1) : 0;
+                document.getElementById('summary-ems-score').innerText = avgScore;
+            } else if (sheetId === 'PNR') {
+                let totalStaff = 0;
+                rows.forEach(row => {
+                    for (let key in row) {
+                        if (/staff|trained|employee|karyawan|peserta/i.test(key)) {
+                            let val = parseFloat(row[key]) || 0;
+                            totalStaff += val;
+                        }
+                    }
+                });
+                document.getElementById('summary-PNR-staff').innerText = totalStaff;
+            }
         } catch (e) {
-            console.error("Error calculating summary:", e);
+            console.error("Error calculating summary for " + sheetId, e);
         }
     }
 
-    function renderCharts(ops, ems, PNR) {
-        const opsLabels = ops.slice(0, 10).map((_, i) => `Data #${i + 1}`);
-        const opsValues = ops.slice(0, 10).map(row => {
-            for (let k in row) {
-                if (/partisipan|participant|jumlah|total/i.test(k)) return parseFloat(row[k]) || 0;
-            }
-            return 1;
-        });
+    function renderChart(sheetId, rows) {
+        if (sheetId === 'ops') {
+            const opsLabels = rows.slice(0, 10).map((_, i) => `Data #${i + 1}`);
+            const opsValues = rows.slice(0, 10).map(row => {
+                for (let k in row) {
+                    if (/partisipan|participant|jumlah|total/i.test(k)) return parseFloat(row[k]) || 0;
+                }
+                return 1;
+            });
 
-        if (opsChartInstance) opsChartInstance.destroy();
-        const ctxOps = document.getElementById('chartOps').getContext('2d');
-        opsChartInstance = new Chart(ctxOps, {
-            type: 'bar',
-            data: {
-                labels: opsLabels,
-                datasets: [{
-                    label: 'Partisipan / Jumlah OPS',
-                    data: opsValues,
-                    backgroundColor: 'rgba(13, 110, 253, 0.7)',
-                    borderColor: 'rgba(13, 110, 253, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
+            if (opsChartInstance) opsChartInstance.destroy();
+            const ctxOps = document.getElementById('chartOps').getContext('2d');
+            opsChartInstance = new Chart(ctxOps, {
+                type: 'bar',
+                data: {
+                    labels: opsLabels,
+                    datasets: [{
+                        label: 'Partisipan / Jumlah OPS',
+                        data: opsValues,
+                        backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                        borderColor: 'rgba(13, 110, 253, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        } else if (sheetId === 'ems') {
+            const emsLabels = rows.slice(0, 10).map((_, i) => `Data #${i + 1}`);
+            const emsValues = rows.slice(0, 10).map(row => {
+                for (let k in row) {
+                    if (/score|nilai|avg|rata/i.test(k)) return parseFloat(row[k]) || 0;
+                }
+                return 0;
+            });
 
-        const emsLabels = ems.slice(0, 10).map((_, i) => `Data #${i + 1}`);
-        const emsValues = ems.slice(0, 10).map(row => {
-            for (let k in row) {
-                if (/score|nilai|avg|rata/i.test(k)) return parseFloat(row[k]) || 0;
-            }
-            return 0;
-        });
+            if (emsChartInstance) emsChartInstance.destroy();
+            const ctxEms = document.getElementById('chartEms').getContext('2d');
+            emsChartInstance = new Chart(ctxEms, {
+                type: 'line',
+                data: {
+                    labels: emsLabels,
+                    datasets: [{
+                        label: 'Score EMS',
+                        data: emsValues,
+                        backgroundColor: 'rgba(25, 135, 84, 0.2)',
+                        borderColor: 'rgba(25, 135, 84, 1)',
+                        borderWidth: 2,
+                        fill: true
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        } else if (sheetId === 'PNR') {
+            const PNRLabels = rows.slice(0, 10).map((_, i) => `Data #${i + 1}`);
+            const PNRValues = rows.slice(0, 10).map(row => {
+                for (let k in row) {
+                    if (/staff|trained|employee|karyawan|peserta/i.test(k)) return parseFloat(row[k]) || 0;
+                }
+                return 1;
+            });
 
-        if (emsChartInstance) emsChartInstance.destroy();
-        const ctxEms = document.getElementById('chartEms').getContext('2d');
-        emsChartInstance = new Chart(ctxEms, {
-            type: 'line',
-            data: {
-                labels: emsLabels,
-                datasets: [{
-                    label: 'Score EMS',
-                    data: emsValues,
-                    backgroundColor: 'rgba(25, 135, 84, 0.2)',
-                    borderColor: 'rgba(25, 135, 84, 1)',
-                    borderWidth: 2,
-                    fill: true
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
-
-        const PNRLabels = PNR.slice(0, 10).map((_, i) => `Data #${i + 1}`);
-        const PNRValues = PNR.slice(0, 10).map(row => {
-            for (let k in row) {
-                if (/staff|trained|employee|karyawan|peserta/i.test(k)) return parseFloat(row[k]) || 0;
-            }
-            return 1;
-        });
-
-        if (PNRChartInstance) PNRChartInstance.destroy();
-        const ctxPNR = document.getElementById('chartPNR').getContext('2d');
-        PNRChartInstance = new Chart(ctxPNR, {
-            type: 'bar',
-            data: {
-                labels: PNRLabels,
-                datasets: [{
-                    label: 'Staff Trained PNR',
-                    data: PNRValues,
-                    backgroundColor: 'rgba(255, 193, 7, 0.7)',
-                    borderColor: 'rgba(255, 193, 7, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
+            if (PNRChartInstance) PNRChartInstance.destroy();
+            const ctxPNR = document.getElementById('chartPNR').getContext('2d');
+            PNRChartInstance = new Chart(ctxPNR, {
+                type: 'bar',
+                data: {
+                    labels: PNRLabels,
+                    datasets: [{
+                        label: 'Staff Trained PNR',
+                        data: PNRValues,
+                        backgroundColor: 'rgba(255, 193, 7, 0.7)',
+                        borderColor: 'rgba(255, 193, 7, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
     }
 
     window.onload = loadData;
