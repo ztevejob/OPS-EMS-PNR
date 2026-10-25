@@ -13,13 +13,19 @@
     <style>
         body { background-color: #f8f9fa; }
         .navbar-brand { font-weight: bold; }
-        .card-stat { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .card-stat { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: 100%; }
         .dashboard-container { background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
-        .table-responsive { max-height: 400px; overflow-y: auto; }
-        table th { position: sticky; top: 0; z-index: 1; background-color: #212529; color: #fff; text-align: center; vertical-align: middle; }
-        table td { text-align: center; vertical-align: middle; }
-        table td:first-child, table th:first-child { text-align: left; }
-        .chart-container { position: relative; height: 300px; width: 100%; }
+        .table-responsive { max-height: 450px; overflow-y: auto; }
+        table th { position: sticky; top: 0; z-index: 2; background-color: #212529; color: #fff; text-align: center; vertical-align: middle; white-space: nowrap; }
+        table td { text-align: center; vertical-align: middle; white-space: nowrap; font-size: 0.9rem; }
+        table td.store-col, table th.store-col { text-align: left; left: 0; z-index: 3; }
+        table td.name-col, table th.name-col { text-align: left; }
+        .cell-active { background-color: #d1e7dd; color: #0f5132; font-weight: bold; }
+        .cell-inactive { background-color: #f8d7da; color: #842029; }
+        .chart-scroll-container { position: relative; height: 350px; width: 100%; overflow-x: auto; }
+        .chart-inner-wrapper { position: relative; height: 100%; min-width: 100%; }
+        .clickable-card { cursor: pointer; transition: transform 0.2s; }
+        .clickable-card:hover { transform: translateY(-3px); }
     </style>
 </head>
 <body>
@@ -61,30 +67,92 @@
         
         <!-- 1. OPS Content -->
         <div class="tab-pane fade show active" id="ops-content" role="tabpanel">
-            <div class="row g-3 mb-4">
-                <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Record OPS</h6><h3 class="fw-bold" id="count-ops">0</h3></div></div>
-                <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Partisipan</h6><h3 class="fw-bold text-primary" id="summary-ops-partisipan">0</h3></div></div>
-                <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Target Bulanan</h6><h3 class="fw-bold text-success">85 Sesi</h3></div></div>
-            </div>
-            
-            <!-- Chart Section OPS -->
-            <div class="dashboard-container">
-                <h5 class="mb-3 text-primary"><i class="fa-solid fa-chart-bar me-2"></i>Grafik Akumulasi Sesi Bulanan OPS (Top 15 Toko)</h5>
-                <div class="chart-container">
-                    <canvas id="chartOps"></canvas>
+            <!-- Global Filter Bar for OPS -->
+            <div class="dashboard-container mb-3 py-3">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-muted">Filter Bulan:</label>
+                        <select id="filter-month-ops" class="form-select" onchange="applyFilters('ops')">
+                            <option value="">Semua Bulan</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-muted">Filter Toko:</label>
+                        <select id="filter-store-ops" class="form-select" onchange="applyFilters('ops')">
+                            <option value="">Semua Toko</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-muted">Pencarian Bebas:</label>
+                        <input type="text" id="search-ops" class="form-control" placeholder="Cari Toko / Presenter..." onkeyup="applyFilters('ops')">
+                    </div>
                 </div>
             </div>
 
-            <div class="dashboard-container">
-                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                    <h4 class="m-0 text-primary"><i class="fa-solid fa-table me-2"></i>Rekap Bulanan OPS</h4>
-                    <div class="d-flex gap-2">
-                        <select id="filter-month-ops" class="form-select" style="width: 160px;" onchange="applyFilters('ops')">
-                            <option value="">Semua Bulan</option>
-                        </select>
-                        <input type="text" id="search-ops" class="form-control" style="width: 220px;" placeholder="Cari Toko / Presenter..." onkeyup="applyFilters('ops')">
+            <!-- Summary Cards (OPS) -->
+            <div class="row g-3 mb-4 row-cols-1 row-cols-md-3 row-cols-xl-5">
+                <div class="col">
+                    <div class="card card-stat p-3 bg-white">
+                        <h6 class="text-muted small">Total Partisipan</h6>
+                        <h3 class="fw-bold text-primary" id="summary-ops-partisipan">0</h3>
                     </div>
                 </div>
+                <div class="col">
+                    <div class="card card-stat p-3 bg-white">
+                        <h6 class="text-muted small">Total Sesi Tercapai</h6>
+                        <h3 class="fw-bold text-info" id="summary-ops-sessions">0</h3>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card card-stat p-3 bg-white border-start border-warning border-4">
+                        <h6 class="text-muted small">Total Unit Terjual</h6>
+                        <h3 class="fw-bold text-warning" id="summary-ops-units">0</h3>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card card-stat p-3 bg-white border-start border-success border-4">
+                        <h6 class="text-muted small">Toko Sudah Submit</h6>
+                        <h3 class="fw-bold text-success" id="summary-submitted-stores">0</h3>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card card-stat p-3 bg-white border-start border-danger border-4 clickable-card" onclick="showUnsubmittedModal()" title="Klik untuk lihat daftar toko belum submit">
+                        <h6 class="text-muted small">Toko Belum Submit <i class="fa-solid fa-circle-info text-danger small"></i></h6>
+                        <h3 class="fw-bold text-danger" id="summary-unsubmitted-stores">0</h3>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chart Section OPS - Sesi Toko -->
+            <div class="dashboard-container">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h5 class="m-0 text-primary"><i class="fa-solid fa-chart-bar me-2"></i>Grafik Akumulasi Sesi Bulanan OPS</h5>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-primary active" id="btn-top15" onclick="setChartMode('ops', 'top15')">Top 15 Toko</button>
+                        <button type="button" class="btn btn-outline-primary" id="btn-bottom15" onclick="setChartMode('ops', 'bottom15')">Bottom 15 Toko</button>
+                        <button type="button" class="btn btn-outline-primary" id="btn-all" onclick="setChartMode('ops', 'all')">Semua Toko (Scroll)</button>
+                    </div>
+                </div>
+                <div class="chart-scroll-container" id="chartOpsContainer">
+                    <div class="chart-inner-wrapper" id="chartOpsInner">
+                        <canvas id="chartOps"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chart Section OPS - Topik Paling Diminati -->
+            <div class="dashboard-container">
+                <h5 class="mb-3 text-primary"><i class="fa-solid fa-chart-pie me-2"></i>Topik Open Studio Paling Diminati</h5>
+                <div class="chart-scroll-container">
+                    <div class="chart-inner-wrapper" id="chartOpsTopicInner">
+                        <canvas id="chartOpsTopic"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabel Rekap Bulanan OPS (Terurut Alfabetis) -->
+            <div class="dashboard-container">
+                <h4 class="mb-3 text-primary"><i class="fa-solid fa-table me-2"></i>Rekap Bulanan OPS (Per Toko)</h4>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover align-middle" id="table-ops">
                         <thead>
@@ -94,7 +162,6 @@
                                 <th>15:00</th>
                                 <th>18:00</th>
                                 <th>TOTAL</th>
-                                <th>Presenter</th>
                                 <th>TARGET</th>
                                 <th>Presenter%</th>
                             </tr>
@@ -103,34 +170,63 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Tabel Matriks Kalender Partisipasi Staff (Terurut Nama Toko & Staff) -->
+            <div class="dashboard-container border-start border-danger border-4">
+                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                    <div>
+                        <h4 class="m-0 text-danger"><i class="fa-solid fa-calendar-days me-2"></i>Matriks Partisipasi Staff Bulanan (Monitoring Jarang OPS)</h4>
+                        <p class="text-muted small mb-0">Bersumber dari Master RAW dan dicocokkan dengan OPS menggunakan Email (Diurutkan berdasarkan Nama Toko & Staff).</p>
+                    </div>
+                    <span class="badge bg-danger fs-6" id="staff-matrix-count">0 Staff</span>
+                </div>
+                <div class="table-responsive mt-3">
+                    <table class="table table-bordered table-hover align-middle" id="table-staff-matrix">
+                        <thead></thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
 
         <!-- 2. EMS Content -->
         <div class="tab-pane fade" id="ems-content" role="tabpanel">
+            <div class="dashboard-container mb-3 py-3">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-muted">Filter Bulan:</label>
+                        <select id="filter-month-ems" class="form-select" onchange="applyFilters('ems')">
+                            <option value="">Semua Bulan</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-muted">Filter Toko:</label>
+                        <select id="filter-store-ems" class="form-select" onchange="applyFilters('ems')">
+                            <option value="">Semua Toko</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-muted">Pencarian Bebas:</label>
+                        <input type="text" id="search-ems" class="form-control" placeholder="Cari Toko / Trainer..." onkeyup="applyFilters('ems')">
+                    </div>
+                </div>
+            </div>
             <div class="row g-3 mb-4">
                 <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Baris EMS</h6><h3 class="fw-bold" id="count-ems">0</h3></div></div>
                 <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Rata-rata Score</h6><h3 class="fw-bold text-success" id="summary-ems-score">0</h3></div></div>
                 <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Status Koneksi</h6><h3 class="fw-bold text-success">Live Cached</h3></div></div>
             </div>
-
-            <!-- Chart Section EMS -->
             <div class="dashboard-container">
-                <h5 class="mb-3 text-success"><i class="fa-solid fa-chart-line me-2"></i>Grafik Ringkasan EMS (Top 15 Toko/Data)</h5>
-                <div class="chart-container">
-                    <canvas id="chartEms"></canvas>
-                </div>
-            </div>
-
-            <div class="dashboard-container">
-                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                    <h4 class="m-0 text-success"><i class="fa-solid fa-table me-2"></i>Tabel Data: EMS</h4>
-                    <div class="d-flex gap-2">
-                        <select id="filter-month-ems" class="form-select" style="width: 160px;" onchange="applyFilters('ems')">
-                            <option value="">Semua Bulan</option>
-                        </select>
-                        <input type="text" id="search-ems" class="form-control" style="width: 220px;" placeholder="Cari Toko / Trainer..." onkeyup="applyFilters('ems')">
+                <h5 class="mb-3 text-success"><i class="fa-solid fa-chart-line me-2"></i>Grafik Ringkasan EMS</h5>
+                <div class="chart-scroll-container">
+                    <div class="chart-inner-wrapper">
+                        <canvas id="chartEms"></canvas>
                     </div>
                 </div>
+            </div>
+            <div class="dashboard-container">
+                <h4 class="mb-3 text-success"><i class="fa-solid fa-table me-2"></i>Tabel Data: EMS</h4>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover align-middle" id="table-ems">
                         <thead></thead>
@@ -142,30 +238,41 @@
 
         <!-- 3. PNR Content -->
         <div class="tab-pane fade" id="PNR-content" role="tabpanel">
+            <div class="dashboard-container mb-3 py-3">
+                <div class="row g-3 align-items-center">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-muted">Filter Bulan:</label>
+                        <select id="filter-month-PNR" class="form-select" onchange="applyFilters('PNR')">
+                            <option value="">Semua Bulan</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-muted">Filter Toko:</label>
+                        <select id="filter-store-PNR" class="form-select" onchange="applyFilters('PNR')">
+                            <option value="">Semua Toko</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold text-muted">Pencarian Bebas:</label>
+                        <input type="text" id="search-PNR" class="form-control" placeholder="Cari Lokasi / Training..." onkeyup="applyFilters('PNR')">
+                    </div>
+                </div>
+            </div>
             <div class="row g-3 mb-4">
                 <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Baris PNR</h6><h3 class="fw-bold" id="count-PNR">0</h3></div></div>
                 <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Staff Trained</h6><h3 class="fw-bold text-warning" id="summary-PNR-staff">0</h3></div></div>
                 <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Status Koneksi</h6><h3 class="fw-bold text-success">Live Cached</h3></div></div>
             </div>
-
-            <!-- Chart Section PNR -->
             <div class="dashboard-container">
-                <h5 class="mb-3 text-warning"><i class="fa-solid fa-chart-pie me-2"></i>Grafik Ringkasan PNR (Top 15 Toko/Data)</h5>
-                <div class="chart-container">
-                    <canvas id="chartPNR"></canvas>
-                </div>
-            </div>
-
-            <div class="dashboard-container">
-                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                    <h4 class="m-0 text-warning"><i class="fa-solid fa-table me-2"></i>Tabel Data: PNR</h4>
-                    <div class="d-flex gap-2">
-                        <select id="filter-month-PNR" class="form-select" style="width: 160px;" onchange="applyFilters('PNR')">
-                            <option value="">Semua Bulan</option>
-                        </select>
-                        <input type="text" id="search-PNR" class="form-control" style="width: 220px;" placeholder="Cari Lokasi / Training..." onkeyup="applyFilters('PNR')">
+                <h5 class="mb-3 text-warning"><i class="fa-solid fa-chart-pie me-2"></i>Grafik Ringkasan PNR</h5>
+                <div class="chart-scroll-container">
+                    <div class="chart-inner-wrapper">
+                        <canvas id="chartPNR"></canvas>
                     </div>
                 </div>
+            </div>
+            <div class="dashboard-container">
+                <h4 class="mb-3 text-warning"><i class="fa-solid fa-table me-2"></i>Tabel Data: PNR</h4>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover align-middle" id="table-PNR">
                         <thead></thead>
@@ -178,15 +285,78 @@
     </div>
 </div>
 
+<!-- Modal Daftar Toko Belum Submit -->
+<div class="modal fade" id="unsubmittedModal" tabindex="-1" aria-labelledby="unsubmittedModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="unsubmittedModalLabel"><i class="fa-solid fa-triangle-exclamation me-2"></i>Daftar Toko Belum Submit OPS</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small">Berikut adalah daftar toko dari master referensi yang belum melakukan submit laporan OPS berdasarkan filter bulan aktif:</p>
+                <ul class="list-group" id="unsubmittedStoreList">
+                    <!-- Dinamis terisi -->
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Bootstrap JS & Script Fetch -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzAAm8dsSyuTA2paIJ-i-EO9phCsRrqTWWGsgxIL6kqN7OeUKe-Uxmzd5dpkn15PDBO/exec';
 
-    let globalData = { ops: [], ems: [], PNR: [] };
+    // Master Daftar Toko Resmi Digimap
+    const MASTER_STORES = [
+        "M134 Digimap Beachwalk Bali", "M118 Digimap Pondok Indah Mall 3", "M119 Digimap Centrepoint Mall Medan", 
+        "M120 Digimap Sun Plaza Medan", "M121 Digimap Tunjungan Plaza 3 Surabaya", "M122 Digimap Galaxy Mall Surabaya", 
+        "M123 Digimap Mall Bali Galeria", "M124 Digimap Pacific Place", "M125 Digimap Supermall Karawaci", 
+        "M126 Digimap Ciputra World Surabaya", "M127 Digimap Lotte Shopping Avenue", "M128 Digimap Emporium Mall Pluit", 
+        "M129 Digimap Mall Puri Indah", "M130 Digimap Sunset Road Bali", "M131 Digimap Grand Indonesia", 
+        "M132 Digimap Plaza Senayan", "M133 Digimap Trans Studio Mall Bandung", "M201 Digimap Trans Studio Mall Cibubur", 
+        "M203 Digimap AEON Mall BSD", "M205 Digimap Paskal 23 Bandung", "M206 Digimap Pakuwon Mall Surabaya", 
+        "M212 Digimap Sunter Mall", "M214 Digimap AEON Mall Sentul", "M215 Digimap Mall Taman Anggrek", 
+        "M216 Digimap Tentrem Mall Semarang", "M217 Digimap Blok M Plaza", "M218 Digimap Plaza Balikpapan", 
+        "M219 Digimap Basko Padang", "M21F Digimap Ujung Berung Town Square", "M220 Digimap Malioboro Mall", 
+        "M221 Digimap A Yani Pontianak", "M222 Digimap Palembang Indah Mall", "M223 Digimap Roxy Square Jember", 
+        "M224 Digimap WTC Jambi", "M225 Digimap Citimall Dumai", "M226 Digimap Ambon City Center", 
+        "M227 Digimap AEON Tanjung Barat", "M228 Digimap Citimall Cianjur 2", "M229 Digimap Trans Icon Surabaya", 
+        "M230 Digimap The Park Kendari", "M231 Digimap Gress Mall Gresik", "M232 Digimap Pakuwon Mall Solo", 
+        "M233 Digimap Unimas District Sidoarjo", "M234 Digimap Citra Grand Cibubur", "M235 Digimap Lippo Plaza Kramat Jati", 
+        "M236 Digimap Palu Grand Mall", "M237 Digimap Solo Square", "M238 Digimap Pondok Indah Mall 2", 
+        "M239 Digimap Icon Mall Bali", "M240 Digimap Pacific Mall Tegal", "M241 Digimap Revo Mall", 
+        "M243 Digimap Aeon Mall Delta Mas", "M244 Digimap Java Mall Semarang", "M245 Digimap Living World Kota Wisata", 
+        "M246 Digimap Malang Town Square", "M247 Digimap Lippo Plaza Jambi", "M248 Digimap Suncity Mall Sidoarjo", 
+        "M249 Digimap Lippo Plaza Palangkaraya", "M250 Digimap Lippo Plaza Batu", "M251 Digimap The Kings Shopping Centre Bandung", 
+        "M252 Digimap Binjai Mall", "M253 Digimap Plaza Surabaya", "M254 Digimap Basko city Mall Padang", 
+        "M255 Digimap Antasari Place", "M256 Digimap Lippo Plaza Lubuklinggau", "M257 Digimap City Plaza Jatinegara", 
+        "M258 Digimap Lippo Plaza Manado", "M259 Digimap Jatinangor Town Square", "M260 Digimap Kudus Extention Mall", 
+        "M261 Digimap PIK Elang Laut", "M262 Digimap Suzuya Merdeka Square Siantar", "M263 Digimap Citimall Sampit", 
+        "M264 Digimap Plaza Semanggi", "M265 Digimap Merr Street", "M266 Digimap HIVE Harapan Indah", 
+        "M267 Digimap Mall Cijantung", "M268 Digimap Diana Mall Timika", "M269 Digimap Tenth Avenue", 
+        "M270 Digimap Citimall Lahat", "M271 Digimap Mall Indramayu", "M272 Digimap Kota Baru Parahyangan", 
+        "M273 Digimap Metro Lampung", "M274 Digimap Street Ciputat Raya", "M275 Digimap Citimall Baturaja", 
+        "M276 Digimap Shila At Sawangan", "M277 Digimap Citimall Tuban", "M278 Digimap A.S.S Brebes", 
+        "M279 Digimap Ciumbuleuit", "M281 Digimap Ngaliyan Street", "M282 Digimap Citimall Pangkalanbun", 
+        "M283 Digimap Basuki Rahmat Tulungagung", "M284 Digimap BSD Loka", "M285 Digimap Blitar Square", 
+        "M286 Digimap Citimall Prabumulih", "M287 Digimap Grand Tarakan", "M288 Digimap Mojopahit Street Mojokerto", 
+        "M289 Digimap Maleo Town Square", "M290 Digimap Mandau City Mall", "M292 Digimap Graha Raya", 
+        "M293 Digimap Jend Sudirman Salatiga", "M294 Digimap Bojonegoro Street", "M295 Digimap Juanda Tasikmalaya", 
+        "M297 Digimap Ponorogo City Center"
+    ];
+
+    let globalData = { raw: [], ops: [], ems: [], PNR: [] };
+    let lastFilteredOpsRows = [];
     let opsChartInstance = null;
+    let opsTopicChartInstance = null;
     let emsChartInstance = null;
     let PNRChartInstance = null;
+    let opsChartMode = 'ops-top15';
     const MONTHLY_TARGET = 85;
 
     function loadData() {
@@ -200,13 +370,14 @@
                     return foundKey ? obj[foundKey] : [];
                 }
 
+                globalData.raw = getSheetData(data, 'RAW');
                 globalData.ops = getSheetData(data, 'OPS');
                 globalData.ems = getSheetData(data, 'EMS');
                 globalData.PNR = getSheetData(data, 'PNR');
 
-                initMonthDropdown('ops', globalData.ops);
-                initMonthDropdown('ems', globalData.ems);
-                initMonthDropdown('PNR', globalData.PNR);
+                initDropdowns('ops', globalData.ops);
+                initDropdowns('ems', globalData.ems);
+                initDropdowns('PNR', globalData.PNR);
 
                 applyFilters('ops');
                 applyFilters('ems');
@@ -235,10 +406,25 @@
         return null;
     }
 
-    function initMonthDropdown(sheetId, rows) {
-        const select = document.getElementById(`filter-month-${sheetId}`);
-        const currentVal = select.value;
+    function getStoreName(row, sheetId) {
+        let keys = Object.keys(row);
+        if (sheetId === 'ops' && keys.length >= 6) {
+            let val = row[keys[5]];
+            if (val) return String(val).trim();
+        }
+        let found = keys.find(k => /toko|store|lokasi|location|name|nama/i.test(k));
+        if (found && row[found]) return String(row[found]).trim();
+        return 'Unknown Store';
+    }
+
+    function initDropdowns(sheetId, rows) {
+        const monthSelect = document.getElementById(`filter-month-${sheetId}`);
+        const storeSelect = document.getElementById(`filter-store-${sheetId}`);
+        const currentMonth = monthSelect.value;
+        const currentStore = storeSelect.value;
+
         let months = new Set();
+        let stores = new Set(sheetId === 'ops' ? MASTER_STORES : []);
 
         rows.forEach(row => {
             let keys = Object.keys(row);
@@ -256,32 +442,62 @@
             }
             let m = extractMonthString(monthVal);
             if (m) months.add(m);
+
+            if (sheetId !== 'ops') {
+                let s = getStoreName(row, sheetId);
+                if (s && s !== 'Unknown Store') stores.add(s);
+            }
         });
 
+        if (sheetId === 'ops' && globalData.raw.length > 0) {
+            globalData.raw.forEach(row => {
+                let keys = Object.keys(row);
+                if (keys.length >= 2) {
+                    let s = row[keys[1]];
+                    if (s) stores.add(String(s).trim());
+                }
+            });
+        }
+
         let sortedMonths = Array.from(months).sort().reverse();
-        let html = '<option value="">Semua Bulan</option>';
+        let monthHtml = '<option value="">Semua Bulan</option>';
         sortedMonths.forEach(m => {
             let parts = m.split('-');
             let dateObj = new Date(parts[0], parts[1] - 1, 1);
             let labelMonth = dateObj.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
-            html += `<option value="${m}">${labelMonth}</option>`;
+            monthHtml += `<option value="${m}">${labelMonth}</option>`;
         });
-        select.innerHTML = html;
-        select.value = sortedMonths.includes(currentVal) ? currentVal : "";
+        monthSelect.innerHTML = monthHtml;
+        monthSelect.value = sortedMonths.includes(currentMonth) ? currentMonth : "";
+
+        let sortedStores = Array.from(stores).sort();
+        let storeHtml = '<option value="">Semua Toko</option>';
+        sortedStores.forEach(s => {
+            storeHtml += `<option value="${s}">${s}</option>`;
+        });
+        storeSelect.innerHTML = storeHtml;
+        storeSelect.value = sortedStores.includes(currentStore) ? currentStore : "";
     }
 
     function applyFilters(sheetId) {
         const rows = globalData[sheetId];
         const searchInput = document.getElementById(`search-${sheetId}`).value.toLowerCase();
         const monthSelect = document.getElementById(`filter-month-${sheetId}`).value;
+        const storeSelect = document.getElementById(`filter-store-${sheetId}`).value;
 
         let filtered = rows.filter(row => {
             let keys = Object.keys(row);
+            
             let matchSearch = true;
             if (searchInput) {
                 matchSearch = Object.values(row).some(val => 
                     String(val).toLowerCase().includes(searchInput)
                 );
+            }
+
+            let matchStore = true;
+            if (storeSelect) {
+                matchStore = (getStoreName(row, sheetId) === storeSelect);
             }
 
             let matchMonth = true;
@@ -304,17 +520,30 @@
                 }
             }
 
-            return matchSearch && matchMonth;
+            return matchSearch && matchStore && matchMonth;
         });
 
         if (sheetId === 'ops') {
+            lastFilteredOpsRows = filtered;
             renderGroupedOpsTable(filtered);
+            renderStaffCalendarMatrix(globalData.ops, monthSelect, storeSelect, searchInput);
+            calculateOpsSubmissionSummary(filtered);
         } else {
             renderTable(sheetId, filtered);
         }
 
         calculateSummary(filtered, sheetId);
         renderCharts(filtered, sheetId);
+    }
+
+    function setChartMode(sheetId, mode) {
+        if (sheetId === 'ops') {
+            opsChartMode = `ops-${mode}`;
+            document.getElementById('btn-top15').className = mode === 'top15' ? 'btn btn-primary' : 'btn btn-outline-primary';
+            document.getElementById('btn-bottom15').className = mode === 'bottom15' ? 'btn btn-primary' : 'btn btn-outline-primary';
+            document.getElementById('btn-all').className = mode === 'all' ? 'btn btn-primary' : 'btn btn-outline-primary';
+            applyFilters('ops');
+        }
     }
 
     function getOpsVal(row, keys, indexGuess, keywordRegex) {
@@ -329,32 +558,79 @@
         return '';
     }
 
-    // Mengelompokkan dan mengakumulasi data OPS per Toko selama sebulan penuh
+    function calculateOpsSubmissionSummary(filteredRows) {
+        let submittedStoresSet = new Set();
+        filteredRows.forEach(row => {
+            let s = getStoreName(row, 'ops');
+            if (s && s !== 'Unknown Store') {
+                submittedStoresSet.add(s);
+            }
+        });
+
+        let totalMaster = MASTER_STORES.length;
+        let submittedCount = 0;
+
+        MASTER_STORES.forEach(store => {
+            let isSubmitted = Array.from(submittedStoresSet).some(sub => sub.toLowerCase().includes(store.toLowerCase()) || store.toLowerCase().includes(sub.toLowerCase()));
+            if (isSubmitted) submittedCount++;
+        });
+
+        let unsubmittedCount = Math.max(0, totalMaster - submittedCount);
+
+        document.getElementById('summary-submitted-stores').innerText = submittedCount;
+        document.getElementById('summary-unsubmitted-stores').innerText = unsubmittedCount;
+    }
+
+    function showUnsubmittedModal() {
+        let submittedStoresSet = new Set();
+        lastFilteredOpsRows.forEach(row => {
+            let s = getStoreName(row, 'ops');
+            if (s) submittedStoresSet.add(s.toLowerCase());
+        });
+
+        let unsubmittedListHtml = '';
+        let unsubmittedCount = 0;
+
+        MASTER_STORES.forEach(store => {
+            let isSubmitted = Array.from(submittedStoresSet).some(sub => sub.includes(store.toLowerCase()) || store.toLowerCase().includes(sub));
+            if (!isSubmitted) {
+                unsubmittedCount++;
+                unsubmittedListHtml += `<li class="list-group-item d-flex justify-content-between align-items-center"><span class="fw-semibold">${store}</span><span class="badge bg-danger rounded-pill">Belum Submit</span></li>`;
+            }
+        });
+
+        if (unsubmittedCount === 0) {
+            unsubmittedListHtml = `<li class="list-group-item text-center text-success py-3">Luar biasa! Seluruh toko telah melakukan submit.</li>`;
+        }
+
+        document.getElementById('unsubmittedStoreList').innerHTML = unsubmittedListHtml;
+        let myModal = new bootstrap.Modal(document.getElementById('unsubmittedModal'));
+        myModal.show();
+    }
+
     function renderGroupedOpsTable(rows) {
         const table = document.getElementById(`table-ops`);
         const tbody = table.querySelector('tbody');
         tbody.innerHTML = '';
 
         if (!rows || rows.length === 0) {
-            document.getElementById(`count-ops`).innerText = 0;
-            tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-3">Tidak ada data ditemukan.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-3">Tidak ada data ditemukan.</td></tr>`;
             return;
         }
 
         let grouped = {};
         rows.forEach(row => {
             let keys = Object.keys(row);
-            let store = String(getOpsVal(row, keys, 5, /store|toko|lokasi/i) || 'Unknown Store').trim();
-            let presenter = String(getOpsVal(row, keys, 2, /presenter|trainer|name/i) || '-').trim();
+            let store = getStoreName(row, 'ops');
             
             let sessionsRaw = String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i));
             let v13 = (/13/.test(sessionsRaw)) ? 1 : 0;
             let v15 = (/15/.test(sessionsRaw)) ? 1 : 0;
             let v18 = (/18/.test(sessionsRaw)) ? 1 : 0;
 
-            let key = `${store}_${presenter}`;
+            let key = store;
             if (!grouped[key]) {
-                grouped[key] = { store, presenter, s13: 0, s15: 0, s18: 0, count: 0 };
+                grouped[key] = { store, s13: 0, s15: 0, s18: 0, count: 0 };
             }
             grouped[key].s13 += v13;
             grouped[key].s15 += v15;
@@ -362,8 +638,8 @@
             grouped[key].count += 1;
         });
 
-        let groupKeys = Object.keys(grouped);
-        document.getElementById(`count-ops`).innerText = groupKeys.length;
+        // Urutkan nama toko secara alfabetis
+        let groupKeys = Object.keys(grouped).sort();
 
         const fragment = document.createDocumentFragment();
         groupKeys.forEach(k => {
@@ -378,10 +654,136 @@
                 <td>${item.s15}</td>
                 <td>${item.s18}</td>
                 <td class="fw-bold text-primary">${total}</td>
-                <td>${item.presenter}</td>
                 <td>${MONTHLY_TARGET}</td>
                 <td class="fw-bold text-success">${presenterPct}</td>
             `;
+            fragment.appendChild(tr);
+        });
+        tbody.appendChild(fragment);
+    }
+
+    // Fungsi Render Matriks Kalender Partisipasi Staff (Diurutkan berdasarkan Nama Toko & Staff secara Alfabetis)
+    function renderStaffCalendarMatrix(allOpsRows, selectedMonth, selectedStore, searchInput) {
+        const table = document.getElementById('table-staff-matrix');
+        const thead = table.querySelector('thead');
+        const tbody = table.querySelector('tbody');
+        thead.innerHTML = '';
+        tbody.innerHTML = '';
+
+        let daysInMonth = 31;
+        let year = 2026, month = 10;
+        if (selectedMonth) {
+            let parts = selectedMonth.split('-');
+            year = parseInt(parts[0]);
+            month = parseInt(parts[1]);
+            daysInMonth = new Date(year, month, 0).getDate();
+        }
+
+        // Header Table
+        let headerHtml = '<tr>';
+        headerHtml += '<th class="store-col">Store</th>';
+        headerHtml += '<th class="name-col">Presenter Name</th>';
+        for (let d = 1; d <= daysInMonth; d++) {
+            headerHtml += `<th>${d}</th>`;
+        }
+        headerHtml += '<th class="bg-primary">TOTAL SESI</th>';
+        headerHtml += '</tr>';
+        thead.innerHTML = headerHtml;
+
+        // 1. Ambil daftar baseline staff dari sheet RAW
+        let staffMap = {};
+        globalData.raw.forEach(rawRow => {
+            let rKeys = Object.keys(rawRow);
+            if (rKeys.length >= 3) {
+                let store = String(rawRow[rKeys[1]] || '').trim();
+                let presenter = String(rawRow[rKeys[2]] || '').trim();
+                
+                let emailKey = rKeys.find(k => /email/i.test(k));
+                let email = emailKey ? String(rawRow[emailKey] || '').trim().toLowerCase() : (rKeys.length >= 6 ? String(rawRow[rKeys[5]] || '').trim().toLowerCase() : '');
+
+                if (email && presenter) {
+                    if (selectedStore && store !== selectedStore) return;
+
+                    staffMap[email] = { store, presenter, email, days: {}, totalSesi: 0 };
+                }
+            }
+        });
+
+        // 2. Cocokkan dengan data OPS berdasarkan Email
+        allOpsRows.forEach(row => {
+            let keys = Object.keys(row);
+            
+            let opsEmailKey = keys.find(k => /email/i.test(k));
+            let opsEmail = opsEmailKey ? String(row[opsEmailKey] || '').trim().toLowerCase() : (keys.length >= 2 ? String(row[keys[1]] || '').trim().toLowerCase() : '');
+
+            if (opsEmail && staffMap[opsEmail]) {
+                let monthVal = keys.length >= 12 ? (row[keys[11]] || row[keys[12]]) : '';
+                let mStr = extractMonthString(monthVal);
+                if (selectedMonth && mStr !== selectedMonth) return;
+
+                let dateVal = row[keys[12]] || row[keys[3]] || row[keys[0]];
+                let dObj = new Date(dateVal);
+                let dayNum = !isNaN(dObj.getDate()) ? dObj.getDate() : null;
+
+                if (!dayNum) {
+                    let match = String(dateVal).match(/\b([1-3]?[0-9])\b/);
+                    if (match) dayNum = parseInt(match[1]);
+                }
+
+                if (dayNum && dayNum >= 1 && dayNum <= daysInMonth) {
+                    let sessionsRaw = String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i));
+                    let sessCount = 0;
+                    if (/13/.test(sessionsRaw)) sessCount++;
+                    if (/15/.test(sessionsRaw)) sessCount++;
+                    if (/18/.test(sessionsRaw)) sessCount++;
+                    if (sessCount === 0) sessCount = 1;
+
+                    staffMap[opsEmail].days[dayNum] = (staffMap[opsEmail].days[dayNum] || 0) + sessCount;
+                    staffMap[opsEmail].totalSesi += sessCount;
+                }
+            }
+        });
+
+        let staffArray = Object.values(staffMap);
+
+        if (searchInput) {
+            staffArray = staffArray.filter(item => 
+                item.store.toLowerCase().includes(searchInput) || 
+                item.presenter.toLowerCase().includes(searchInput) ||
+                item.email.toLowerCase().includes(searchInput)
+            );
+        }
+
+        // Urutkan berdasarkan Nama Toko secara alfabetis, lalu berdasarkan Nama Staff
+        staffArray.sort((a, b) => {
+            let storeCmp = a.store.localeCompare(b.store);
+            if (storeCmp !== 0) return storeCmp;
+            return a.presenter.localeCompare(b.presenter);
+        });
+
+        document.getElementById('staff-matrix-count').innerText = `${staffArray.length} Staff (Master RAW)`;
+
+        if (staffArray.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="${daysInMonth + 3}" class="text-center text-muted py-3">Tidak ada data staff ditemukan.</td></tr>`;
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+        staffArray.forEach(item => {
+            const tr = document.createElement('tr');
+            let rowHtml = `<td class="store-col fw-semibold">${item.store}</td>`;
+            rowHtml += `<td class="name-col">${item.presenter}</td>`;
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                let count = item.days[d];
+                if (count > 0) {
+                    rowHtml += `<td class="cell-active" title="Tanggal ${d}: ${count} sesi">✓</td>`;
+                } else {
+                    rowHtml += `<td class="cell-inactive">-</td>`;
+                }
+            }
+            rowHtml += `<td class="fw-bold text-primary bg-light">${item.totalSesi}</td>`;
+            tr.innerHTML = rowHtml;
             fragment.appendChild(tr);
         });
         tbody.appendChild(fragment);
@@ -426,12 +828,24 @@
         try {
             if (sheetId === 'ops') {
                 let totalOpsPartisipan = 0;
+                let totalOpsSessions = 0;
+                let totalOpsUnits = 0;
                 rows.forEach(row => {
                     let keys = Object.keys(row);
-                    let t = getOpsVal(row, keys, 4, /total.*participant|partisipan/i);
-                    totalOpsPartisipan += parseFloat(t) || 0;
+                    let p = getOpsVal(row, keys, 4, /total.*participant|partisipan/i);
+                    totalOpsPartisipan += parseFloat(p) || 0;
+
+                    let sessionsRaw = String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i));
+                    if (/13/.test(sessionsRaw)) totalOpsSessions++;
+                    if (/15/.test(sessionsRaw)) totalOpsSessions++;
+                    if (/18/.test(sessionsRaw)) totalOpsSessions++;
+
+                    let u = getOpsVal(row, keys, 8, /unit.*terjual|terjual|sold/i);
+                    totalOpsUnits += parseFloat(u) || 0;
                 });
                 document.getElementById('summary-ops-partisipan').innerText = totalOpsPartisipan;
+                document.getElementById('summary-ops-sessions').innerText = totalOpsSessions;
+                document.getElementById('summary-ops-units').innerText = totalOpsUnits;
             } else if (sheetId === 'ems') {
                 let totalScore = 0, countScore = 0;
                 rows.forEach(row => {
@@ -466,25 +880,48 @@
     function renderCharts(rows, sheetId) {
         if (sheetId === 'ops') {
             let storeTotals = {};
+            let topicCounts = {};
+
             rows.forEach(row => {
+                let store = getStoreName(row, 'ops');
                 let keys = Object.keys(row);
-                let store = String(getOpsVal(row, keys, 5, /store|toko|lokasi/i) || 'Unknown').trim();
                 let sessionsRaw = String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i));
                 let sessCount = 0;
                 if (/13/.test(sessionsRaw)) sessCount++;
                 if (/15/.test(sessionsRaw)) sessCount++;
                 if (/18/.test(sessionsRaw)) sessCount++;
-                if (sessCount === 0) sessCount = 1; // Default fallback jika format berbeda
+                if (sessCount === 0) sessCount = 1;
 
                 storeTotals[store] = (storeTotals[store] || 0) + sessCount;
+
+                let topicVal = getOpsVal(row, keys, 6, /topic|topik/i);
+                if (topicVal) {
+                    let t = String(topicVal).trim();
+                    if (t) {
+                        topicCounts[t] = (topicCounts[t] || 0) + 1;
+                    }
+                }
             });
 
-            let sortedStores = Object.keys(storeTotals).map(store => ({
+            let storeArray = Object.keys(storeTotals).map(store => ({
                 store, total: storeTotals[store]
-            })).sort((a, b) => b.total - a.total).slice(0, 15);
+            })).sort((a, b) => b.total - a.total);
 
-            const labels = sortedStores.map(item => item.store);
-            const values = sortedStores.map(item => item.total);
+            if (opsChartMode === 'ops-top15') {
+                storeArray = storeArray.slice(0, 15);
+            } else if (opsChartMode === 'ops-bottom15') {
+                storeArray = storeArray.reverse().slice(0, 15);
+            }
+
+            const innerWrapper = document.getElementById('chartOpsInner');
+            if (opsChartMode === 'ops-all' && storeArray.length > 15) {
+                innerWrapper.style.width = `${Math.max(100, storeArray.length * 40)}px`;
+            } else {
+                innerWrapper.style.width = '100%';
+            }
+
+            const labels = storeArray.map(item => item.store);
+            const values = storeArray.map(item => item.total);
 
             if (opsChartInstance) opsChartInstance.destroy();
             const ctxOps = document.getElementById('chartOps').getContext('2d');
@@ -508,6 +945,41 @@
                     }
                 }
             });
+
+            let topicArray = Object.keys(topicCounts).map(topic => ({
+                topic, count: topicCounts[topic]
+            })).sort((a, b) => b.count - a.count);
+
+            const topicInnerWrapper = document.getElementById('chartOpsTopicInner');
+            topicInnerWrapper.style.width = '100%';
+
+            const topicLabels = topicArray.map(item => item.topic);
+            const topicValues = topicArray.map(item => item.count);
+
+            if (opsTopicChartInstance) opsTopicChartInstance.destroy();
+            const ctxTopic = document.getElementById('chartOpsTopic').getContext('2d');
+            opsTopicChartInstance = new Chart(ctxTopic, {
+                type: 'bar',
+                data: {
+                    labels: topicLabels,
+                    datasets: [{
+                        label: 'Jumlah Pemilihan Topik',
+                        data: topicValues,
+                        backgroundColor: 'rgba(255, 159, 64, 0.7)',
+                        borderColor: 'rgba(255, 159, 64, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { beginAtZero: true }
+                    }
+                }
+            });
+
         } else if (sheetId === 'ems') {
             const displayRows = rows.slice(0, 15);
             const labels = displayRows.map((row, i) => `Item #${i + 1}`);
