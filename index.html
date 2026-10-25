@@ -3,18 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPS EMS PnR - Live Dashboard</title>
+    <title>OPS EMS PnR - Live Dashboard with Charts</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { background-color: #f8f9fa; }
         .navbar-brand { font-weight: bold; }
         .card-stat { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .dashboard-container { background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .table-responsive { max-height: 500px; overflow-y: auto; }
+        .dashboard-container { background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        .table-responsive { max-height: 400px; overflow-y: auto; }
         table th { position: sticky; top: 0; z-index: 1; background-color: #212529; color: #fff; }
+        .chart-container { position: relative; height: 260px; width: 100%; }
     </style>
 </head>
 <body>
@@ -61,6 +64,15 @@
                 <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Partisipan</h6><h3 class="fw-bold text-primary" id="summary-ops-partisipan">0</h3></div></div>
                 <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Status Koneksi</h6><h3 class="fw-bold text-success">Live Cached</h3></div></div>
             </div>
+            
+            <!-- Chart Section OPS -->
+            <div class="dashboard-container">
+                <h5 class="mb-3 text-primary"><i class="fa-solid fa-chart-bar me-2"></i>Grafik Ringkasan OPS</h5>
+                <div class="chart-container">
+                    <canvas id="chartOps"></canvas>
+                </div>
+            </div>
+
             <div class="dashboard-container">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="m-0 text-primary"><i class="fa-solid fa-table me-2"></i>Tabel Data: OPS</h4>
@@ -82,6 +94,15 @@
                 <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Rata-rata Score</h6><h3 class="fw-bold text-success" id="summary-ems-score">0</h3></div></div>
                 <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Status Koneksi</h6><h3 class="fw-bold text-success">Live Cached</h3></div></div>
             </div>
+
+            <!-- Chart Section EMS -->
+            <div class="dashboard-container">
+                <h5 class="mb-3 text-success"><i class="fa-solid fa-chart-line me-2"></i>Grafik Ringkasan EMS</h5>
+                <div class="chart-container">
+                    <canvas id="chartEms"></canvas>
+                </div>
+            </div>
+
             <div class="dashboard-container">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="m-0 text-success"><i class="fa-solid fa-table me-2"></i>Tabel Data: EMS</h4>
@@ -103,6 +124,15 @@
                 <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Staff Trained</h6><h3 class="fw-bold text-warning" id="summary-pnr-staff">0</h3></div></div>
                 <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Status Koneksi</h6><h3 class="fw-bold text-success">Live Cached</h3></div></div>
             </div>
+
+            <!-- Chart Section PnR -->
+            <div class="dashboard-container">
+                <h5 class="mb-3 text-warning"><i class="fa-solid fa-chart-pie me-2"></i>Grafik Ringkasan PnR</h5>
+                <div class="chart-container">
+                    <canvas id="chartPnr"></canvas>
+                </div>
+            </div>
+
             <div class="dashboard-container">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="m-0 text-warning"><i class="fa-solid fa-table me-2"></i>Tabel Data: PnR</h4>
@@ -125,6 +155,10 @@
 <script>
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw86Ksgn9NS1t3mBRWSUUpVc2GZ62w7cef0YgsKCUJ3tY7TWp6ie6E8Q94bYjvxBcr7/exec';
 
+    let opsChartInstance = null;
+    let emsChartInstance = null;
+    let pnrChartInstance = null;
+
     function loadData() {
         document.getElementById('loadingStatus').innerText = 'Menyinkronkan data...';
         fetch(WEB_APP_URL)
@@ -145,6 +179,7 @@
                 renderTable('pnr', pnrData);
 
                 calculateSummary(opsData, emsData, pnrData);
+                renderCharts(opsData, emsData, pnrData);
                 
                 document.getElementById('loadingStatus').innerText = 'Data berhasil diperbarui!';
             })
@@ -240,6 +275,85 @@
         } catch (e) {
             console.error("Error calculating summary:", e);
         }
+    }
+
+    function renderCharts(ops, ems, pnr) {
+        // Ambil label sampel (misal baris pertama sebagai kategori atau indeks baris)
+        const opsLabels = ops.slice(0, 10).map((_, i) => `Data #${i + 1}`);
+        const opsValues = ops.slice(0, 10).map(row => {
+            for (let k in row) {
+                if (/partisipan|participant|jumlah|total/i.test(k)) return parseFloat(row[k]) || 0;
+            }
+            return 1;
+        });
+
+        if (opsChartInstance) opsChartInstance.destroy();
+        const ctxOps = document.getElementById('chartOps').getContext('2d');
+        opsChartInstance = new Chart(ctxOps, {
+            type: 'bar',
+            data: {
+                labels: opsLabels,
+                datasets: [{
+                    label: 'Partisipan / Jumlah OPS',
+                    data: opsValues,
+                    backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                    borderColor: 'rgba(13, 110, 253, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        const emsLabels = ems.slice(0, 10).map((_, i) => `Data #${i + 1}`);
+        const emsValues = ems.slice(0, 10).map(row => {
+            for (let k in row) {
+                if (/score|nilai|avg|rata/i.test(k)) return parseFloat(row[k]) || 0;
+            }
+            return 0;
+        });
+
+        if (emsChartInstance) emsChartInstance.destroy();
+        const ctxEms = document.getElementById('chartEms').getContext('2d');
+        emsChartInstance = new Chart(ctxEms, {
+            type: 'line',
+            data: {
+                labels: emsLabels,
+                datasets: [{
+                    label: 'Score EMS',
+                    data: emsValues,
+                    backgroundColor: 'rgba(25, 135, 84, 0.2)',
+                    borderColor: 'rgba(25, 135, 84, 1)',
+                    borderWidth: 2,
+                    fill: true
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+
+        const pnrLabels = pnr.slice(0, 10).map((_, i) => `Data #${i + 1}`);
+        const pnrValues = pnr.slice(0, 10).map(row => {
+            for (let k in row) {
+                if (/staff|trained|employee|karyawan|peserta/i.test(k)) return parseFloat(row[k]) || 0;
+            }
+            return 1;
+        });
+
+        if (pnrChartInstance) pnrChartInstance.destroy();
+        const ctxPnr = document.getElementById('chartPnr').getContext('2d');
+        pnrChartInstance = new Chart(ctxPnr, {
+            type: 'bar',
+            data: {
+                labels: pnrLabels,
+                datasets: [{
+                    label: 'Staff Trained PnR',
+                    data: pnrValues,
+                    backgroundColor: 'rgba(255, 193, 7, 0.7)',
+                    borderColor: 'rgba(255, 193, 7, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
     }
 
     window.onload = loadData;
