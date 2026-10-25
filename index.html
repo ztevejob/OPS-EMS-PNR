@@ -62,14 +62,14 @@
         <!-- 1. OPS Content -->
         <div class="tab-pane fade show active" id="ops-content" role="tabpanel">
             <div class="row g-3 mb-4">
-                <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Baris OPS</h6><h3 class="fw-bold" id="count-ops">0</h3></div></div>
+                <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Record OPS</h6><h3 class="fw-bold" id="count-ops">0</h3></div></div>
                 <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Partisipan</h6><h3 class="fw-bold text-primary" id="summary-ops-partisipan">0</h3></div></div>
-                <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Status Koneksi</h6><h3 class="fw-bold text-success">Live Cached</h3></div></div>
+                <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Target Bulanan</h6><h3 class="fw-bold text-success">85 Sesi</h3></div></div>
             </div>
             
             <!-- Chart Section OPS -->
             <div class="dashboard-container">
-                <h5 class="mb-3 text-primary"><i class="fa-solid fa-chart-bar me-2"></i>Grafik Ringkasan OPS (Top 15 Toko)</h5>
+                <h5 class="mb-3 text-primary"><i class="fa-solid fa-chart-bar me-2"></i>Grafik Akumulasi Sesi Bulanan OPS (Top 15 Toko)</h5>
                 <div class="chart-container">
                     <canvas id="chartOps"></canvas>
                 </div>
@@ -77,7 +77,7 @@
 
             <div class="dashboard-container">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                    <h4 class="m-0 text-primary"><i class="fa-solid fa-table me-2"></i>Tabel Data: OPS</h4>
+                    <h4 class="m-0 text-primary"><i class="fa-solid fa-table me-2"></i>Rekap Bulanan OPS</h4>
                     <div class="d-flex gap-2">
                         <select id="filter-month-ops" class="form-select" style="width: 160px;" onchange="applyFilters('ops')">
                             <option value="">Semua Bulan</option>
@@ -187,6 +187,7 @@
     let opsChartInstance = null;
     let emsChartInstance = null;
     let PNRChartInstance = null;
+    const MONTHLY_TARGET = 85;
 
     function loadData() {
         document.getElementById('loadingStatus').innerText = 'Menyinkronkan data...';
@@ -240,12 +241,21 @@
         let months = new Set();
 
         rows.forEach(row => {
-            for (let k in row) {
-                if (/date|tanggal|waktu|bulan|month|periode/i.test(k)) {
-                    let m = extractMonthString(row[k]);
-                    if (m) months.add(m);
+            let keys = Object.keys(row);
+            let monthVal = '';
+            if (sheetId === 'ops' && keys.length >= 12) {
+                monthVal = row[keys[11]] || row[keys[12]];
+            }
+            if (!monthVal) {
+                for (let k in row) {
+                    if (/bulan|month|date|tanggal|periode/i.test(k)) {
+                        monthVal = row[k];
+                        break;
+                    }
                 }
             }
+            let m = extractMonthString(monthVal);
+            if (m) months.add(m);
         });
 
         let sortedMonths = Array.from(months).sort().reverse();
@@ -266,6 +276,7 @@
         const monthSelect = document.getElementById(`filter-month-${sheetId}`).value;
 
         let filtered = rows.filter(row => {
+            let keys = Object.keys(row);
             let matchSearch = true;
             if (searchInput) {
                 matchSearch = Object.values(row).some(val => 
@@ -276,13 +287,20 @@
             let matchMonth = true;
             if (monthSelect) {
                 matchMonth = false;
-                for (let k in row) {
-                    if (/date|tanggal|waktu|bulan|month|periode/i.test(k)) {
-                        if (extractMonthString(row[k]) === monthSelect) {
-                            matchMonth = true;
+                let monthVal = '';
+                if (sheetId === 'ops' && keys.length >= 12) {
+                    monthVal = row[keys[11]] || row[keys[12]];
+                }
+                if (!monthVal) {
+                    for (let k in row) {
+                        if (/bulan|month|date|tanggal|periode/i.test(k)) {
+                            monthVal = row[k];
                             break;
                         }
                     }
+                }
+                if (extractMonthString(monthVal) === monthSelect) {
+                    matchMonth = true;
                 }
             }
 
@@ -290,7 +308,7 @@
         });
 
         if (sheetId === 'ops') {
-            renderOpsTable(filtered);
+            renderGroupedOpsTable(filtered);
         } else {
             renderTable(sheetId, filtered);
         }
@@ -299,62 +317,70 @@
         renderCharts(filtered, sheetId);
     }
 
-    // Fungsi khusus untuk mapping kolom OPS sesuai permintaan
-    function findColumnValue(row, patterns) {
-        let keys = Object.keys(row);
-        for (let pat of patterns) {
-            let found = keys.find(k => pat.test(k));
-            if (found !== undefined && row[found] !== undefined) {
-                return row[found];
-            }
+    function getOpsVal(row, keys, indexGuess, keywordRegex) {
+        if (indexGuess >= 0 && keys.length > indexGuess) {
+            let val = row[keys[indexGuess]];
+            if (val !== undefined && val !== '') return val;
+        }
+        let foundKey = keys.find(k => keywordRegex.test(k));
+        if (foundKey !== undefined && row[foundKey] !== undefined) {
+            return row[foundKey];
         }
         return '';
     }
 
-    function renderOpsTable(rows) {
+    // Mengelompokkan dan mengakumulasi data OPS per Toko selama sebulan penuh
+    function renderGroupedOpsTable(rows) {
         const table = document.getElementById(`table-ops`);
         const tbody = table.querySelector('tbody');
-        document.getElementById(`count-ops`).innerText = rows.length;
         tbody.innerHTML = '';
 
         if (!rows || rows.length === 0) {
+            document.getElementById(`count-ops`).innerText = 0;
             tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-3">Tidak ada data ditemukan.</td></tr>`;
             return;
         }
 
-        const fragment = document.createDocumentFragment();
+        let grouped = {};
         rows.forEach(row => {
-            const store = findColumnValue(row, [/toko|store|lokasi|location|name|nama/i]);
-            const val13 = findColumnValue(row, [/13[:\.]00|1300|jam.*13/i]);
-            const val15 = findColumnValue(row, [/15[:\.]00|1500|jam.*15/i]);
-            const val18 = findColumnValue(row, [/18[:\.]00|1800|jam.*18/i]);
+            let keys = Object.keys(row);
+            let store = String(getOpsVal(row, keys, 5, /store|toko|lokasi/i) || 'Unknown Store').trim();
+            let presenter = String(getOpsVal(row, keys, 2, /presenter|trainer|name/i) || '-').trim();
             
-            // Hitung total jika di data mentah belum ada, atau ambil dari kolom total
-            let total = findColumnValue(row, [/total|jumlah|sum/i]);
-            if (total === '' || isNaN(parseFloat(total))) {
-                total = (parseFloat(val13) || 0) + (parseFloat(val15) || 0) + (parseFloat(val18) || 0);
-            }
+            let sessionsRaw = String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i));
+            let v13 = (/13/.test(sessionsRaw)) ? 1 : 0;
+            let v15 = (/15/.test(sessionsRaw)) ? 1 : 0;
+            let v18 = (/18/.test(sessionsRaw)) ? 1 : 0;
 
-            const presenter = findColumnValue(row, [/presenter|pic|trainer|host/i]);
-            const target = findColumnValue(row, [/target|goal/i]);
-            
-            let presenterPct = findColumnValue(row, [/presenter.*%|percentage|pencapaian|ach/i]);
-            if ((presenterPct === '' || isNaN(parseFloat(presenterPct))) && target && parseFloat(target) > 0) {
-                presenterPct = ((parseFloat(total) / parseFloat(target)) * 100).toFixed(1) + '%';
-            } else if (presenterPct !== '' && !String(presenterPct).includes('%')) {
-                presenterPct = parseFloat(presenterPct).toFixed(1) + '%';
+            let key = `${store}_${presenter}`;
+            if (!grouped[key]) {
+                grouped[key] = { store, presenter, s13: 0, s15: 0, s18: 0, count: 0 };
             }
+            grouped[key].s13 += v13;
+            grouped[key].s15 += v15;
+            grouped[key].s18 += v18;
+            grouped[key].count += 1;
+        });
+
+        let groupKeys = Object.keys(grouped);
+        document.getElementById(`count-ops`).innerText = groupKeys.length;
+
+        const fragment = document.createDocumentFragment();
+        groupKeys.forEach(k => {
+            let item = grouped[k];
+            let total = item.s13 + item.s15 + item.s18;
+            let presenterPct = ((total / MONTHLY_TARGET) * 100).toFixed(1) + '%';
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td class="text-start">${store || '-'}</td>
-                <td>${val13 !== '' ? val13 : 0}</td>
-                <td>${val15 !== '' ? val15 : 0}</td>
-                <td>${val18 !== '' ? val18 : 0}</td>
+                <td class="text-start">${item.store}</td>
+                <td>${item.s13}</td>
+                <td>${item.s15}</td>
+                <td>${item.s18}</td>
                 <td class="fw-bold text-primary">${total}</td>
-                <td>${presenter || '-'}</td>
-                <td>${target !== '' ? target : '-'}</td>
-                <td class="fw-bold text-success">${presenterPct || '-'}</td>
+                <td>${item.presenter}</td>
+                <td>${MONTHLY_TARGET}</td>
+                <td class="fw-bold text-success">${presenterPct}</td>
             `;
             fragment.appendChild(tr);
         });
@@ -401,15 +427,9 @@
             if (sheetId === 'ops') {
                 let totalOpsPartisipan = 0;
                 rows.forEach(row => {
-                    let t = findColumnValue(row, [/total|jumlah|sum/i]);
-                    if (t !== '' && !isNaN(parseFloat(t))) {
-                        totalOpsPartisipan += parseFloat(t);
-                    } else {
-                        let v13 = parseFloat(findColumnValue(row, [/13[:\.]00|1300|jam.*13/i])) || 0;
-                        let v15 = parseFloat(findColumnValue(row, [/15[:\.]00|1500|jam.*15/i])) || 0;
-                        let v18 = parseFloat(findColumnValue(row, [/18[:\.]00|1800|jam.*18/i])) || 0;
-                        totalOpsPartisipan += (v13 + v15 + v18);
-                    }
+                    let keys = Object.keys(row);
+                    let t = getOpsVal(row, keys, 4, /total.*participant|partisipan/i);
+                    totalOpsPartisipan += parseFloat(t) || 0;
                 });
                 document.getElementById('summary-ops-partisipan').innerText = totalOpsPartisipan;
             } else if (sheetId === 'ems') {
@@ -443,35 +463,28 @@
         }
     }
 
-    function getBestLabelKey(row) {
-        if (!row) return null;
-        let keys = Object.keys(row);
-        let found = keys.find(k => /toko|store|lokasi|location|name|nama|trainer|title|judul/i.test(k));
-        if (found) return found;
-        return keys[0];
-    }
-
     function renderCharts(rows, sheetId) {
-        const displayRows = rows.slice(0, 15);
-        let labelKey = displayRows.length > 0 ? getBestLabelKey(displayRows[0]) : null;
-
-        const labels = displayRows.map((row, i) => {
-            if (labelKey && row[labelKey]) {
-                let text = String(row[labelKey]);
-                return text.length > 20 ? text.substring(0, 18) + '...' : text;
-            }
-            return `Item #${i + 1}`;
-        });
-
         if (sheetId === 'ops') {
-            const values = displayRows.map(row => {
-                let t = findColumnValue(row, [/total|jumlah|sum/i]);
-                if (t !== '' && !isNaN(parseFloat(t))) return parseFloat(t);
-                let v13 = parseFloat(findColumnValue(row, [/13[:\.]00|1300|jam.*13/i])) || 0;
-                let v15 = parseFloat(findColumnValue(row, [/15[:\.]00|1500|jam.*15/i])) || 0;
-                let v18 = parseFloat(findColumnValue(row, [/18[:\.]00|1800|jam.*18/i])) || 0;
-                return v13 + v15 + v18;
+            let storeTotals = {};
+            rows.forEach(row => {
+                let keys = Object.keys(row);
+                let store = String(getOpsVal(row, keys, 5, /store|toko|lokasi/i) || 'Unknown').trim();
+                let sessionsRaw = String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i));
+                let sessCount = 0;
+                if (/13/.test(sessionsRaw)) sessCount++;
+                if (/15/.test(sessionsRaw)) sessCount++;
+                if (/18/.test(sessionsRaw)) sessCount++;
+                if (sessCount === 0) sessCount = 1; // Default fallback jika format berbeda
+
+                storeTotals[store] = (storeTotals[store] || 0) + sessCount;
             });
+
+            let sortedStores = Object.keys(storeTotals).map(store => ({
+                store, total: storeTotals[store]
+            })).sort((a, b) => b.total - a.total).slice(0, 15);
+
+            const labels = sortedStores.map(item => item.store);
+            const values = sortedStores.map(item => item.total);
 
             if (opsChartInstance) opsChartInstance.destroy();
             const ctxOps = document.getElementById('chartOps').getContext('2d');
@@ -480,16 +493,24 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Total Partisipan OPS',
+                        label: 'Total Sesi Bulanan',
                         data: values,
                         backgroundColor: 'rgba(13, 110, 253, 0.7)',
                         borderColor: 'rgba(13, 110, 253, 1)',
                         borderWidth: 1
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
             });
         } else if (sheetId === 'ems') {
+            const displayRows = rows.slice(0, 15);
+            const labels = displayRows.map((row, i) => `Item #${i + 1}`);
             const values = displayRows.map(row => {
                 for (let k in row) {
                     if (/score|nilai|avg|rata/i.test(k)) return parseFloat(row[k]) || 0;
@@ -516,6 +537,8 @@
                 options: { responsive: true, maintainAspectRatio: false }
             });
         } else if (sheetId === 'PNR') {
+            const displayRows = rows.slice(0, 15);
+            const labels = displayRows.map((row, i) => `Item #${i + 1}`);
             const values = displayRows.map(row => {
                 for (let k in row) {
                     if (/staff|trained|employee|karyawan|peserta/i.test(k)) return parseFloat(row[k]) || 0;
