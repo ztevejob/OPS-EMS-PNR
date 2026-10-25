@@ -81,8 +81,15 @@
                 </ul>
             </div>
             <button class="btn btn-sm btn-outline-warning text-dark fw-semibold" onclick="copyWAReminder()"><i class="fa-brands fa-whatsapp me-1 text-success"></i> Copy WA Remind</button>
-            <button class="btn btn-sm btn-primary" onclick="loadData()"><i class="fa-solid fa-rotate me-1"></i> Refresh</button>
-            <span id="loadingStatus" class="text-muted small">Memuat data...</span>
+            <button id="btn-refresh" class="btn btn-sm btn-primary" onclick="loadData()"><i class="fa-solid fa-rotate me-1" id="refresh-icon"></i> Refresh</button>
+            
+            <!-- Area Status Loading dengan Persentase & Progress Bar -->
+            <div id="loadingStatusWrapper" class="d-flex flex-column" style="min-width: 180px;">
+                <span id="loadingStatus" class="text-muted small fw-semibold"></span>
+                <div class="progress mt-1 d-none" id="loadingProgressContainer" style="height: 5px;">
+                    <div id="loadingProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -160,18 +167,26 @@
                 <div class="col"><div class="card card-stat p-3 bg-white border-start border-info border-4"><h6 class="text-muted small">Pencapaian Regional</h6><h3 class="fw-bold text-info" id="ems-sum-regional-pct">0%</h3></div></div>
             </div>
 
-            <!-- Summary Baris Bawah EMS -->
-            <div class="row g-3 mb-4 row-cols-1 row-cols-md-2">
-                <div class="col"><div class="card card-stat p-3 bg-white border-start border-success border-4"><h6 class="text-muted">Total Baris Submit EMS</h6><h3 class="fw-bold text-success" id="count-ems">0</h3></div></div>
-                <div class="col">
+            <!-- Summary Baris Bawah EMS (Hanya Rata-rata Skor dengan Label Badge Sesuai Konteks Skor) -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-12">
                     <div class="card card-stat p-3 bg-white border-start border-primary border-4">
                         <div class="d-flex justify-content-between align-items-center">
-                            <h6 class="text-muted mb-0">Rata-rata Skor (Plot Kolom I)</h6>
+                            <h6 class="text-muted mb-0">Rata-rata Skor EMS</h6>
                             <span id="ems-status-badge" class="badge bg-secondary">Memuat...</span>
                         </div>
                         <h3 class="fw-bold text-primary mt-2" id="summary-ems-score">0</h3>
                     </div>
                 </div>
+            </div>
+
+            <!-- Grafik EMS Diletakkan Tepat di Bawah Summary -->
+            <div class="dashboard-container">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="m-0 text-success"><i class="fa-solid fa-chart-bar me-2"></i>Grafik Komparasi Target vs Aktual Sesi per Toko (EMS)</h5>
+                    <span class="badge bg-light text-dark border">Manajemen Insight (Aktual vs Target Bulanan)</span>
+                </div>
+                <div class="chart-scroll-container"><div class="chart-inner-wrapper" id="chartEmsContainer"><canvas id="chartEms"></canvas></div></div>
             </div>
 
             <!-- TABEL PERFORMA MINGGUAN EMS (Store Level - Senin s.d. Minggu) -->
@@ -197,14 +212,6 @@
                         <tbody></tbody>
                     </table>
                 </div>
-            </div>
-
-            <div class="dashboard-container">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="m-0 text-success"><i class="fa-solid fa-chart-line me-2"></i>Grafik Tren Skor EMS Harian</h5>
-                    <span class="badge bg-light text-dark border">Label Sumbu X: Trainer & Tanggal (Plot Kolom I)</span>
-                </div>
-                <div class="chart-scroll-container"><div class="chart-inner-wrapper"><canvas id="chartEms"></canvas></div></div>
             </div>
 
             <div class="dashboard-container border-start border-success border-4">
@@ -369,7 +376,6 @@
     let opsChartMode = 'ops-top15';
     const OPEN_STUDIO_TARGET = 80, PNR_TARGET = 11;
 
-    // Fungsi Kalkulator Target EMS Dinamis: Jumlah Hari dalam Bulan x 2 Sesi
     function getDynamicEmsTarget(selectedMonthStr) {
         let year = new Date().getFullYear(), month = new Date().getMonth() + 1;
         if (selectedMonthStr) {
@@ -429,10 +435,39 @@
     }
 
     function loadData() {
-        document.getElementById('loadingStatus').innerText = 'Menyinkronkan data...';
+        const btnRefresh = document.getElementById('btn-refresh');
+        const refreshIcon = document.getElementById('refresh-icon');
+        const statusEl = document.getElementById('loadingStatus');
+        const progressContainer = document.getElementById('loadingProgressContainer');
+        const progressBar = document.getElementById('loadingProgressBar');
+
+        if(btnRefresh) btnRefresh.disabled = true;
+        if(refreshIcon) refreshIcon.classList.add('fa-spin');
+        if(progressContainer) progressContainer.classList.remove('d-none');
+
+        let currentPercent = 10;
+        statusEl.innerHTML = `<span class="text-primary">Menyinkronkan... (${currentPercent}%)</span>`;
+        progressBar.style.width = currentPercent + '%';
+
+        let progressInterval = setInterval(() => {
+            if (currentPercent < 85) {
+                currentPercent += Math.floor(Math.random() * 12) + 5;
+                if (currentPercent > 85) currentPercent = 85;
+                statusEl.innerHTML = `<span class="text-primary">Menyinkronkan... (${currentPercent}%)</span>`;
+                progressBar.style.width = currentPercent + '%';
+            }
+        }, 200);
+
         fetch(WEB_APP_URL)
             .then(response => response.json())
             .then(data => {
+                clearInterval(progressInterval);
+                currentPercent = 100;
+                statusEl.innerHTML = `<span class="text-success">Memproses data... (100%)</span>`;
+                progressBar.style.width = '100%';
+                progressBar.classList.remove('bg-primary');
+                progressBar.classList.add('bg-success');
+
                 function getSheetData(obj, targetName) {
                     const keys = Object.keys(obj);
                     const foundKey = keys.find(k => k.toLowerCase() === targetName.toLowerCase());
@@ -451,11 +486,27 @@
                 applyFilters('ops');
                 applyFilters('ems');
                 applyFilters('PNR');
-                document.getElementById('loadingStatus').innerText = 'Data berhasil diperbarui!';
+
+                setTimeout(() => {
+                    if(btnRefresh) btnRefresh.disabled = false;
+                    if(refreshIcon) refreshIcon.classList.remove('fa-spin');
+                    statusEl.innerHTML = '<span class="text-success"><i class="fa-solid fa-circle-check me-1"></i>Berhasil!</span>';
+                    
+                    setTimeout(() => {
+                        progressContainer.classList.add('d-none');
+                        progressBar.classList.remove('bg-success');
+                        progressBar.classList.add('bg-primary');
+                        statusEl.innerText = '';
+                    }, 2000);
+                }, 400);
             })
             .catch(error => {
+                clearInterval(progressInterval);
                 console.error('Error fetching data:', error);
-                document.getElementById('loadingStatus').innerText = 'Gagal memuat data.';
+                if(btnRefresh) btnRefresh.disabled = false;
+                if(refreshIcon) refreshIcon.classList.remove('fa-spin');
+                if(progressContainer) progressContainer.classList.add('d-none');
+                statusEl.innerHTML = '<span class="text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i>Gagal memuat.</span>';
             });
     }
 
@@ -505,14 +556,14 @@
         if (foundRow) {
             let keys = Object.keys(foundRow);
             let store = String(foundRow[keys[1]] || '-').trim();
-            let emailKey = keys.find(k => /email/i.test(k));
-            let staffEmail = emailKey ? String(row[emailKey] || '').trim().toLowerCase() : (keys.length >= 6 ? String(row[keys[5]] || '').trim().toLowerCase() : '');
-            let nikKey = keys.find(k => /nik|id/i.test(k));
+            let emailKey = keys.find(k => /email/i.test(k.trim()));
+            let staffEmail = emailKey ? String(foundRow[emailKey] || '').trim().toLowerCase() : (keys.length >= 6 ? String(foundRow[keys[5]] || '').trim().toLowerCase() : '');
+            let nikKey = keys.find(k => /nik|id/i.test(k.trim()));
             let nik = nikKey ? String(foundRow[nikKey] || '-') : (keys.length >= 4 ? String(row[keys[3]] || '-') : '-');
             
             let typeStore = /flagship/i.test(store) ? 'Flagship' : 'Store';
             let workExp = '2 Tahun 7 Bulan 29 Hari';
-            let joinDateKey = keys.find(k => /join|masuk|date|tanggal/i.test(k));
+            let joinDateKey = keys.find(k => /join|masuk|date|tanggal/i.test(k.trim()));
             if (joinDateKey && foundRow[joinDateKey]) {
                 let dJoin = new Date(foundRow[joinDateKey]);
                 if (!isNaN(dJoin.getTime())) {
@@ -527,11 +578,10 @@
             document.getElementById('profile-nik').innerText = nik;
             document.getElementById('profile-experience').innerText = workExp;
 
-            // Open Studio Progress
             let totalStaffSessions = 0;
             globalData.ops.forEach(opsRow => {
                 let oKeys = Object.keys(opsRow);
-                let opsEmailKey = oKeys.find(k => /email/i.test(k));
+                let opsEmailKey = oKeys.find(k => /email/i.test(k.trim()));
                 let opsEmail = opsEmailKey ? String(opsRow[opsEmailKey] || '').trim().toLowerCase() : (oKeys.length >= 2 ? String(opsRow[oKeys[1]] || '').trim().toLowerCase() : '');
                 if (staffEmail && opsEmail === staffEmail) {
                     let sessionsRaw = String(getOpsVal(opsRow, oKeys, 7, /sessions|jam|waktu/i));
@@ -543,11 +593,10 @@
             document.getElementById('os-progress').innerText = totalStaffSessions;
             document.getElementById('os-percentage').innerText = ((totalStaffSessions / OPEN_STUDIO_TARGET) * 100).toFixed(0) + '%';
 
-            // EMS Progress (Dinamis)
             let totalEmsCount = 0;
             globalData.ems.forEach(emsRow => {
                 let eKeys = Object.keys(emsRow);
-                let emsEmailKey = eKeys.find(k => /email/i.test(k));
+                let emsEmailKey = eKeys.find(k => /email/i.test(k.trim()));
                 let emsEmail = emsEmailKey ? String(emsRow[emsEmailKey] || '').trim().toLowerCase() : '';
                 if (staffEmail && emsEmail === staffEmail) {
                     totalEmsCount++;
@@ -557,15 +606,14 @@
             document.getElementById('ems-progress').innerText = totalEmsCount;
             document.getElementById('ems-percentage').innerText = ((totalEmsCount / dynamicEmsTarget) * 100).toFixed(0) + '%';
 
-            // PNR Progress
             let totalPnrHours = 0;
             globalData.PNR.forEach(pnrRow => {
                 let pKeys = Object.keys(pnrRow);
-                let pnrNameKey = pKeys.find(k => /name|nama|trainer|presenter/i.test(k));
+                let pnrNameKey = pKeys.find(k => /name|nama|trainer|presenter/i.test(k.trim()));
                 let pnrName = pnrNameKey ? String(pnrRow[pnrNameKey] || '').trim().toLowerCase() : '';
                 if (selectedName && pnrName === selectedName.toLowerCase()) {
                     for (let k in pnrRow) {
-                        if (/hour|jam|duration|durasi|total|time/i.test(k)) {
+                        if (/hour|jam|duration|durasi|total|time/i.test(k.trim())) {
                             let val = parseFloat(pnrRow[k]);
                             if (!isNaN(val)) totalPnrHours += val;
                         }
@@ -581,9 +629,49 @@
 
     function extractMonthString(val) {
         if (!val) return null;
-        let s = String(val).trim();
-        let matchYMD = s.match(/^(\d{4})-(\d{2})/);
-        if (matchYMD) return `${matchYMD[1]}-${matchYMD[2]}`;
+        let s = String(val).trim().toLowerCase();
+        
+        let matchYMD = s.match(/^(\d{4})[\/\-](\d{1,2})/);
+        if (matchYMD) return `${matchYMD[1]}-${matchYMD[2].padStart(2, '0')}`;
+
+        let matchDMY = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+        if (matchDMY) return `${matchDMY[3]}-${matchDMY[2].padStart(2, '0')}`;
+
+        let matchMY = s.match(/^(\d{1,2})[\/\-](\d{4})/);
+        if (matchMY) return `${matchMY[2]}-${matchMY[1].padStart(2, '0')}`;
+
+        const monthsMap = {
+            'january': '01', 'jan': '01', 'januari': '01',
+            'february': '02', 'feb': '02', 'februari': '02',
+            'march': '03', 'mar': '03', 'maret': '03',
+            'april': '04', 'apr': '04',
+            'may': '05', 'mei': '05',
+            'june': '06', 'jun': '06', 'juni': '06',
+            'july': '07', 'jul': '07', 'juli': '07',
+            'august': '08', 'aug': '08', 'agustus': '08',
+            'september': '09', 'sep': '09',
+            'october': '10', 'oct': '10', 'oktober': '10', 'okt': '10',
+            'november': '11', 'nov': '11',
+            'december': '12', 'dec': '12', 'desember': '12', 'des': '12'
+        };
+
+        for (let key in monthsMap) {
+            if (s.includes(key)) {
+                let currentYear = new Date().getFullYear();
+                let yearMatch = s.match(/20\d{2}/);
+                let year = yearMatch ? yearMatch[0] : currentYear;
+                return `${year}-${monthsMap[key]}`;
+            }
+        }
+
+        if (/^\d{1,2}$/.test(s)) {
+            let mNum = parseInt(s, 10);
+            if (mNum >= 1 && mNum <= 12) {
+                let currentYear = new Date().getFullYear();
+                return `${currentYear}-${String(mNum).padStart(2, '0')}`;
+            }
+        }
+
         let d = new Date(s);
         if (!isNaN(d.getTime()) && d.getFullYear() > 2000) {
             return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
@@ -595,10 +683,11 @@
         let keys = Object.keys(row);
         if (sheetId === 'ops' && keys.length >= 6) { let val = row[keys[5]]; if (val) return String(val).trim(); }
         if (sheetId === 'ems') {
-            let s = row['Store'] || row[keys[1]] || '';
+            let storeKey = keys.find(k => /^store$/i.test(k.trim()) || /toko|lokasi/i.test(k.trim()));
+            let s = storeKey ? row[storeKey] : (row['Store'] || row[keys[1]] || '');
             if (s) return String(s).trim();
         }
-        let found = keys.find(k => /toko|store|lokasi|location|name|nama/i.test(k));
+        let found = keys.find(k => /toko|store|lokasi|location|name|nama/i.test(k.trim()));
         if (found && row[found]) return String(row[found]).trim();
         return 'Unknown Store';
     }
@@ -612,25 +701,32 @@
         rows.forEach(row => {
             let keys = Object.keys(row);
             let monthVal = '';
+
             if (sheetId === 'ems') {
-                let foundKey = keys.find(k => /bulan|month|date|tanggal|periode/i.test(k));
-                if (foundKey && row[foundKey]) {
-                    monthVal = row[foundKey];
-                } else if (keys.length >= 7) {
-                    monthVal = row[keys[6]];
-                }
+                let monthKey = keys.find(k => /^month$/i.test(k.trim()) || /bulan/i.test(k.trim()));
+                let dateKey = keys.find(k => /^date$/i.test(k.trim()) || /tanggal/i.test(k.trim()));
+                
+                if (monthKey && row[monthKey] !== undefined) monthVal = row[monthKey];
+                else if (dateKey && row[dateKey] !== undefined) monthVal = row[dateKey];
+                else if (keys.length >= 7) monthVal = row[keys[6]] || row[keys[7]];
             } else {
-                for (let k in row) { if (/bulan|month|date|tanggal|periode/i.test(k)) { monthVal = row[k]; break; } }
+                for (let k in row) { if (/bulan|month|date|tanggal|periode/i.test(k.trim())) { monthVal = row[k]; break; } }
             }
+
             if (!monthVal) {
                 for (let k in row) {
                     let mTest = extractMonthString(row[k]);
                     if (mTest) { monthVal = row[k]; break; }
                 }
             }
+
             let m = extractMonthString(monthVal);
             if (m) months.add(m);
-            if (sheetId !== 'ops') { let s = getStoreName(row, sheetId); if (s && s !== 'Unknown Store') stores.add(s); }
+
+            if (sheetId !== 'ops') { 
+                let s = getStoreName(row, sheetId); 
+                if (s && s !== 'Unknown Store') stores.add(s); 
+            }
         });
 
         if (sheetId === 'ops' && globalData.raw.length > 0) {
@@ -657,15 +753,18 @@
             let matchSearch = searchInput ? Object.values(row).some(val => String(val).toLowerCase().includes(searchInput)) : true;
             let matchStore = storeSelect ? (getStoreName(row, sheetId) === storeSelect) : true;
             let matchMonth = true;
+
             if (monthSelect) {
                 matchMonth = false;
                 let monthVal = '';
                 if (sheetId === 'ems') {
-                    let foundKey = keys.find(k => /bulan|month|date|tanggal|periode/i.test(k));
-                    if (foundKey && row[foundKey]) monthVal = row[foundKey];
-                    else if (keys.length >= 7) monthVal = row[keys[6]];
+                    let monthKey = keys.find(k => /^month$/i.test(k.trim()) || /bulan/i.test(k.trim()));
+                    let dateKey = keys.find(k => /^date$/i.test(k.trim()) || /tanggal/i.test(k.trim()));
+                    if (monthKey && row[monthKey] !== undefined) monthVal = row[monthKey];
+                    else if (dateKey && row[dateKey] !== undefined) monthVal = row[dateKey];
+                    else if (keys.length >= 7) monthVal = row[keys[6]] || row[keys[7]];
                 }
-                if (!monthVal) { for (let k in row) { if (/bulan|month|date|tanggal|periode/i.test(k)) { monthVal = row[k]; break; } } }
+                if (!monthVal) { for (let k in row) { if (/bulan|month|date|tanggal|periode/i.test(k.trim())) { monthVal = row[k]; break; } } }
                 if (!monthVal) {
                     for (let k in row) {
                         let mTest = extractMonthString(row[k]);
@@ -705,7 +804,7 @@
 
     function getOpsVal(row, keys, indexGuess, keywordRegex) {
         if (indexGuess >= 0 && keys.length > indexGuess && row[keys[indexGuess]] !== undefined && row[keys[indexGuess]] !== '') return row[keys[indexGuess]];
-        let foundKey = keys.find(k => keywordRegex.test(k));
+        let foundKey = keys.find(k => keywordRegex.test(k.trim()));
         return (foundKey !== undefined && row[foundKey] !== undefined) ? row[foundKey] : '';
     }
 
@@ -773,7 +872,7 @@
             let rKeys = Object.keys(rawRow);
             if (rKeys.length >= 3) {
                 let store = String(rawRow[rKeys[1]] || '').trim(), presenter = String(rawRow[rKeys[2]] || '').trim();
-                let emailKey = rKeys.find(k => /email/i.test(k));
+                let emailKey = rKeys.find(k => /email/i.test(k.trim()));
                 let email = emailKey ? String(rawRow[emailKey] || '').trim().toLowerCase() : (rKeys.length >= 6 ? String(rawRow[rKeys[5]] || '').trim().toLowerCase() : '');
                 if (email && presenter) {
                     if (selectedStore && store !== selectedStore) return;
@@ -784,7 +883,7 @@
 
         allOpsRows.forEach(row => {
             let keys = Object.keys(row);
-            let opsEmailKey = keys.find(k => /email/i.test(k));
+            let opsEmailKey = keys.find(k => /email/i.test(k.trim()));
             let opsEmail = opsEmailKey ? String(row[opsEmailKey] || '').trim().toLowerCase() : (keys.length >= 2 ? String(row[keys[1]] || '').trim().toLowerCase() : '');
             if (opsEmail && staffMap[opsEmail]) {
                 let monthVal = keys.length >= 12 ? (row[keys[11]] || row[keys[12]]) : '';
@@ -833,7 +932,7 @@
             if (rKeys.length >= 3) {
                 let store = String(rawRow[rKeys[1]] || '').trim();
                 let presenter = String(rawRow[rKeys[2]] || '').trim();
-                let emailKey = rKeys.find(k => /email/i.test(k));
+                let emailKey = rKeys.find(k => /email/i.test(k.trim()));
                 let email = emailKey ? String(rawRow[emailKey] || '').trim().toLowerCase() : (rKeys.length >= 6 ? String(rawRow[rKeys[5]] || '').trim().toLowerCase() : '');
                 if (email && presenter) {
                     if (selectedStore && store !== selectedStore) return;
@@ -844,16 +943,17 @@
 
         allEmsRows.forEach(row => {
             let keys = Object.keys(row);
-            let emsEmailKey = keys.find(k => /email/i.test(k));
+            let emsEmailKey = keys.find(k => /email/i.test(k.trim()));
             let emsEmail = emsEmailKey ? String(row[emsEmailKey] || '').trim().toLowerCase() : '';
             
             if (emsEmail && staffMap[emsEmail]) {
                 let monthVal = '';
-                let foundKey = keys.find(k => /bulan|month|date|tanggal|periode/i.test(k));
-                if (foundKey && row[foundKey]) monthVal = row[foundKey];
+                let monthKey = keys.find(k => /^month$/i.test(k.trim()) || /bulan/i.test(k.trim()));
+                let dateKey = keys.find(k => /^date$/i.test(k.trim()) || /tanggal/i.test(k.trim()));
+                if (monthKey && row[monthKey] !== undefined) monthVal = row[monthKey];
                 else if (keys.length >= 7) monthVal = row[keys[6]];
                 
-                let dateVal = String(row['Date'] || (keys.length >= 8 ? row[keys[7]] : ''));
+                let dateVal = String(row['Date'] || (dateKey ? row[dateKey] : (keys.length >= 8 ? row[keys[7]] : '')));
 
                 if (selectedMonth && extractMonthString(monthVal) !== selectedMonth) return;
 
@@ -919,8 +1019,8 @@
             month = parseInt(parts[1]);
         } else if (filteredRows.length > 0) {
             let firstRowKeys = Object.keys(filteredRows[0]);
-            let foundKey = firstRowKeys.find(k => /bulan|month|date|tanggal|periode/i.test(k));
-            let mVal = foundKey ? filteredRows[0][foundKey] : (firstRowKeys.length >= 7 ? filteredRows[0][firstRowKeys[6]] : '');
+            let monthKey = firstRowKeys.find(k => /^month$/i.test(k.trim()) || /bulan/i.test(k.trim()));
+            let mVal = monthKey ? filteredRows[0][monthKey] : (firstRowKeys.length >= 7 ? filteredRows[0][firstRowKeys[6]] : '');
             let mStr = extractMonthString(mVal);
             if (mStr) {
                 let parts = mStr.split('-');
@@ -945,7 +1045,8 @@
             if (selectedStore && store !== selectedStore) return;
 
             let keys = Object.keys(row);
-            let dateVal = String(row['Date'] || (keys.length >= 8 ? row[keys[7]] : ''));
+            let dateKey = keys.find(k => /^date$/i.test(k.trim()) || /tanggal/i.test(k.trim()));
+            let dateVal = String(row['Date'] || (dateKey ? row[dateKey] : (keys.length >= 8 ? row[keys[7]] : '')));
             let dObj = new Date(dateVal);
             let dayNum = !isNaN(dObj.getDate()) ? dObj.getDate() : (String(dateVal).match(/\b([1-3]?[0-9])\b/) ? parseInt(RegExp.$1) : null);
 
@@ -972,10 +1073,9 @@
 
         document.getElementById('ems-weekly-count').innerText = `${storeArray.length} Store`;
 
-        // Kalkulasi Makro Regional (Basis 103 Toko Master)
-        let totalActualRegional = filteredRows.length; // Total seluruh sesi terrekam
-        let totalMasterStores = MASTER_STORES.length;  // 103 Toko
-        let totalTargetRegional = totalMasterStores * dynamicTargetPerStore; // 103 x Target Dinamis
+        let totalActualRegional = filteredRows.length;
+        let totalMasterStores = MASTER_STORES.length;
+        let totalTargetRegional = totalMasterStores * dynamicTargetPerStore;
         let achievedStoreCount = 0;
 
         storeArray.forEach(item => {
@@ -986,7 +1086,6 @@
 
         let regionalPercentage = totalTargetRegional > 0 ? ((totalActualRegional / totalTargetRegional) * 100).toFixed(1) : 0;
 
-        // Update kartu Executive Summary Regional
         document.getElementById('ems-sum-total-stores').innerText = totalMasterStores;
         document.getElementById('ems-sum-actual').innerText = totalActualRegional;
         document.getElementById('ems-sum-target').innerText = totalTargetRegional;
@@ -1059,19 +1158,21 @@
                 let totalScore = 0, countScore = 0;
                 rows.forEach(row => {
                     let keys = Object.keys(row);
-                    let score = parseFloat(row['Score'] || (keys.length >= 9 ? row[keys[8]] : 0));
+                    let scoreKey = keys.find(k => /^score$/i.test(k.trim()) || /skor/i.test(k.trim()));
+                    let score = parseFloat(row['Score'] || (scoreKey ? row[scoreKey] : (keys.length >= 9 ? row[keys[8]] : 0)));
                     if (!isNaN(score) && score > 0) { totalScore += score; countScore++; }
                 });
                 let avgScore = countScore > 0 ? (totalScore / countScore).toFixed(1) : 0;
                 document.getElementById('summary-ems-score').innerText = avgScore;
                 
+                // Diperbarui agar label badge sesuai dengan konteks skor (bukan target)
                 let badge = document.getElementById('ems-status-badge');
-                if (avgScore >= 80) { badge.className = 'badge bg-success'; badge.innerText = 'Target Tercapai'; }
+                if (avgScore >= 80) { badge.className = 'badge bg-success'; badge.innerText = 'Skor Sangat Baik'; }
                 else if (avgScore >= 60) { badge.className = 'badge bg-warning text-dark'; badge.innerText = 'Perlu Perhatian'; }
                 else { badge.className = 'badge bg-danger'; badge.innerText = 'Di Bawah Standar'; }
             } else if (sheetId === 'PNR') {
                 let totalStaff = 0;
-                rows.forEach(row => { for (let k in row) if (/staff|trained|employee|karyawan|peserta/i.test(k)) totalStaff += parseFloat(row[k]) || 0; });
+                rows.forEach(row => { for (let k in row) if (/staff|trained|employee|karyawan|peserta/i.test(k.trim())) totalStaff += parseFloat(row[k]) || 0; });
                 document.getElementById('summary-PNR-staff').innerText = totalStaff;
             }
         } catch (e) { console.error(e); }
@@ -1109,28 +1210,82 @@
                 options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { beginAtZero: true } } }
             });
         } else if (sheetId === 'ems') {
-            const displayRows = rows.slice(0, 15);
+            let storeActuals = {};
+            rows.forEach(row => {
+                let store = getStoreName(row, 'ems');
+                if (store && store !== 'Unknown Store') {
+                    storeActuals[store] = (storeActuals[store] || 0) + 1;
+                }
+            });
+
+            let storeArray = Object.keys(storeActuals).map(store => ({
+                store: store,
+                actual: storeActuals[store]
+            })).sort((a, b) => b.actual - a.actual).slice(0, 20);
+
+            const currentMonthFilter = document.getElementById('filter-month-ems').value;
+            const targetVal = getDynamicEmsTarget(currentMonthFilter);
+
+            document.getElementById('chartEmsContainer').style.width = `${Math.max(100, storeArray.length * 55)}px`;
+
             if (emsChartInstance) emsChartInstance.destroy();
+            
+            // Custom Plugin Chart.js untuk menampilkan angka langsung di atas batang bar
+            const dataLabelsPlugin = {
+                id: 'dataLabelsPlugin',
+                afterDatasetsDraw(chart) {
+                    const { ctx } = chart;
+                    chart.data.datasets.forEach((dataset, i) => {
+                        const meta = chart.getDatasetMeta(i);
+                        meta.data.forEach((bar, index) => {
+                            const value = dataset.data[index];
+                            ctx.fillStyle = '#495057';
+                            ctx.font = 'bold 11px sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'bottom';
+                            ctx.fillText(value, bar.x, bar.y - 4);
+                        });
+                    });
+                }
+            };
+
             emsChartInstance = new Chart(document.getElementById('chartEms').getContext('2d'), {
-                type: 'line',
-                data: { 
-                    labels: displayRows.map(r => `${r['Trainer Name'] || 'Trainer'} (${r['Date'] || 'Tgl'})`), 
-                    datasets: [{ 
-                        label: 'Score EMS (Plot Kolom I)', 
-                        data: displayRows.map(r => { let keys = Object.keys(r); return parseFloat(r['Score'] || (keys.length >= 9 ? r[keys[8]] : 0)) || 0; }), 
-                        backgroundColor: 'rgba(25, 135, 84, 0.2)', 
-                        borderColor: 'rgba(25, 135, 84, 1)', 
-                        borderWidth: 2, fill: true, tension: 0.1 
-                    }] 
+                type: 'bar',
+                data: {
+                    labels: storeArray.map(i => i.store),
+                    datasets: [
+                        {
+                            label: 'Aktual Sesi',
+                            data: storeArray.map(i => i.actual),
+                            backgroundColor: 'rgba(25, 135, 84, 0.8)',
+                            borderColor: 'rgba(25, 135, 84, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Target Bulanan',
+                            data: storeArray.map(i => targetVal),
+                            backgroundColor: 'rgba(220, 53, 69, 0.6)',
+                            borderColor: 'rgba(220, 53, 69, 1)',
+                            borderWidth: 1
+                        }
+                    ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Jumlah Sesi' } },
+                        x: { ticks: { autoSkip: false, maxRotation: 45, minRotation: 45 } }
+                    }
+                },
+                plugins: [dataLabelsPlugin]
             });
         } else if (sheetId === 'PNR') {
             const displayRows = rows.slice(0, 15);
             if (PNRChartInstance) PNRChartInstance.destroy();
             PNRChartInstance = new Chart(document.getElementById('chartPNR').getContext('2d'), {
                 type: 'bar',
-                data: { labels: displayRows.map((r, i) => `Item #${i + 1}`), datasets: [{ label: 'Staff Trained PNR', data: displayRows.map(r => { for (let k in r) if (/staff|trained|employee|karyawan|peserta/i.test(k)) return parseFloat(r[k]) || 0; return 0; }), backgroundColor: 'rgba(255, 193, 7, 0.7)' }] },
+                data: { labels: displayRows.map((r, i) => `Item #${i + 1}`), datasets: [{ label: 'Staff Trained PNR', data: displayRows.map(r => { for (let k in r) if (/staff|trained|employee|karyawan|peserta/i.test(k.trim())) return parseFloat(r[k]) || 0; return 0; }), backgroundColor: 'rgba(255, 193, 7, 0.7)' }] },
                 options: { responsive: true, maintainAspectRatio: false }
             });
         }
