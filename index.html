@@ -13,7 +13,8 @@
     <style>
         body { background-color: #f8f9fa; }
         .navbar-brand { font-weight: bold; }
-        .card-stat { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: 100%; }
+        .card-stat { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: 100%; transition: transform 0.2s; }
+        .card-stat:hover { transform: translateY(-2px); }
         .dashboard-container { background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
         .table-responsive { max-height: 450px; overflow-y: auto; }
         table th { position: sticky; top: 0; z-index: 2; background-color: #212529; color: #fff; text-align: center; vertical-align: middle; white-space: nowrap; }
@@ -24,8 +25,7 @@
         .cell-inactive { background-color: #f8d7da; color: #842029; }
         .chart-scroll-container { position: relative; height: 350px; width: 100%; overflow-x: auto; }
         .chart-inner-wrapper { position: relative; height: 100%; min-width: 100%; }
-        .clickable-card { cursor: pointer; transition: transform 0.2s; }
-        .clickable-card:hover { transform: translateY(-3px); }
+        .clickable-card { cursor: pointer; }
 
         /* Styling Kartu Profil Staff */
         .profile-card-table { max-width: 700px; margin: 0 auto; border: 3px solid #0d6efd; border-radius: 10px; overflow: hidden; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
@@ -34,27 +34,8 @@
         .profile-header-row th { background-color: #9333ea !important; color: #fff !important; text-align: center; font-size: 1.2rem; }
         .profile-dropdown-td { background-color: #f0abfc !important; }
 
-        /* Styling Tabel Open Studio (OPS) di Profil */
-        .open-studio-table { max-width: 700px; margin: 0 auto; border: 3px solid #198754; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .open-studio-table th { background-color: #fde047 !important; color: #000 !important; font-size: 1.1rem; border-bottom: 2px solid #198754; }
-        .open-studio-subhead th { background-color: #bbf7d0 !important; color: #000 !important; font-size: 0.95rem; border-bottom: 2px solid #198754; }
-        .open-studio-data td { background-color: #d1e7dd !important; color: #000 !important; font-size: 1.8rem; font-weight: bold; padding: 20px; }
-
-        /* Styling Tabel EMS di Profil */
-        .ems-profile-table { max-width: 700px; margin: 0 auto; border: 3px solid #0d6efd; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .ems-profile-table th { background-color: #93c5fd !important; color: #000 !important; font-size: 1.1rem; border-bottom: 2px solid #0d6efd; }
-        .ems-profile-subhead th { background-color: #bfdbfe !important; color: #000 !important; font-size: 0.95rem; border-bottom: 2px solid #0d6efd; }
-        .ems-profile-data td { background-color: #eff6ff !important; color: #000 !important; font-size: 1.8rem; font-weight: bold; padding: 20px; }
-
-        /* Styling Tabel PNR di Profil */
-        .pnr-profile-table { max-width: 700px; margin: 0 auto; border: 3px solid #0d6efd; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .pnr-profile-table th { background-color: #fde047 !important; color: #000 !important; font-size: 1.1rem; border-bottom: 2px solid #0d6efd; text-align: center; }
-        .pnr-profile-subhead th { background-color: #93c5fd !important; color: #000 !important; font-size: 0.95rem; border-bottom: 2px solid #0d6efd; text-align: center; }
-        .pnr-profile-data td { background-color: #bfdbfe !important; color: #000 !important; font-size: 1.8rem; font-weight: bold; padding: 20px; text-align: center; }
-
-        @media (max-width: 991px) {
-            body { padding-bottom: 75px; }
-        }
+        .open-studio-table, .ems-profile-table, .pnr-profile-table { max-width: 700px; margin: 0 auto; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        @media (max-width: 991px) { body { padding-bottom: 75px; } }
     </style>
 </head>
 <body>
@@ -65,18 +46,10 @@
         <a class="navbar-brand" href="#"><i class="fa-solid fa-chart-pie me-2"></i>Dashboard OPS EMS PNR</a>
         <div class="collapse navbar-collapse justify-content-end d-none d-lg-flex" id="navbarNav">
             <ul class="nav nav-pills" id="sheetTabList" role="tablist">
-                <li class="nav-item me-2" role="presentation">
-                    <button class="nav-link active text-white" id="ops-tab" data-bs-toggle="tab" data-bs-target="#ops-content" type="button" role="tab"><i class="fa-solid fa-clipboard-list me-1"></i> OPS</button>
-                </li>
-                <li class="nav-item me-2" role="presentation">
-                    <button class="nav-link text-white" id="ems-tab" data-bs-toggle="tab" data-bs-target="#ems-content" type="button" role="tab"><i class="fa-solid fa-laptop-code me-1"></i> EMS</button>
-                </li>
-                <li class="nav-item me-2" role="presentation">
-                    <button class="nav-link text-white" id="PNR-tab" data-bs-toggle="tab" data-bs-target="#PNR-content" type="button" role="tab"><i class="fa-solid fa-address-book me-1"></i> PNR</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link text-white" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-content" type="button" role="tab"><i class="fa-solid fa-id-card me-1"></i> Profile Staff</button>
-                </li>
+                <li class="nav-item me-2"><button class="nav-link active text-white" id="ops-tab" data-bs-toggle="tab" data-bs-target="#ops-content" type="button"><i class="fa-solid fa-clipboard-list me-1"></i> OPS</button></li>
+                <li class="nav-item me-2"><button class="nav-link text-white" id="ems-tab" data-bs-toggle="tab" data-bs-target="#ems-content" type="button"><i class="fa-solid fa-laptop-code me-1"></i> EMS</button></li>
+                <li class="nav-item me-2"><button class="nav-link text-white" id="PNR-tab" data-bs-toggle="tab" data-bs-target="#PNR-content" type="button"><i class="fa-solid fa-address-book me-1"></i> PNR</button></li>
+                <li class="nav-item"><button class="nav-link text-white" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-content" type="button"><i class="fa-solid fa-id-card me-1"></i> Profile Staff</button></li>
             </ul>
         </div>
     </div>
@@ -94,18 +67,16 @@
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom gap-2">
         <h1 class="h2">Real-Time Operational Dashboard</h1>
         <div class="d-flex flex-wrap gap-2 align-items-center">
-            <!-- Dropdown Export Excel -->
             <div class="dropdown">
-                <button class="btn btn-sm btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fa-solid fa-file-excel me-1"></i> Export Excel
-                </button>
+                <button class="btn btn-sm btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-file-excel me-1"></i> Export Excel</button>
                 <ul class="dropdown-menu shadow">
                     <li><h6 class="dropdown-header text-muted">Tab OPS</h6></li>
                     <li><a class="dropdown-item small" href="#" onclick="exportTable('table-ops', 'Rekap_Bulanan_OPS.csv')"><i class="fa-solid fa-table me-2 text-primary"></i>Rekap OPS (Per Toko)</a></li>
                     <li><a class="dropdown-item small" href="#" onclick="exportTable('table-staff-matrix', 'Matriks_Partisipasi_Staff.csv')"><i class="fa-solid fa-calendar-days me-2 text-danger"></i>Matriks Partisipasi Staff</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li><h6 class="dropdown-header text-muted">Tab Lainnya</h6></li>
-                    <li><a class="dropdown-item small" href="#" onclick="exportTable('table-ems', 'Data_EMS.csv')"><i class="fa-solid fa-laptop-code me-2 text-success"></i>Sheet EMS</a></li>
+                    <li><a class="dropdown-item small" href="#" onclick="exportTable('table-ems-matrix', 'Matriks_Bulanan_EMS.csv')"><i class="fa-solid fa-calendar-days me-2 text-success"></i>Matriks Bulanan EMS</a></li>
+                    <li><a class="dropdown-item small" href="#" onclick="exportTable('table-ems-weekly', 'Performa_Mingguan_EMS.csv')"><i class="fa-solid fa-calendar-week me-2 text-success"></i>Performa Mingguan EMS</a></li>
                     <li><a class="dropdown-item small" href="#" onclick="exportTable('table-PNR', 'Data_PNR.csv')"><i class="fa-solid fa-address-book me-2 text-warning"></i>Sheet PNR</a></li>
                 </ul>
             </div>
@@ -122,35 +93,21 @@
         <div class="tab-pane fade show active" id="ops-content" role="tabpanel">
             <div class="dashboard-container mb-3 py-3">
                 <div class="row g-3 align-items-center">
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold text-muted">Filter Bulan:</label>
-                        <select id="filter-month-ops" class="form-select" onchange="applyFilters('ops')">
-                            <option value="">Semua Bulan</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold text-muted">Filter Toko:</label>
-                        <select id="filter-store-ops" class="form-select" onchange="applyFilters('ops')">
-                            <option value="">Semua Toko</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold text-muted">Pencarian Bebas:</label>
-                        <input type="text" id="search-ops" class="form-control" placeholder="Cari Toko / Presenter..." onkeyup="applyFilters('ops')">
-                    </div>
+                    <div class="col-md-4"><label class="form-label small fw-bold text-muted">Filter Bulan:</label><select id="filter-month-ops" class="form-select" onchange="applyFilters('ops')"><option value="">Semua Bulan</option></select></div>
+                    <div class="col-md-4"><label class="form-label small fw-bold text-muted">Filter Toko:</label><select id="filter-store-ops" class="form-select" onchange="applyFilters('ops')"><option value="">Semua Toko</option></select></div>
+                    <div class="col-md-4"><label class="form-label small fw-bold text-muted">Pencarian Bebas:</label><input type="text" id="search-ops" class="form-control" placeholder="Cari Toko / Presenter..." onkeyup="applyFilters('ops')"></div>
                 </div>
             </div>
 
             <!-- Summary Cards (OPS) -->
             <div class="row g-3 mb-4 row-cols-1 row-cols-md-3 row-cols-xl-5">
-                <div class="col"><div class="card card-stat p-3 bg-white"><h6 class="text-muted small">Total Partisipan</h6><h3 class="fw-bold text-primary" id="summary-ops-partisipan">0</h3></div></div>
-                <div class="col"><div class="card card-stat p-3 bg-white"><h6 class="text-muted small">Total Sesi Tercapai</h6><h3 class="fw-bold text-info" id="summary-ops-sessions">0</h3></div></div>
+                <div class="col"><div class="card card-stat p-3 bg-white border-start border-primary border-4"><h6 class="text-muted small">Total Partisipan</h6><h3 class="fw-bold text-primary" id="summary-ops-partisipan">0</h3></div></div>
+                <div class="col"><div class="card card-stat p-3 bg-white border-start border-info border-4"><h6 class="text-muted small">Total Sesi Tercapai</h6><h3 class="fw-bold text-info" id="summary-ops-sessions">0</h3></div></div>
                 <div class="col"><div class="card card-stat p-3 bg-white border-start border-warning border-4"><h6 class="text-muted small">Total Unit Terjual</h6><h3 class="fw-bold text-warning" id="summary-ops-units">0</h3></div></div>
                 <div class="col"><div class="card card-stat p-3 bg-white border-start border-success border-4"><h6 class="text-muted small">Toko Sudah Submit</h6><h3 class="fw-bold text-success" id="summary-submitted-stores">0</h3></div></div>
                 <div class="col"><div class="card card-stat p-3 bg-white border-start border-danger border-4 clickable-card" onclick="showUnsubmittedModal()"><h6 class="text-muted small">Toko Belum Submit <i class="fa-solid fa-circle-info text-danger small"></i></h6><h3 class="fw-bold text-danger" id="summary-unsubmitted-stores">0</h3></div></div>
             </div>
             
-            <!-- Chart Section OPS -->
             <div class="dashboard-container">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <h5 class="m-0 text-primary"><i class="fa-solid fa-chart-bar me-2"></i>Grafik Akumulasi Sesi Bulanan OPS</h5>
@@ -170,12 +127,7 @@
 
             <div class="dashboard-container">
                 <h4 class="mb-3 text-primary"><i class="fa-solid fa-table me-2"></i>Rekap Bulanan OPS (Per Toko)</h4>
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover align-middle" id="table-ops">
-                        <thead><tr><th>Store</th><th>13:00</th><th>15:00</th><th>18:00</th><th>TOTAL</th><th>TARGET</th><th>Presenter%</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+                <div class="table-responsive"><table class="table table-striped table-hover align-middle" id="table-ops"><thead><tr><th>Store</th><th>13:00</th><th>15:00</th><th>18:00</th><th>TOTAL</th><th>TARGET</th><th>Presenter%</th></tr></thead><tbody></tbody></table></div>
             </div>
 
             <div class="dashboard-container border-start border-danger border-4">
@@ -186,11 +138,7 @@
                     </div>
                     <span class="badge bg-danger fs-6" id="staff-matrix-count">0 Staff</span>
                 </div>
-                <div class="table-responsive mt-3">
-                    <table class="table table-bordered table-hover align-middle" id="table-staff-matrix">
-                        <thead></thead><tbody></tbody>
-                    </table>
-                </div>
+                <div class="table-responsive mt-3"><table class="table table-bordered table-hover align-middle" id="table-staff-matrix"><thead></thead><tbody></tbody></table></div>
             </div>
         </div>
 
@@ -198,23 +146,76 @@
         <div class="tab-pane fade" id="ems-content" role="tabpanel">
             <div class="dashboard-container mb-3 py-3">
                 <div class="row g-3 align-items-center">
-                    <div class="col-md-4"><label class="form-label small fw-bold text-muted">Filter Bulan:</label><select id="filter-month-ems" class="form-select" onchange="applyFilters('ems')"><option value="">Semua Bulan</option></select></div>
-                    <div class="col-md-4"><label class="form-label small fw-bold text-muted">Filter Toko:</label><select id="filter-store-ems" class="form-select" onchange="applyFilters('ems')"><option value="">Semua Toko</option></select></div>
-                    <div class="col-md-4"><label class="form-label small fw-bold text-muted">Pencarian Bebas:</label><input type="text" id="search-ems" class="form-control" placeholder="Cari Toko / Trainer..." onkeyup="applyFilters('ems')"></div>
+                    <div class="col-md-4"><label class="form-label small fw-bold text-muted">Filter Bulan (Plot Kolom G):</label><select id="filter-month-ems" class="form-select" onchange="applyFilters('ems')"><option value="">Semua Bulan</option></select></div>
+                    <div class="col-md-4"><label class="form-label small fw-bold text-muted">Filter Toko (Plot Toko):</label><select id="filter-store-ems" class="form-select" onchange="applyFilters('ems')"><option value="">Semua Toko</option></select></div>
+                    <div class="col-md-4"><label class="form-label small fw-bold text-muted">Pencarian Bebas:</label><input type="text" id="search-ems" class="form-control" placeholder="Cari Toko..." onkeyup="applyFilters('ems')"></div>
                 </div>
             </div>
-            <div class="row g-3 mb-4">
-                <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Baris EMS</h6><h3 class="fw-bold" id="count-ems">0</h3></div></div>
-                <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Rata-rata Score</h6><h3 class="fw-bold text-success" id="summary-ems-score">0</h3></div></div>
-                <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Status Koneksi</h6><h3 class="fw-bold text-success">Live Cached</h3></div></div>
+            
+            <!-- Executive Summary Cards EMS untuk Manajemen (Makro Regional 103 Toko) -->
+            <div class="row g-3 mb-4 row-cols-1 row-cols-md-4">
+                <div class="col"><div class="card card-stat p-3 bg-white border-start border-primary border-4"><h6 class="text-muted small">Total Master Toko</h6><h3 class="fw-bold text-primary" id="ems-sum-total-stores">103</h3></div></div>
+                <div class="col"><div class="card card-stat p-3 bg-white border-start border-success border-4"><h6 class="text-muted small">Total Sesi Aktual / Target</h6><h3 class="fw-bold text-success"><span id="ems-sum-actual">0</span> / <span id="ems-sum-target">0</span></h3></div></div>
+                <div class="col"><div class="card card-stat p-3 bg-white border-start border-warning border-4"><h6 class="text-muted small">Toko Tercapai (>=100%)</h6><h3 class="fw-bold text-warning" id="ems-sum-achieved">0</h3></div></div>
+                <div class="col"><div class="card card-stat p-3 bg-white border-start border-info border-4"><h6 class="text-muted small">Pencapaian Regional</h6><h3 class="fw-bold text-info" id="ems-sum-regional-pct">0%</h3></div></div>
             </div>
+
+            <!-- Summary Baris Bawah EMS -->
+            <div class="row g-3 mb-4 row-cols-1 row-cols-md-2">
+                <div class="col"><div class="card card-stat p-3 bg-white border-start border-success border-4"><h6 class="text-muted">Total Baris Submit EMS</h6><h3 class="fw-bold text-success" id="count-ems">0</h3></div></div>
+                <div class="col">
+                    <div class="card card-stat p-3 bg-white border-start border-primary border-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="text-muted mb-0">Rata-rata Skor (Plot Kolom I)</h6>
+                            <span id="ems-status-badge" class="badge bg-secondary">Memuat...</span>
+                        </div>
+                        <h3 class="fw-bold text-primary mt-2" id="summary-ems-score">0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABEL PERFORMA MINGGUAN EMS (Store Level - Senin s.d. Minggu) -->
+            <div class="dashboard-container border-start border-success border-4">
+                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                    <div>
+                        <h4 class="m-0 text-success"><i class="fa-solid fa-calendar-week me-2"></i>Performa Mingguan EMS (Store Level - Senin s.d. Minggu)</h4>
+                        <p class="text-muted small mb-0">Rekapitulasi total sesi mingguan per toko (Target Dinamis: Jumlah Hari x 2 Sesi).</p>
+                    </div>
+                    <span class="badge bg-success fs-6" id="ems-weekly-count">0 Store</span>
+                </div>
+                <div class="table-responsive mt-3">
+                    <table class="table table-bordered table-hover align-middle" id="table-ems-weekly">
+                        <thead>
+                            <tr>
+                                <th class="store-col">Store Name</th>
+                                <!-- Kolom minggu dinamis Senin-Minggu -->
+                                <th class="bg-success">Total Sesi</th>
+                                <th>Target Bulanan</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
             <div class="dashboard-container">
-                <h5 class="mb-3 text-success"><i class="fa-solid fa-chart-line me-2"></i>Grafik Ringkasan EMS</h5>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="m-0 text-success"><i class="fa-solid fa-chart-line me-2"></i>Grafik Tren Skor EMS Harian</h5>
+                    <span class="badge bg-light text-dark border">Label Sumbu X: Trainer & Tanggal (Plot Kolom I)</span>
+                </div>
                 <div class="chart-scroll-container"><div class="chart-inner-wrapper"><canvas id="chartEms"></canvas></div></div>
             </div>
-            <div class="dashboard-container">
-                <h4 class="mb-3 text-success"><i class="fa-solid fa-table me-2"></i>Tabel Data: EMS</h4>
-                <div class="table-responsive"><table class="table table-striped table-hover align-middle" id="table-ems"><thead></thead><tbody></tbody></table></div>
+
+            <div class="dashboard-container border-start border-success border-4">
+                <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+                    <div>
+                        <h4 class="m-0 text-success"><i class="fa-solid fa-calendar-days me-2"></i>Matriks Bulanan EMS (Total Sesi per Hari)</h4>
+                        <p class="text-muted small mb-0">Komparasi Email Master RAW dengan Submit EMS (Bulan via Plot Kolom G, Nilai via Plot Kolom I).</p>
+                    </div>
+                    <span class="badge bg-success fs-6" id="ems-matrix-count">0 Staff</span>
+                </div>
+                <div class="table-responsive mt-3"><table class="table table-bordered table-hover align-middle" id="table-ems-matrix"><thead></thead><tbody></tbody></table></div>
             </div>
         </div>
 
@@ -228,9 +229,9 @@
                 </div>
             </div>
             <div class="row g-3 mb-4">
-                <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Baris PNR</h6><h3 class="fw-bold" id="count-PNR">0</h3></div></div>
-                <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Staff Trained</h6><h3 class="fw-bold text-warning" id="summary-PNR-staff">0</h3></div></div>
-                <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Status Koneksi</h6><h3 class="fw-bold text-success">Live Cached</h3></div></div>
+                <div class="col-md-4"><div class="card card-stat p-3 bg-white border-start border-warning border-4"><h6 class="text-muted">Total Baris PNR</h6><h3 class="fw-bold" id="count-PNR">0</h3></div></div>
+                <div class="col-md-4"><div class="card card-stat p-3 bg-white border-start border-warning border-4"><h6 class="text-muted">Total Staff Trained</h6><h3 class="fw-bold text-warning" id="summary-PNR-staff">0</h3></div></div>
+                <div class="col-md-4"><div class="card card-stat p-3 bg-white border-start border-success border-4"><h6 class="text-muted">Status Koneksi</h6><h3 class="fw-bold text-success">Live Cached</h3></div></div>
             </div>
             <div class="dashboard-container">
                 <h5 class="mb-3 text-warning"><i class="fa-solid fa-chart-pie me-2"></i>Grafik Ringkasan PNR</h5>
@@ -242,20 +243,15 @@
             </div>
         </div>
 
-        <!-- 4. Profile Staff Content (Dilengkapi Profil, Open Studio, EMS, & PNR) -->
+        <!-- 4. Profile Staff Content -->
         <div class="tab-pane fade" id="profile-content" role="tabpanel">
             <div class="dashboard-container text-center py-4">
                 <h3 class="text-purple fw-bold mb-3"><i class="fa-solid fa-id-card me-2"></i>Direktori & Profil Staff</h3>
-                <p class="text-muted">Pilih nama staff di bawah ini untuk melihat detail informasi kepegawaian serta performa Open Studio, EMS, & PNR.</p>
+                <p class="text-muted">Pilih nama staff dari Master Database (RAW) untuk melihat performa Open Studio, EMS, & PNR secara spesifik.</p>
                 
-                <!-- Tabel Informasi Profil Kepegawaian -->
                 <div class="table-responsive mt-4 mb-4">
                     <table class="table profile-card-table align-middle">
-                        <thead>
-                            <tr class="profile-header-row">
-                                <th colspan="2">E M P L O Y E E &nbsp; P R O F I L E</th>
-                            </tr>
-                        </thead>
+                        <thead><tr class="profile-header-row"><th colspan="2">E M P L O Y E E &nbsp; P R O F I L E</th></tr></thead>
                         <tbody>
                             <tr>
                                 <th>Employee Name</th>
@@ -265,128 +261,49 @@
                                     </select>
                                 </td>
                             </tr>
-                            <tr>
-                                <th>Store</th>
-                                <td id="profile-store">-</td>
-                            </tr>
-                            <tr>
-                                <th>Type Store</th>
-                                <td id="profile-type-store">-</td>
-                            </tr>
-                            <tr>
-                                <th>NIK</th>
-                                <td id="profile-nik">-</td>
-                            </tr>
-                            <tr>
-                                <th>Work Experience</th>
-                                <td id="profile-experience">-</td>
-                            </tr>
-                            <tr>
-                                <th>Total Employee</th>
-                                <td id="profile-total-employee" class="fw-bold text-primary">0</td>
-                            </tr>
+                            <tr><th>Store</th><td id="profile-store">-</td></tr>
+                            <tr><th>Type Store</th><td id="profile-type-store">-</td></tr>
+                            <tr><th>NIK</th><td id="profile-nik">-</td></tr>
+                            <tr><th>Work Experience</th><td id="profile-experience">-</td></tr>
+                            <tr><th>Total Employee</th><td id="profile-total-employee" class="fw-bold text-primary">0</td></tr>
                         </tbody>
                     </table>
                 </div>
 
-                <!-- Tabel Open Studio (OPS) -->
                 <div class="table-responsive mt-3 mb-4">
                     <table class="table open-studio-table align-middle text-center">
-                        <thead>
-                            <tr>
-                                <th colspan="3">Open Studio</th>
-                            </tr>
-                            <tr class="open-studio-subhead">
-                                <th>Target Activity Monthly</th>
-                                <th>Current Progress</th>
-                                <th>%</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="open-studio-data">
-                                <td id="os-target">80</td>
-                                <td id="os-progress" class="text-primary">0</td>
-                                <td id="os-percentage" class="text-success">0%</td>
-                            </tr>
-                        </tbody>
+                        <thead><tr><th colspan="3" class="bg-warning text-dark">Open Studio</th></tr><tr class="table-success"><th>Target Activity Monthly</th><th>Current Progress</th><th>%</th></tr></thead>
+                        <tbody><tr><td id="os-target">80</td><td id="os-progress" class="text-primary fw-bold">0</td><td id="os-percentage" class="text-success fw-bold">0%</td></tr></tbody>
                     </table>
                 </div>
 
-                <!-- Tabel EMS -->
                 <div class="table-responsive mt-3 mb-4">
                     <table class="table ems-profile-table align-middle text-center">
-                        <thead>
-                            <tr>
-                                <th colspan="3">EMS</th>
-                            </tr>
-                            <tr class="ems-profile-subhead">
-                                <th>Target Activity Monthly</th>
-                                <th>Current Progress</th>
-                                <th>%</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="ems-profile-data">
-                                <td id="ems-target">10</td>
-                                <td id="ems-progress" class="text-primary">0</td>
-                                <td id="ems-percentage" class="text-success">0%</td>
-                            </tr>
-                        </tbody>
+                        <thead><tr><th colspan="3" class="bg-primary text-white">EMS</th></tr><tr class="table-primary"><th>Target Activity Monthly</th><th>Current Progress</th><th>%</th></tr></thead>
+                        <tbody><tr><td id="ems-target">10</td><td id="ems-progress" class="text-primary fw-bold">0</td><td id="ems-percentage" class="text-success fw-bold">0%</td></tr></tbody>
                     </table>
                 </div>
 
-                <!-- Tabel PNR (Plan and Result Delivered) -->
                 <div class="table-responsive mt-3">
                     <table class="table pnr-profile-table align-middle text-center">
-                        <thead>
-                            <tr>
-                                <th colspan="3">Plan and Result Delivered</th>
-                            </tr>
-                            <tr class="pnr-profile-subhead">
-                                <th>Min Target per month Training and Roleplay</th>
-                                <th>Current Progress</th>
-                                <th>%</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr class="pnr-profile-data">
-                                <td id="pnr-target">11 Hours</td>
-                                <td id="pnr-progress" class="text-primary">0 Hours</td>
-                                <td id="pnr-percentage" class="text-success">0%</td>
-                            </tr>
-                        </tbody>
+                        <thead><tr><th colspan="3" class="bg-warning text-dark">Plan and Result Delivered</th></tr><tr class="table-info"><th>Min Target per month Training & Roleplay</th><th>Current Progress</th><th>%</th></tr></thead>
+                        <tbody><tr><td id="pnr-target">11 Hours</td><td id="pnr-progress" class="text-primary fw-bold">0 Hours</td><td id="pnr-percentage" class="text-success fw-bold">0%</td></tr></tbody>
                     </table>
                 </div>
-
             </div>
         </div>
 
     </div>
 </div>
 
-<!-- Mobile Bottom Dock Navigation (Hanya tampil di HP / d-lg-none) -->
+<!-- Mobile Bottom Dock Navigation -->
 <div class="d-lg-none fixed-bottom bg-dark border-top border-secondary py-2 px-3 shadow-lg" style="z-index: 1050;">
     <div class="d-flex justify-content-around align-items-center">
-        <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="switchMobileTab('ops', this)" id="dock-ops">
-            <i class="fa-solid fa-clipboard-list fa-lg mb-1 text-primary"></i>
-            <span style="font-size: 0.7rem; font-weight: bold;">OPS</span>
-        </button>
-        <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="switchMobileTab('ems', this)" id="dock-ems">
-            <i class="fa-solid fa-laptop-code fa-lg mb-1 text-success"></i>
-            <span style="font-size: 0.7rem;">EMS</span>
-        </button>
-        <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="switchMobileTab('PNR', this)" id="dock-pnr">
-            <i class="fa-solid fa-address-book fa-lg mb-1 text-warning"></i>
-            <span style="font-size: 0.7rem;">PNR</span>
-        </button>
-        <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="switchMobileTab('profile', this)" id="dock-profile">
-            <i class="fa-solid fa-id-card fa-lg mb-1 text-info"></i>
-            <span style="font-size: 0.7rem;">Profile</span>
-        </button>
-        <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="loadData()">
-            <i class="fa-solid fa-rotate fa-lg mb-1 text-light"></i>
-            <span style="font-size: 0.7rem;">Refresh</span>
-        </button>
+        <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="switchMobileTab('ops', this)" id="dock-ops"><i class="fa-solid fa-clipboard-list fa-lg mb-1 text-primary"></i><span style="font-size: 0.7rem; font-weight: bold;">OPS</span></button>
+        <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="switchMobileTab('ems', this)" id="dock-ems"><i class="fa-solid fa-laptop-code fa-lg mb-1 text-success"></i><span style="font-size: 0.7rem;">EMS</span></button>
+        <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="switchMobileTab('PNR', this)" id="dock-pnr"><i class="fa-solid fa-address-book fa-lg mb-1 text-warning"></i><span style="font-size: 0.7rem;">PNR</span></button>
+        <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="switchMobileTab('profile', this)" id="dock-profile"><i class="fa-solid fa-id-card fa-lg mb-1 text-info"></i><span style="font-size: 0.7rem;">Profile</span></button>
+        <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="loadData()"><i class="fa-solid fa-rotate fa-lg mb-1 text-light"></i><span style="font-size: 0.7rem;">Refresh</span></button>
     </div>
 </div>
 
@@ -398,10 +315,7 @@
                 <h5 class="modal-title" id="unsubmittedModalLabel"><i class="fa-solid fa-triangle-exclamation me-2"></i>Daftar Toko Belum Submit OPS</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                <p class="text-muted small">Berikut adalah daftar toko dari master referensi yang belum melakukan submit laporan OPS berdasarkan filter bulan aktif:</p>
-                <ul class="list-group" id="unsubmittedStoreList"></ul>
-            </div>
+            <div class="modal-body"><p class="text-muted small">Berikut adalah daftar toko dari master referensi yang belum melakukan submit laporan OPS:</p><ul class="list-group" id="unsubmittedStoreList"></ul></div>
             <div class="modal-footer"><button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button></div>
         </div>
     </div>
@@ -411,14 +325,13 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzAAm8dsSyuTA2paIJ-i-EO9phCsRrqTWWGsgxIL6kqN7OeUKe-Uxmzd5dpkn15PDBO/exec';
-
     const MASTER_STORES = [
-        "M134 Digimap Beachwalk Bali", "M118 Digimap Pondok Indah Mall 3", "M119 Digimap Centrepoint Mall Medan", 
-        "M120 Digimap Sun Plaza Medan", "M121 Digimap Tunjungan Plaza 3 Surabaya", "M122 Digimap Galaxy Mall Surabaya", 
-        "M123 Digimap Mall Bali Galeria", "M124 Digimap Pacific Place", "M125 Digimap Supermall Karawaci", 
-        "M126 Digimap Ciputra World Surabaya", "M127 Digimap Lotte Shopping Avenue", "M128 Digimap Emporium Mall Pluit", 
-        "M129 Digimap Mall Puri Indah", "M130 Digimap Sunset Road Bali", "M131 Digimap Grand Indonesia", 
-        "M132 Digimap Plaza Senayan", "M133 Digimap Trans Studio Mall Bandung", "M201 Digimap Trans Studio Mall Cibubur", 
+        "M118 Digimap Pondok Indah Mall 3", "M119 Digimap Centrepoint Mall Medan", "M120 Digimap Sun Plaza Medan", 
+        "M121 Digimap Tunjungan Plaza 3 Surabaya", "M122 Digimap Galaxy Mall Surabaya", "M123 Digimap Mall Bali Galeria", 
+        "M124 Digimap Pacific Place", "M125 Digimap Supermall Karawaci", "M126 Digimap Ciputra World Surabaya", 
+        "M127 Digimap Lotte Shopping Avenue", "M128 Digimap Emporium Mall Pluit", "M129 Digimap Mall Puri Indah", 
+        "M130 Digimap Sunset Road Bali", "M131 Digimap Grand Indonesia", "M132 Digimap Plaza Senayan", 
+        "M133 Digimap Trans Studio Mall Bandung", "M134 Digimap Beachwalk Bali", "M201 Digimap Trans Studio Mall Cibubur", 
         "M203 Digimap AEON Mall BSD", "M205 Digimap Paskal 23 Bandung", "M206 Digimap Pakuwon Mall Surabaya", 
         "M212 Digimap Sunter Mall", "M214 Digimap AEON Mall Sentul", "M215 Digimap Mall Taman Anggrek", 
         "M216 Digimap Tentrem Mall Semarang", "M217 Digimap Blok M Plaza", "M218 Digimap Plaza Balikpapan", 
@@ -452,14 +365,21 @@
 
     let globalData = { raw: [], ops: [], ems: [], PNR: [] };
     let lastFilteredOpsRows = [];
-    let opsChartInstance = null;
-    let opsTopicChartInstance = null;
-    let emsChartInstance = null;
-    let PNRChartInstance = null;
+    let opsChartInstance = null, opsTopicChartInstance = null, emsChartInstance = null, PNRChartInstance = null;
     let opsChartMode = 'ops-top15';
-    const OPEN_STUDIO_TARGET = 80;
-    const EMS_TARGET = 10;
-    const PNR_TARGET = 11; // Target minimum jam Training & Roleplay PNR
+    const OPEN_STUDIO_TARGET = 80, PNR_TARGET = 11;
+
+    // Fungsi Kalkulator Target EMS Dinamis: Jumlah Hari dalam Bulan x 2 Sesi
+    function getDynamicEmsTarget(selectedMonthStr) {
+        let year = new Date().getFullYear(), month = new Date().getMonth() + 1;
+        if (selectedMonthStr) {
+            let parts = selectedMonthStr.split('-');
+            year = parseInt(parts[0]);
+            month = parseInt(parts[1]);
+        }
+        let daysInMonth = new Date(year, month, 0).getDate();
+        return daysInMonth * 2;
+    }
 
     function exportTable(tableId, fileName) {
         let table = document.getElementById(tableId);
@@ -486,10 +406,7 @@
 
     function copyWAReminder() {
         let submittedStoresSet = new Set();
-        lastFilteredOpsRows.forEach(row => {
-            let s = getStoreName(row, 'ops');
-            if (s) submittedStoresSet.add(s.toLowerCase());
-        });
+        lastFilteredOpsRows.forEach(row => { let s = getStoreName(row, 'ops'); if (s) submittedStoresSet.add(s.toLowerCase()); });
         let unsubmittedStores = [];
         MASTER_STORES.forEach(store => {
             let isSubmitted = Array.from(submittedStoresSet).some(sub => sub.includes(store.toLowerCase()) || store.toLowerCase().includes(sub));
@@ -499,21 +416,14 @@
         if (unsubmittedStores.length > 0) {
             text += `*Daftar Toko Belum Submit (${unsubmittedStores.length} Toko):*\n`;
             unsubmittedStores.forEach((st, idx) => { text += `${idx + 1}. ${st}\n`; });
-        } else {
-            text += `Luar biasa! Semua toko sudah melakukan submit. 👍\n`;
-        }
+        } else { text += `Luar biasa! Semua toko sudah melakukan submit. 👍\n`; }
         text += `\nTerima kasih atas kerjasamanya! 🙏`;
-        navigator.clipboard.writeText(text).then(() => {
-            alert('Pesan WhatsApp reminder berhasil disalin!');
-        });
+        navigator.clipboard.writeText(text).then(() => { alert('Pesan WhatsApp reminder berhasil disalin!'); });
     }
 
     function switchMobileTab(tabName, btnElement) {
         let tabTrigger = document.querySelector(`#sheetTabListHidden #${tabName}-tab`) || document.querySelector(`#sheetTabList #${tabName}-tab`);
-        if (tabTrigger) {
-            let tab = new bootstrap.Tab(tabTrigger);
-            tab.show();
-        }
+        if (tabTrigger) { let tab = new bootstrap.Tab(tabTrigger); tab.show(); }
         document.querySelectorAll('.fixed-bottom button').forEach(b => { b.style.opacity = '0.6'; });
         if (btnElement) { btnElement.style.opacity = '1'; }
     }
@@ -528,7 +438,6 @@
                     const foundKey = keys.find(k => k.toLowerCase() === targetName.toLowerCase());
                     return foundKey ? obj[foundKey] : [];
                 }
-
                 globalData.raw = getSheetData(data, 'RAW');
                 globalData.ops = getSheetData(data, 'OPS');
                 globalData.ems = getSheetData(data, 'EMS');
@@ -542,7 +451,6 @@
                 applyFilters('ops');
                 applyFilters('ems');
                 applyFilters('PNR');
-                
                 document.getElementById('loadingStatus').innerText = 'Data berhasil diperbarui!';
             })
             .catch(error => {
@@ -554,31 +462,26 @@
     function initProfileDropdown() {
         const select = document.getElementById('profile-name-select');
         let staffList = [];
-
         globalData.raw.forEach(row => {
             let keys = Object.keys(row);
             if (keys.length >= 3) {
                 let name = String(row[keys[2]] || '').trim();
                 let store = String(row[keys[1]] || '').trim();
-                if (name) {
-                    staffList.push({ name, store });
-                }
+                if (name) staffList.push({ name, store });
             }
         });
-
         staffList.sort((a, b) => a.name.localeCompare(b.name));
-
         let html = '<option value="">-- Pilih Nama Staff --</option>';
-        staffList.forEach(item => {
-            html += `<option value="${item.name}">${item.name} (${item.store})</option>`;
-        });
+        staffList.forEach(item => { html += `<option value="${item.name}">${item.name} (${item.store})</option>`; });
         select.innerHTML = html;
         document.getElementById('profile-total-employee').innerText = staffList.length;
     }
 
-    // Update Kartu Profil & Perhitungan Open Studio, EMS, & PNR Berdasarkan Nama Staff
     function updateProfileCard() {
         const selectedName = document.getElementById('profile-name-select').value;
+        const currentMonthFilter = document.getElementById('filter-month-ems').value;
+        const dynamicEmsTarget = getDynamicEmsTarget(currentMonthFilter);
+
         if (!selectedName) {
             document.getElementById('profile-store').innerText = '-';
             document.getElementById('profile-type-store').innerText = '-';
@@ -586,6 +489,7 @@
             document.getElementById('profile-experience').innerText = '-';
             document.getElementById('os-progress').innerText = '0';
             document.getElementById('os-percentage').innerText = '0%';
+            document.getElementById('ems-target').innerText = dynamicEmsTarget;
             document.getElementById('ems-progress').innerText = '0';
             document.getElementById('ems-percentage').innerText = '0%';
             document.getElementById('pnr-progress').innerText = '0 Hours';
@@ -602,27 +506,19 @@
             let keys = Object.keys(foundRow);
             let store = String(foundRow[keys[1]] || '-').trim();
             let emailKey = keys.find(k => /email/i.test(k));
-            let staffEmail = emailKey ? String(foundRow[emailKey] || '').trim().toLowerCase() : (keys.length >= 6 ? String(foundRow[keys[5]] || '').trim().toLowerCase() : '');
-            
+            let staffEmail = emailKey ? String(row[emailKey] || '').trim().toLowerCase() : (keys.length >= 6 ? String(row[keys[5]] || '').trim().toLowerCase() : '');
             let nikKey = keys.find(k => /nik|id/i.test(k));
-            let nik = nikKey ? String(foundRow[nikKey] || '-') : (keys.length >= 4 ? String(foundRow[keys[3]] || '-') : '-');
+            let nik = nikKey ? String(foundRow[nikKey] || '-') : (keys.length >= 4 ? String(row[keys[3]] || '-') : '-');
             
-            let typeStore = 'AAR';
-            if (/flagship/i.test(store)) typeStore = 'Flagship';
-            else if (/store/i.test(store)) typeStore = 'Store';
-
+            let typeStore = /flagship/i.test(store) ? 'Flagship' : 'Store';
             let workExp = '2 Tahun 7 Bulan 29 Hari';
             let joinDateKey = keys.find(k => /join|masuk|date|tanggal/i.test(k));
             if (joinDateKey && foundRow[joinDateKey]) {
                 let dJoin = new Date(foundRow[joinDateKey]);
                 if (!isNaN(dJoin.getTime())) {
-                    let dNow = new Date();
-                    let diffTime = Math.abs(dNow - dJoin);
+                    let diffTime = Math.abs(new Date() - dJoin);
                     let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    let years = Math.floor(diffDays / 365);
-                    let months = Math.floor((diffDays % 365) / 30);
-                    let days = (diffDays % 365) % 30;
-                    workExp = `${years} Tahun ${months} Bulan ${days} Hari`;
+                    workExp = `${Math.floor(diffDays / 365)} Tahun ${Math.floor((diffDays % 365) / 30)} Bulan`;
                 }
             }
 
@@ -631,56 +527,43 @@
             document.getElementById('profile-nik').innerText = nik;
             document.getElementById('profile-experience').innerText = workExp;
 
-            // 1. Hitung Open Studio (OPS)
+            // Open Studio Progress
             let totalStaffSessions = 0;
             globalData.ops.forEach(opsRow => {
                 let oKeys = Object.keys(opsRow);
                 let opsEmailKey = oKeys.find(k => /email/i.test(k));
                 let opsEmail = opsEmailKey ? String(opsRow[opsEmailKey] || '').trim().toLowerCase() : (oKeys.length >= 2 ? String(opsRow[oKeys[1]] || '').trim().toLowerCase() : '');
-
                 if (staffEmail && opsEmail === staffEmail) {
                     let sessionsRaw = String(getOpsVal(opsRow, oKeys, 7, /sessions|jam|waktu/i));
-                    let sessCount = 0;
-                    if (/13/.test(sessionsRaw)) sessCount++;
-                    if (/15/.test(sessionsRaw)) sessCount++;
-                    if (/18/.test(sessionsRaw)) sessCount++;
-                    if (sessCount === 0) sessCount = 1;
-                    totalStaffSessions += sessCount;
+                    let sessCount = (/13/.test(sessionsRaw) ? 1 : 0) + (/15/.test(sessionsRaw) ? 1 : 0) + (/18/.test(sessionsRaw) ? 1 : 0);
+                    totalStaffSessions += (sessCount === 0 ? 1 : sessCount);
                 }
             });
-            let osPercentage = ((totalStaffSessions / OPEN_STUDIO_TARGET) * 100).toFixed(0) + '%';
             document.getElementById('os-target').innerText = OPEN_STUDIO_TARGET;
             document.getElementById('os-progress').innerText = totalStaffSessions;
-            document.getElementById('os-percentage').innerText = osPercentage;
+            document.getElementById('os-percentage').innerText = ((totalStaffSessions / OPEN_STUDIO_TARGET) * 100).toFixed(0) + '%';
 
-            // 2. Hitung EMS
+            // EMS Progress (Dinamis)
             let totalEmsCount = 0;
             globalData.ems.forEach(emsRow => {
                 let eKeys = Object.keys(emsRow);
                 let emsEmailKey = eKeys.find(k => /email/i.test(k));
-                let emsNameKey = eKeys.find(k => /name|nama|trainer|presenter/i.test(k));
                 let emsEmail = emsEmailKey ? String(emsRow[emsEmailKey] || '').trim().toLowerCase() : '';
-                let emsName = emsNameKey ? String(emsRow[emsNameKey] || '').trim().toLowerCase() : '';
-
-                if ((staffEmail && emsEmail === staffEmail) || (selectedName && emsName === selectedName.toLowerCase())) {
+                if (staffEmail && emsEmail === staffEmail) {
                     totalEmsCount++;
                 }
             });
-            let emsPercentage = ((totalEmsCount / EMS_TARGET) * 100).toFixed(0) + '%';
-            document.getElementById('ems-target').innerText = EMS_TARGET;
+            document.getElementById('ems-target').innerText = dynamicEmsTarget;
             document.getElementById('ems-progress').innerText = totalEmsCount;
-            document.getElementById('ems-percentage').innerText = emsPercentage;
+            document.getElementById('ems-percentage').innerText = ((totalEmsCount / dynamicEmsTarget) * 100).toFixed(0) + '%';
 
-            // 3. Hitung PNR (Plan and Result Delivered)
+            // PNR Progress
             let totalPnrHours = 0;
             globalData.PNR.forEach(pnrRow => {
                 let pKeys = Object.keys(pnrRow);
-                let pnrEmailKey = pKeys.find(k => /email/i.test(k));
                 let pnrNameKey = pKeys.find(k => /name|nama|trainer|presenter/i.test(k));
-                let pnrEmail = pnrEmailKey ? String(pnrRow[pnrEmailKey] || '').trim().toLowerCase() : '';
                 let pnrName = pnrNameKey ? String(pnrRow[pnrNameKey] || '').trim().toLowerCase() : '';
-
-                if ((staffEmail && pnrEmail === staffEmail) || (selectedName && pnrName === selectedName.toLowerCase())) {
+                if (selectedName && pnrName === selectedName.toLowerCase()) {
                     for (let k in pnrRow) {
                         if (/hour|jam|duration|durasi|total|time/i.test(k)) {
                             let val = parseFloat(pnrRow[k]);
@@ -689,23 +572,10 @@
                     }
                 }
             });
-            // Fallback jika baris data PNR mencatat jumlah baris atau jam langsung
-            if (totalPnrHours === 0) {
-                globalData.PNR.forEach(pnrRow => {
-                    let pKeys = Object.keys(pnrRow);
-                    let pnrEmailKey = pKeys.find(k => /email/i.test(k));
-                    let pnrNameKey = pKeys.find(k => /name|nama|trainer|presenter/i.test(k));
-                    let pnrEmail = pnrEmailKey ? String(pnrRow[pnrEmailKey] || '').trim().toLowerCase() : '';
-                    let pnrName = pnrNameKey ? String(pnrRow[pnrNameKey] || '').trim().toLowerCase() : '';
-                    if ((staffEmail && pnrEmail === staffEmail) || (selectedName && pnrName === selectedName.toLowerCase())) {
-                        totalPnrHours += 1; // Asumsi per sesi 1 jam jika kolom jam tidak ditemukan
-                    }
-                });
-            }
-            let pnrPercentage = ((totalPnrHours / PNR_TARGET) * 100).toFixed(0) + '%';
+            if (totalPnrHours === 0) totalPnrHours = globalData.PNR.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(selectedName.toLowerCase()))).length;
             document.getElementById('pnr-target').innerText = PNR_TARGET + ' Hours';
             document.getElementById('pnr-progress').innerText = totalPnrHours + ' Hours';
-            document.getElementById('pnr-percentage').innerText = pnrPercentage;
+            document.getElementById('pnr-percentage').innerText = ((totalPnrHours / PNR_TARGET) * 100).toFixed(0) + '%';
         }
     }
 
@@ -716,18 +586,17 @@
         if (matchYMD) return `${matchYMD[1]}-${matchYMD[2]}`;
         let d = new Date(s);
         if (!isNaN(d.getTime()) && d.getFullYear() > 2000) {
-            let y = d.getFullYear();
-            let m = String(d.getMonth() + 1).padStart(2, '0');
-            return `${y}-${m}`;
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
         }
         return null;
     }
 
     function getStoreName(row, sheetId) {
         let keys = Object.keys(row);
-        if (sheetId === 'ops' && keys.length >= 6) {
-            let val = row[keys[5]];
-            if (val) return String(val).trim();
+        if (sheetId === 'ops' && keys.length >= 6) { let val = row[keys[5]]; if (val) return String(val).trim(); }
+        if (sheetId === 'ems') {
+            let s = row['Store'] || row[keys[1]] || '';
+            if (s) return String(s).trim();
         }
         let found = keys.find(k => /toko|store|lokasi|location|name|nama/i.test(k));
         if (found && row[found]) return String(row[found]).trim();
@@ -737,62 +606,43 @@
     function initDropdowns(sheetId, rows) {
         const monthSelect = document.getElementById(`filter-month-${sheetId}`);
         const storeSelect = document.getElementById(`filter-store-${sheetId}`);
-        const currentMonth = monthSelect.value;
-        const currentStore = storeSelect.value;
-
-        let months = new Set();
-        let stores = new Set(sheetId === 'ops' ? MASTER_STORES : []);
+        const currentMonth = monthSelect.value, currentStore = storeSelect.value;
+        let months = new Set(), stores = new Set(sheetId === 'ops' ? MASTER_STORES : []);
 
         rows.forEach(row => {
             let keys = Object.keys(row);
             let monthVal = '';
-            if (sheetId === 'ops' && keys.length >= 12) {
-                monthVal = row[keys[11]] || row[keys[12]];
+            if (sheetId === 'ems') {
+                let foundKey = keys.find(k => /bulan|month|date|tanggal|periode/i.test(k));
+                if (foundKey && row[foundKey]) {
+                    monthVal = row[foundKey];
+                } else if (keys.length >= 7) {
+                    monthVal = row[keys[6]];
+                }
+            } else {
+                for (let k in row) { if (/bulan|month|date|tanggal|periode/i.test(k)) { monthVal = row[k]; break; } }
             }
             if (!monthVal) {
                 for (let k in row) {
-                    if (/bulan|month|date|tanggal|periode/i.test(k)) {
-                        monthVal = row[k];
-                        break;
-                    }
+                    let mTest = extractMonthString(row[k]);
+                    if (mTest) { monthVal = row[k]; break; }
                 }
             }
             let m = extractMonthString(monthVal);
             if (m) months.add(m);
-
-            if (sheetId !== 'ops') {
-                let s = getStoreName(row, sheetId);
-                if (s && s !== 'Unknown Store') stores.add(s);
-            }
+            if (sheetId !== 'ops') { let s = getStoreName(row, sheetId); if (s && s !== 'Unknown Store') stores.add(s); }
         });
 
         if (sheetId === 'ops' && globalData.raw.length > 0) {
-            globalData.raw.forEach(row => {
-                let keys = Object.keys(row);
-                if (keys.length >= 2) {
-                    let s = row[keys[1]];
-                    if (s) stores.add(String(s).trim());
-                }
-            });
+            globalData.raw.forEach(row => { let keys = Object.keys(row); if (keys.length >= 2 && row[keys[1]]) stores.add(String(row[keys[1]]).trim()); });
         }
 
         let sortedMonths = Array.from(months).sort().reverse();
-        let monthHtml = '<option value="">Semua Bulan</option>';
-        sortedMonths.forEach(m => {
-            let parts = m.split('-');
-            let dateObj = new Date(parts[0], parts[1] - 1, 1);
-            let labelMonth = dateObj.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
-            monthHtml += `<option value="${m}">${labelMonth}</option>`;
-        });
-        monthSelect.innerHTML = monthHtml;
+        monthSelect.innerHTML = '<option value="">Semua Bulan</option>' + sortedMonths.map(m => `<option value="${m}">${new Date(m + '-01').toLocaleString('id-ID', { month: 'long', year: 'numeric' })}</option>`).join('');
         monthSelect.value = sortedMonths.includes(currentMonth) ? currentMonth : "";
 
         let sortedStores = Array.from(stores).sort();
-        let storeHtml = '<option value="">Semua Toko</option>';
-        sortedStores.forEach(s => {
-            storeHtml += `<option value="${s}">${s}</option>`;
-        });
-        storeSelect.innerHTML = storeHtml;
+        storeSelect.innerHTML = '<option value="">Semua Toko</option>' + sortedStores.map(s => `<option value="${s}">${s}</option>`).join('');
         storeSelect.value = sortedStores.includes(currentStore) ? currentStore : "";
     }
 
@@ -804,24 +654,22 @@
 
         let filtered = rows.filter(row => {
             let keys = Object.keys(row);
-            let matchSearch = true;
-            if (searchInput) {
-                matchSearch = Object.values(row).some(val => String(val).toLowerCase().includes(searchInput));
-            }
-            let matchStore = true;
-            if (storeSelect) {
-                matchStore = (getStoreName(row, sheetId) === storeSelect);
-            }
+            let matchSearch = searchInput ? Object.values(row).some(val => String(val).toLowerCase().includes(searchInput)) : true;
+            let matchStore = storeSelect ? (getStoreName(row, sheetId) === storeSelect) : true;
             let matchMonth = true;
             if (monthSelect) {
                 matchMonth = false;
                 let monthVal = '';
-                if (sheetId === 'ops' && keys.length >= 12) {
-                    monthVal = row[keys[11]] || row[keys[12]];
+                if (sheetId === 'ems') {
+                    let foundKey = keys.find(k => /bulan|month|date|tanggal|periode/i.test(k));
+                    if (foundKey && row[foundKey]) monthVal = row[foundKey];
+                    else if (keys.length >= 7) monthVal = row[keys[6]];
                 }
+                if (!monthVal) { for (let k in row) { if (/bulan|month|date|tanggal|periode/i.test(k)) { monthVal = row[k]; break; } } }
                 if (!monthVal) {
                     for (let k in row) {
-                        if (/bulan|month|date|tanggal|periode/i.test(k)) { monthVal = row[k]; break; }
+                        let mTest = extractMonthString(row[k]);
+                        if (mTest) { monthVal = row[k]; break; }
                     }
                 }
                 if (extractMonthString(monthVal) === monthSelect) matchMonth = true;
@@ -834,6 +682,9 @@
             renderGroupedOpsTable(filtered);
             renderStaffCalendarMatrix(globalData.ops, monthSelect, storeSelect, searchInput);
             calculateOpsSubmissionSummary(filtered);
+        } else if (sheetId === 'ems') {
+            renderEmsCalendarMatrix(globalData.ems, monthSelect, storeSelect, searchInput);
+            renderEmsWeeklyMatrix(filtered, monthSelect, storeSelect, searchInput);
         } else {
             renderTable(sheetId, filtered);
         }
@@ -845,96 +696,64 @@
     function setChartMode(sheetId, mode) {
         if (sheetId === 'ops') {
             opsChartMode = `ops-${mode}`;
-            document.getElementById('btn-top15').className = mode === 'top15' ? 'btn btn-primary' : 'btn btn-outline-primary';
-            document.getElementById('btn-bottom15').className = mode === 'bottom15' ? 'btn btn-primary' : 'btn btn-outline-primary';
-            document.getElementById('btn-all').className = mode === 'all' ? 'btn btn-primary' : 'btn btn-outline-primary';
+            ['top15', 'bottom15', 'all'].forEach(m => {
+                document.getElementById(`btn-${m}`).className = (mode === m) ? 'btn btn-primary' : 'btn btn-outline-primary';
+            });
             applyFilters('ops');
         }
     }
 
     function getOpsVal(row, keys, indexGuess, keywordRegex) {
-        if (indexGuess >= 0 && keys.length > indexGuess) {
-            let val = row[keys[indexGuess]];
-            if (val !== undefined && val !== '') return val;
-        }
+        if (indexGuess >= 0 && keys.length > indexGuess && row[keys[indexGuess]] !== undefined && row[keys[indexGuess]] !== '') return row[keys[indexGuess]];
         let foundKey = keys.find(k => keywordRegex.test(k));
-        if (foundKey !== undefined && row[foundKey] !== undefined) return row[foundKey];
-        return '';
+        return (foundKey !== undefined && row[foundKey] !== undefined) ? row[foundKey] : '';
     }
 
     function calculateOpsSubmissionSummary(filteredRows) {
         let submittedStoresSet = new Set();
-        filteredRows.forEach(row => {
-            let s = getStoreName(row, 'ops');
-            if (s && s !== 'Unknown Store') submittedStoresSet.add(s);
-        });
-        let totalMaster = MASTER_STORES.length;
+        filteredRows.forEach(row => { let s = getStoreName(row, 'ops'); if (s && s !== 'Unknown Store') submittedStoresSet.add(s); });
         let submittedCount = 0;
         MASTER_STORES.forEach(store => {
-            let isSubmitted = Array.from(submittedStoresSet).some(sub => sub.toLowerCase().includes(store.toLowerCase()) || store.toLowerCase().includes(sub.toLowerCase()));
-            if (isSubmitted) submittedCount++;
+            if (Array.from(submittedStoresSet).some(sub => sub.toLowerCase().includes(store.toLowerCase()) || store.toLowerCase().includes(sub.toLowerCase()))) submittedCount++;
         });
-        let unsubmittedCount = Math.max(0, totalMaster - submittedCount);
         document.getElementById('summary-submitted-stores').innerText = submittedCount;
-        document.getElementById('summary-unsubmitted-stores').innerText = unsubmittedCount;
+        document.getElementById('summary-unsubmitted-stores').innerText = Math.max(0, MASTER_STORES.length - submittedCount);
     }
 
     function showUnsubmittedModal() {
         let submittedStoresSet = new Set();
-        lastFilteredOpsRows.forEach(row => {
-            let s = getStoreName(row, 'ops');
-            if (s) submittedStoresSet.add(s.toLowerCase());
-        });
+        lastFilteredOpsRows.forEach(row => { let s = getStoreName(row, 'ops'); if (s) submittedStoresSet.add(s.toLowerCase()); });
         let unsubmittedListHtml = '';
         let unsubmittedCount = 0;
         MASTER_STORES.forEach(store => {
-            let isSubmitted = Array.from(submittedStoresSet).some(sub => sub.includes(store.toLowerCase()) || store.toLowerCase().includes(sub));
-            if (!isSubmitted) {
+            if (!Array.from(submittedStoresSet).some(sub => sub.includes(store.toLowerCase()) || store.toLowerCase().includes(sub))) {
                 unsubmittedCount++;
                 unsubmittedListHtml += `<li class="list-group-item d-flex justify-content-between align-items-center"><span class="fw-semibold">${store}</span><span class="badge bg-danger rounded-pill">Belum Submit</span></li>`;
             }
         });
-        if (unsubmittedCount === 0) {
-            unsubmittedListHtml = `<li class="list-group-item text-center text-success py-3">Luar biasa! Seluruh toko telah melakukan submit.</li>`;
-        }
+        if (unsubmittedCount === 0) unsubmittedListHtml = `<li class="list-group-item text-center text-success py-3">Luar biasa! Seluruh toko telah melakukan submit.</li>`;
         document.getElementById('unsubmittedStoreList').innerHTML = unsubmittedListHtml;
-        let myModal = new bootstrap.Modal(document.getElementById('unsubmittedModal'));
-        myModal.show();
+        new bootstrap.Modal(document.getElementById('unsubmittedModal')).show();
     }
 
     function renderGroupedOpsTable(rows) {
         const table = document.getElementById(`table-ops`);
         const tbody = table.querySelector('tbody');
         tbody.innerHTML = '';
-        if (!rows || rows.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-3">Tidak ada data ditemukan.</td></tr>`;
-            return;
-        }
+        if (!rows || rows.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-3">Tidak ada data ditemukan.</td></tr>`; return; }
         let grouped = {};
         rows.forEach(row => {
-            let keys = Object.keys(row);
-            let store = getStoreName(row, 'ops');
+            let keys = Object.keys(row), store = getStoreName(row, 'ops');
             let sessionsRaw = String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i));
-            let v13 = (/13/.test(sessionsRaw)) ? 1 : 0;
-            let v15 = (/15/.test(sessionsRaw)) ? 1 : 0;
-            let v18 = (/18/.test(sessionsRaw)) ? 1 : 0;
-            let key = store;
-            if (!grouped[key]) {
-                grouped[key] = { store, s13: 0, s15: 0, s18: 0, count: 0 };
-            }
-            grouped[key].s13 += v13;
-            grouped[key].s15 += v15;
-            grouped[key].s18 += v18;
-            grouped[key].count += 1;
+            let v13 = (/13/.test(sessionsRaw)) ? 1 : 0, v15 = (/15/.test(sessionsRaw)) ? 1 : 0, v18 = (/18/.test(sessionsRaw)) ? 1 : 0;
+            if (!grouped[store]) grouped[store] = { store, s13: 0, s15: 0, s18: 0 };
+            grouped[store].s13 += v13; grouped[store].s15 += v15; grouped[store].s18 += v18;
         });
-        let groupKeys = Object.keys(grouped).sort();
         const fragment = document.createDocumentFragment();
-        groupKeys.forEach(k => {
-            let item = grouped[k];
-            let total = item.s13 + item.s15 + item.s18;
-            let presenterPct = ((total / 85) * 100).toFixed(1) + '%';
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td class="text-start">${item.store}</td><td>${item.s13}</td><td>${item.s15}</td><td>${item.s18}</td><td class="fw-bold text-primary">${total}</td><td>85</td><td class="fw-bold text-success">${presenterPct}</td>`;
+        Object.keys(grouped).sort().forEach(k => {
+            let item = grouped[k], total = item.s13 + item.s15 + item.s18;
+            let tr = document.createElement('tr');
+            tr.innerHTML = `<td class="text-start">${item.store}</td><td>${item.s13}</td><td>${item.s15}</td><td>${item.s18}</td><td class="fw-bold text-primary">${total}</td><td>85</td><td class="fw-bold text-success">${((total / 85) * 100).toFixed(1)}%</td>`;
             fragment.appendChild(tr);
         });
         tbody.appendChild(fragment);
@@ -942,31 +761,18 @@
 
     function renderStaffCalendarMatrix(allOpsRows, selectedMonth, selectedStore, searchInput) {
         const table = document.getElementById('table-staff-matrix');
-        const thead = table.querySelector('thead');
-        const tbody = table.querySelector('tbody');
-        thead.innerHTML = '';
-        tbody.innerHTML = '';
-
-        let daysInMonth = 31;
-        let year = 2026, month = 10;
-        if (selectedMonth) {
-            let parts = selectedMonth.split('-');
-            year = parseInt(parts[0]);
-            month = parseInt(parts[1]);
-            daysInMonth = new Date(year, month, 0).getDate();
-        }
-
+        const thead = table.querySelector('thead'), tbody = table.querySelector('tbody');
+        thead.innerHTML = ''; tbody.innerHTML = '';
+        let daysInMonth = selectedMonth ? new Date(selectedMonth.split('-')[0], selectedMonth.split('-')[1], 0).getDate() : 31;
         let headerHtml = '<tr><th class="store-col">Store</th><th class="name-col">Presenter Name</th>';
-        for (let d = 1; d <= daysInMonth; d++) { headerHtml += `<th>${d}</th>`; }
-        headerHtml += '<th class="bg-primary">TOTAL SESI</th></tr>';
-        thead.innerHTML = headerHtml;
+        for (let d = 1; d <= daysInMonth; d++) headerHtml += `<th>${d}</th>`;
+        thead.innerHTML = headerHtml + '<th class="bg-primary">TOTAL SESI</th></tr>';
 
         let staffMap = {};
         globalData.raw.forEach(rawRow => {
             let rKeys = Object.keys(rawRow);
             if (rKeys.length >= 3) {
-                let store = String(rawRow[rKeys[1]] || '').trim();
-                let presenter = String(rawRow[rKeys[2]] || '').trim();
+                let store = String(rawRow[rKeys[1]] || '').trim(), presenter = String(rawRow[rKeys[2]] || '').trim();
                 let emailKey = rKeys.find(k => /email/i.test(k));
                 let email = emailKey ? String(rawRow[emailKey] || '').trim().toLowerCase() : (rKeys.length >= 6 ? String(rawRow[rKeys[5]] || '').trim().toLowerCase() : '');
                 if (email && presenter) {
@@ -982,54 +788,236 @@
             let opsEmail = opsEmailKey ? String(row[opsEmailKey] || '').trim().toLowerCase() : (keys.length >= 2 ? String(row[keys[1]] || '').trim().toLowerCase() : '');
             if (opsEmail && staffMap[opsEmail]) {
                 let monthVal = keys.length >= 12 ? (row[keys[11]] || row[keys[12]]) : '';
-                let mStr = extractMonthString(monthVal);
-                if (selectedMonth && mStr !== selectedMonth) return;
+                if (selectedMonth && extractMonthString(monthVal) !== selectedMonth) return;
                 let dateVal = row[keys[12]] || row[keys[3]] || row[keys[0]];
                 let dObj = new Date(dateVal);
-                let dayNum = !isNaN(dObj.getDate()) ? dObj.getDate() : null;
-                if (!dayNum) {
-                    let match = String(dateVal).match(/\b([1-3]?[0-9])\b/);
-                    if (match) dayNum = parseInt(match[1]);
-                }
+                let dayNum = !isNaN(dObj.getDate()) ? dObj.getDate() : (String(dateVal).match(/\b([1-3]?[0-9])\b/) ? parseInt(RegExp.$1) : null);
                 if (dayNum && dayNum >= 1 && dayNum <= daysInMonth) {
-                    let sessionsRaw = String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i));
-                    let sessCount = 0;
-                    if (/13/.test(sessionsRaw)) sessCount++;
-                    if (/15/.test(sessionsRaw)) sessCount++;
-                    if (/18/.test(sessionsRaw)) sessCount++;
-                    if (sessCount === 0) sessCount = 1;
-                    staffMap[opsEmail].days[dayNum] = (staffMap[opsEmail].days[dayNum] || 0) + sessCount;
-                    staffMap[opsEmail].totalSesi += sessCount;
+                    let sessCount = (/13/.test(String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i))) ? 1 : 0) + (/15/.test(String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i))) ? 1 : 0) + (/18/.test(String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i))) ? 1 : 0);
+                    staffMap[opsEmail].days[dayNum] = (staffMap[opsEmail].days[dayNum] || 0) + (sessCount === 0 ? 1 : sessCount);
+                    staffMap[opsEmail].totalSesi += (sessCount === 0 ? 1 : sessCount);
                 }
             }
         });
 
         let staffArray = Object.values(staffMap);
-        if (searchInput) {
-            staffArray = staffArray.filter(item => item.store.toLowerCase().includes(searchInput) || item.presenter.toLowerCase().includes(searchInput) || item.email.toLowerCase().includes(searchInput));
-        }
-        staffArray.sort((a, b) => {
-            let storeCmp = a.store.localeCompare(b.store);
-            if (storeCmp !== 0) return storeCmp;
-            return a.presenter.localeCompare(b.presenter);
-        });
+        if (searchInput) staffArray = staffArray.filter(i => i.store.toLowerCase().includes(searchInput) || i.presenter.toLowerCase().includes(searchInput) || i.email.toLowerCase().includes(searchInput));
+        staffArray.sort((a, b) => a.store.localeCompare(b.store) || a.presenter.localeCompare(b.presenter));
 
         document.getElementById('staff-matrix-count').innerText = `${staffArray.length} Staff (Master RAW)`;
-        if (staffArray.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="${daysInMonth + 3}" class="text-center text-muted py-3">Tidak ada data staff ditemukan.</td></tr>`;
+        const fragment = document.createDocumentFragment();
+        staffArray.forEach(item => {
+            let tr = document.createElement('tr');
+            let rowHtml = `<td class="store-col fw-semibold">${item.store}</td><td class="name-col">${item.presenter}</td>`;
+            for (let d = 1; d <= daysInMonth; d++) {
+                rowHtml += item.days[d] ? `<td class="cell-active">${item.days[d]}</td>` : `<td class="cell-inactive">-</td>`;
+            }
+            tr.innerHTML = rowHtml + `<td class="fw-bold text-primary bg-light">${item.totalSesi}</td>`;
+            fragment.appendChild(tr);
+        });
+        tbody.appendChild(fragment);
+    }
+
+    function renderEmsCalendarMatrix(allEmsRows, selectedMonth, selectedStore, searchInput) {
+        const table = document.getElementById('table-ems-matrix');
+        const thead = table.querySelector('thead'), tbody = table.querySelector('tbody');
+        thead.innerHTML = ''; tbody.innerHTML = '';
+        let daysInMonth = selectedMonth ? new Date(selectedMonth.split('-')[0], selectedMonth.split('-')[1], 0).getDate() : 31;
+        let headerHtml = '<tr><th class="store-col">Store</th><th class="name-col">Trainer Name</th>';
+        for (let d = 1; d <= daysInMonth; d++) headerHtml += `<th>${d}</th>`;
+        thead.innerHTML = headerHtml + '<th class="bg-success">TOTAL SESI</th></tr>';
+
+        let staffMap = {};
+        globalData.raw.forEach(rawRow => {
+            let rKeys = Object.keys(rawRow);
+            if (rKeys.length >= 3) {
+                let store = String(rawRow[rKeys[1]] || '').trim();
+                let presenter = String(rawRow[rKeys[2]] || '').trim();
+                let emailKey = rKeys.find(k => /email/i.test(k));
+                let email = emailKey ? String(rawRow[emailKey] || '').trim().toLowerCase() : (rKeys.length >= 6 ? String(rawRow[rKeys[5]] || '').trim().toLowerCase() : '');
+                if (email && presenter) {
+                    if (selectedStore && store !== selectedStore) return;
+                    staffMap[email] = { store, presenter, email, days: {}, totalSessions: 0 };
+                }
+            }
+        });
+
+        allEmsRows.forEach(row => {
+            let keys = Object.keys(row);
+            let emsEmailKey = keys.find(k => /email/i.test(k));
+            let emsEmail = emsEmailKey ? String(row[emsEmailKey] || '').trim().toLowerCase() : '';
+            
+            if (emsEmail && staffMap[emsEmail]) {
+                let monthVal = '';
+                let foundKey = keys.find(k => /bulan|month|date|tanggal|periode/i.test(k));
+                if (foundKey && row[foundKey]) monthVal = row[foundKey];
+                else if (keys.length >= 7) monthVal = row[keys[6]];
+                
+                let dateVal = String(row['Date'] || (keys.length >= 8 ? row[keys[7]] : ''));
+
+                if (selectedMonth && extractMonthString(monthVal) !== selectedMonth) return;
+
+                let dObj = new Date(dateVal);
+                let dayNum = !isNaN(dObj.getDate()) ? dObj.getDate() : (String(dateVal).match(/\b([1-3]?[0-9])\b/) ? parseInt(RegExp.$1) : null);
+
+                if (dayNum && dayNum >= 1 && dayNum <= daysInMonth) {
+                    staffMap[emsEmail].days[dayNum] = (staffMap[emsEmail].days[dayNum] || 0) + 1;
+                    staffMap[emsEmail].totalSessions++;
+                }
+            }
+        });
+
+        let staffArray = Object.values(staffMap);
+        if (searchInput) staffArray = staffArray.filter(i => i.store.toLowerCase().includes(searchInput) || i.presenter.toLowerCase().includes(searchInput) || i.email.toLowerCase().includes(searchInput));
+        staffArray.sort((a, b) => a.store.localeCompare(b.store) || a.presenter.localeCompare(b.presenter));
+
+        document.getElementById('ems-matrix-count').innerText = `${staffArray.length} Staff (Master RAW)`;
+        const fragment = document.createDocumentFragment();
+        staffArray.forEach(item => {
+            let tr = document.createElement('tr');
+            let rowHtml = `<td class="store-col fw-semibold">${item.store}</td><td class="name-col">${item.presenter}</td>`;
+            for (let d = 1; d <= daysInMonth; d++) {
+                rowHtml += item.days[d] ? `<td class="cell-active">${item.days[d]}</td>` : `<td class="cell-inactive">-</td>`;
+            }
+            tr.innerHTML = rowHtml + `<td class="fw-bold text-success bg-light">${item.totalSessions}</td>`;
+            fragment.appendChild(tr);
+        });
+        tbody.appendChild(fragment);
+    }
+
+    function getMonthWeeks(year, month) {
+        let daysInMonth = new Date(year, month, 0).getDate();
+        let weeks = [];
+        let currentWeek = { label: '', startDay: 1, endDay: 1 };
+        
+        for (let d = 1; d <= daysInMonth; d++) {
+            let date = new Date(year, month - 1, d);
+            let jsDay = date.getDay();
+            if (!currentWeek.startDay) currentWeek.startDay = d;
+            currentWeek.endDay = d;
+            
+            if (jsDay === 0 || d === daysInMonth) {
+                currentWeek.label = `${currentWeek.startDay}-${currentWeek.endDay}`;
+                weeks.push({ ...currentWeek });
+                currentWeek = { label: '', startDay: d + 1, endDay: null };
+            }
+        }
+        return weeks;
+    }
+
+    function renderEmsWeeklyMatrix(filteredRows, selectedMonth, selectedStore, searchInput) {
+        const table = document.getElementById('table-ems-weekly');
+        const thead = table.querySelector('thead');
+        const tbody = table.querySelector('tbody');
+        thead.innerHTML = ''; 
+        tbody.innerHTML = '';
+
+        let year = new Date().getFullYear(), month = new Date().getMonth() + 1;
+        if (selectedMonth) {
+            let parts = selectedMonth.split('-');
+            year = parseInt(parts[0]);
+            month = parseInt(parts[1]);
+        } else if (filteredRows.length > 0) {
+            let firstRowKeys = Object.keys(filteredRows[0]);
+            let foundKey = firstRowKeys.find(k => /bulan|month|date|tanggal|periode/i.test(k));
+            let mVal = foundKey ? filteredRows[0][foundKey] : (firstRowKeys.length >= 7 ? filteredRows[0][firstRowKeys[6]] : '');
+            let mStr = extractMonthString(mVal);
+            if (mStr) {
+                let parts = mStr.split('-');
+                year = parseInt(parts[0]);
+                month = parseInt(parts[1]);
+            }
+        }
+
+        let weeks = getMonthWeeks(year, month);
+        let dynamicTargetPerStore = getDynamicEmsTarget(selectedMonth);
+
+        let headerHtml = '<tr><th class="store-col">Store Name</th>';
+        weeks.forEach(w => { headerHtml += `<th>${w.label}</th>`; });
+        headerHtml += '<th class="bg-success">Total Sesi</th><th>Target Bulanan</th><th>%</th></tr>';
+        thead.innerHTML = headerHtml;
+
+        let storeMap = {};
+
+        filteredRows.forEach(row => {
+            let store = getStoreName(row, 'ems');
+            if (!store || store === 'Unknown Store') return;
+            if (selectedStore && store !== selectedStore) return;
+
+            let keys = Object.keys(row);
+            let dateVal = String(row['Date'] || (keys.length >= 8 ? row[keys[7]] : ''));
+            let dObj = new Date(dateVal);
+            let dayNum = !isNaN(dObj.getDate()) ? dObj.getDate() : (String(dateVal).match(/\b([1-3]?[0-9])\b/) ? parseInt(RegExp.$1) : null);
+
+            let key = store.toLowerCase();
+            if (!storeMap[key]) {
+                storeMap[key] = {
+                    store: store,
+                    weeksData: {}
+                };
+                weeks.forEach(w => { storeMap[key].weeksData[w.label] = 0; });
+            }
+
+            if (dayNum) {
+                let targetWeek = weeks.find(w => dayNum >= w.startDay && dayNum <= w.endDay);
+                if (targetWeek) {
+                    storeMap[key].weeksData[targetWeek.label] += 1;
+                }
+            }
+        });
+
+        let storeArray = Object.values(storeMap);
+        if (searchInput) storeArray = storeArray.filter(i => i.store.toLowerCase().includes(searchInput));
+        storeArray.sort((a, b) => a.store.localeCompare(b.store));
+
+        document.getElementById('ems-weekly-count').innerText = `${storeArray.length} Store`;
+
+        // Kalkulasi Makro Regional (Basis 103 Toko Master)
+        let totalActualRegional = filteredRows.length; // Total seluruh sesi terrekam
+        let totalMasterStores = MASTER_STORES.length;  // 103 Toko
+        let totalTargetRegional = totalMasterStores * dynamicTargetPerStore; // 103 x Target Dinamis
+        let achievedStoreCount = 0;
+
+        storeArray.forEach(item => {
+            let totalSessions = 0;
+            weeks.forEach(w => { totalSessions += item.weeksData[w.label]; });
+            if (totalSessions >= dynamicTargetPerStore) achievedStoreCount++;
+        });
+
+        let regionalPercentage = totalTargetRegional > 0 ? ((totalActualRegional / totalTargetRegional) * 100).toFixed(1) : 0;
+
+        // Update kartu Executive Summary Regional
+        document.getElementById('ems-sum-total-stores').innerText = totalMasterStores;
+        document.getElementById('ems-sum-actual').innerText = totalActualRegional;
+        document.getElementById('ems-sum-target').innerText = totalTargetRegional;
+        document.getElementById('ems-sum-achieved').innerText = achievedStoreCount;
+        document.getElementById('ems-sum-regional-pct').innerText = regionalPercentage + '%';
+
+        if (storeArray.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="${weeks.length + 4}" class="text-center text-muted py-3">Tidak ada data mingguan ditemukan.</td></tr>`;
             return;
         }
 
         const fragment = document.createDocumentFragment();
-        staffArray.forEach(item => {
-            const tr = document.createElement('tr');
-            let rowHtml = `<td class="store-col fw-semibold">${item.store}</td><td class="name-col">${item.presenter}</td>`;
-            for (let d = 1; d <= daysInMonth; d++) {
-                let count = item.days[d];
-                if (count > 0) rowHtml += `<td class="cell-active" title="Tanggal ${d}: ${count} sesi">✓</td>`;
-                else rowHtml += `<td class="cell-inactive">-</td>`;
-            }
-            rowHtml += `<td class="fw-bold text-primary bg-light">${item.totalSesi}</td>`;
+        storeArray.forEach(item => {
+            let tr = document.createElement('tr');
+            let rowHtml = `<td class="store-col fw-semibold">${item.store}</td>`;
+            
+            let totalSessions = 0;
+            weeks.forEach(w => {
+                let count = item.weeksData[w.label];
+                totalSessions += count;
+                rowHtml += `<td>${count > 0 ? count : '-'}</td>`;
+            });
+
+            let percentageVal = ((totalSessions / dynamicTargetPerStore) * 100).toFixed(0);
+            let badgeClass = percentageVal >= 100 ? 'text-success' : 'text-danger';
+
+            rowHtml += `
+                <td class="fw-bold text-success bg-light">${totalSessions}x</td>
+                <td>${dynamicTargetPerStore}</td>
+                <td class="fw-bold ${badgeClass}">${percentageVal}%</td>
+            `;
             tr.innerHTML = rowHtml;
             fragment.appendChild(tr);
         });
@@ -1038,28 +1026,16 @@
 
     function renderTable(sheetId, rows) {
         const table = document.getElementById(`table-${sheetId}`);
-        const thead = table.querySelector('thead');
-        const tbody = table.querySelector('tbody');
+        const thead = table.querySelector('thead'), tbody = table.querySelector('tbody');
         document.getElementById(`count-${sheetId}`).innerText = rows.length;
-        thead.innerHTML = '';
-        tbody.innerHTML = '';
-        if (!rows || rows.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-3">Tidak ada data ditemukan.</td></tr>`;
-            return;
-        }
+        thead.innerHTML = ''; tbody.innerHTML = '';
+        if (!rows || rows.length === 0) { tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-3">Tidak ada data ditemukan.</td></tr>`; return; }
         const headers = Object.keys(rows[0]);
-        let headerRow = '<tr>';
-        headers.forEach(h => { headerRow += `<th>${h}</th>`; });
-        headerRow += '</tr>';
-        thead.innerHTML = headerRow;
+        thead.innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
         const fragment = document.createDocumentFragment();
         rows.forEach(row => {
-            const tr = document.createElement('tr');
-            headers.forEach(h => {
-                const td = document.createElement('td');
-                td.textContent = row[h] !== undefined ? row[h] : '';
-                tr.appendChild(td);
-            });
+            let tr = document.createElement('tr');
+            headers.forEach(h => { let td = document.createElement('td'); td.textContent = row[h] !== undefined ? row[h] : ''; tr.appendChild(td); });
             fragment.appendChild(tr);
         });
         tbody.appendChild(fragment);
@@ -1071,14 +1047,10 @@
                 let totalOpsPartisipan = 0, totalOpsSessions = 0, totalOpsUnits = 0;
                 rows.forEach(row => {
                     let keys = Object.keys(row);
-                    let p = getOpsVal(row, keys, 4, /total.*participant|partisipan/i);
-                    totalOpsPartisipan += parseFloat(p) || 0;
-                    let sessionsRaw = String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i));
-                    if (/13/.test(sessionsRaw)) totalOpsSessions++;
-                    if (/15/.test(sessionsRaw)) totalOpsSessions++;
-                    if (/18/.test(sessionsRaw)) totalOpsSessions++;
-                    let u = getOpsVal(row, keys, 8, /unit.*terjual|terjual|sold/i);
-                    totalOpsUnits += parseFloat(u) || 0;
+                    totalOpsPartisipan += parseFloat(getOpsVal(row, keys, 4, /total.*participant|partisipan/i)) || 0;
+                    let sessRaw = String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i));
+                    totalOpsSessions += (/13/.test(sessRaw) ? 1 : 0) + (/15/.test(sessRaw) ? 1 : 0) + (/18/.test(sessRaw) ? 1 : 0);
+                    totalOpsUnits += parseFloat(getOpsVal(row, keys, 8, /unit.*terjual|terjual|sold/i)) || 0;
                 });
                 document.getElementById('summary-ops-partisipan').innerText = totalOpsPartisipan;
                 document.getElementById('summary-ops-sessions').innerText = totalOpsSessions;
@@ -1086,22 +1058,20 @@
             } else if (sheetId === 'ems') {
                 let totalScore = 0, countScore = 0;
                 rows.forEach(row => {
-                    for (let key in row) {
-                        if (/score|nilai|avg|rata/i.test(key)) {
-                            let val = parseFloat(row[key]);
-                            if (!isNaN(val)) { totalScore += val; countScore++; }
-                        }
-                    }
+                    let keys = Object.keys(row);
+                    let score = parseFloat(row['Score'] || (keys.length >= 9 ? row[keys[8]] : 0));
+                    if (!isNaN(score) && score > 0) { totalScore += score; countScore++; }
                 });
                 let avgScore = countScore > 0 ? (totalScore / countScore).toFixed(1) : 0;
                 document.getElementById('summary-ems-score').innerText = avgScore;
+                
+                let badge = document.getElementById('ems-status-badge');
+                if (avgScore >= 80) { badge.className = 'badge bg-success'; badge.innerText = 'Target Tercapai'; }
+                else if (avgScore >= 60) { badge.className = 'badge bg-warning text-dark'; badge.innerText = 'Perlu Perhatian'; }
+                else { badge.className = 'badge bg-danger'; badge.innerText = 'Di Bawah Standar'; }
             } else if (sheetId === 'PNR') {
                 let totalStaff = 0;
-                rows.forEach(row => {
-                    for (let key in row) {
-                        if (/staff|trained|employee|karyawan|peserta/i.test(key)) totalStaff += parseFloat(row[key]) || 0;
-                    }
-                });
+                rows.forEach(row => { for (let k in row) if (/staff|trained|employee|karyawan|peserta/i.test(k)) totalStaff += parseFloat(row[k]) || 0; });
                 document.getElementById('summary-PNR-staff').innerText = totalStaff;
             }
         } catch (e) { console.error(e); }
@@ -1111,33 +1081,23 @@
         if (sheetId === 'ops') {
             let storeTotals = {}, topicCounts = {};
             rows.forEach(row => {
-                let store = getStoreName(row, 'ops');
-                let keys = Object.keys(row);
-                let sessionsRaw = String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i));
-                let sessCount = 0;
-                if (/13/.test(sessionsRaw)) sessCount++;
-                if (/15/.test(sessionsRaw)) sessCount++;
-                if (/18/.test(sessionsRaw)) sessCount++;
-                if (sessCount === 0) sessCount = 1;
-                storeTotals[store] = (storeTotals[store] || 0) + sessCount;
+                let store = getStoreName(row, 'ops'), keys = Object.keys(row);
+                let sessRaw = String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i));
+                let sessCount = (/13/.test(sessRaw) ? 1 : 0) + (/15/.test(sessRaw) ? 1 : 0) + (/18/.test(sessRaw) ? 1 : 0);
+                storeTotals[store] = (storeTotals[store] || 0) + (sessCount === 0 ? 1 : sessCount);
                 let topicVal = getOpsVal(row, keys, 6, /topic|topik/i);
-                if (topicVal) {
-                    let t = String(topicVal).trim();
-                    if (t) topicCounts[t] = (topicCounts[t] || 0) + 1;
-                }
+                if (topicVal) topicCounts[String(topicVal).trim()] = (topicCounts[String(topicVal).trim()] || 0) + 1;
             });
             let storeArray = Object.keys(storeTotals).map(store => ({ store, total: storeTotals[store] })).sort((a, b) => b.total - a.total);
             if (opsChartMode === 'ops-top15') storeArray = storeArray.slice(0, 15);
             else if (opsChartMode === 'ops-bottom15') storeArray = storeArray.reverse().slice(0, 15);
 
-            const innerWrapper = document.getElementById('chartOpsInner');
-            if (opsChartMode === 'ops-all' && storeArray.length > 15) innerWrapper.style.width = `${Math.max(100, storeArray.length * 40)}px`;
-            else innerWrapper.style.width = '100%';
+            document.getElementById('chartOpsInner').style.width = (opsChartMode === 'ops-all' && storeArray.length > 15) ? `${Math.max(100, storeArray.length * 40)}px` : '100%';
 
             if (opsChartInstance) opsChartInstance.destroy();
             opsChartInstance = new Chart(document.getElementById('chartOps').getContext('2d'), {
                 type: 'bar',
-                data: { labels: storeArray.map(i => i.store), datasets: [{ label: 'Total Sesi Bulanan', data: storeArray.map(i => i.total), backgroundColor: 'rgba(13, 110, 253, 0.7)', borderColor: 'rgba(13, 110, 253, 1)', borderWidth: 1 }] },
+                data: { labels: storeArray.map(i => i.store), datasets: [{ label: 'Total Sesi Bulanan', data: storeArray.map(i => i.total), backgroundColor: 'rgba(13, 110, 253, 0.7)' }] },
                 options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
             });
 
@@ -1145,7 +1105,7 @@
             if (opsTopicChartInstance) opsTopicChartInstance.destroy();
             opsTopicChartInstance = new Chart(document.getElementById('chartOpsTopic').getContext('2d'), {
                 type: 'bar',
-                data: { labels: topicArray.map(i => i.topic), datasets: [{ label: 'Jumlah Pemilihan Topik', data: topicArray.map(i => i.count), backgroundColor: 'rgba(255, 159, 64, 0.7)', borderColor: 'rgba(255, 159, 64, 1)', borderWidth: 1 }] },
+                data: { labels: topicArray.map(i => i.topic), datasets: [{ label: 'Jumlah Pemilihan Topik', data: topicArray.map(i => i.count), backgroundColor: 'rgba(255, 159, 64, 0.7)' }] },
                 options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { beginAtZero: true } } }
             });
         } else if (sheetId === 'ems') {
@@ -1153,15 +1113,24 @@
             if (emsChartInstance) emsChartInstance.destroy();
             emsChartInstance = new Chart(document.getElementById('chartEms').getContext('2d'), {
                 type: 'line',
-                data: { labels: displayRows.map((r, i) => `Item #${i + 1}`), datasets: [{ label: 'Score EMS', data: displayRows.map(r => { for (let k in r) { if (/score|nilai|avg|rata/i.test(k)) return parseFloat(r[k]) || 0; } return 0; }), backgroundColor: 'rgba(25, 135, 84, 0.2)', borderColor: 'rgba(25, 135, 84, 1)', borderWidth: 2, fill: true, tension: 0.1 }] },
-                options: { responsive: true, maintainAspectRatio: false }
+                data: { 
+                    labels: displayRows.map(r => `${r['Trainer Name'] || 'Trainer'} (${r['Date'] || 'Tgl'})`), 
+                    datasets: [{ 
+                        label: 'Score EMS (Plot Kolom I)', 
+                        data: displayRows.map(r => { let keys = Object.keys(r); return parseFloat(r['Score'] || (keys.length >= 9 ? r[keys[8]] : 0)) || 0; }), 
+                        backgroundColor: 'rgba(25, 135, 84, 0.2)', 
+                        borderColor: 'rgba(25, 135, 84, 1)', 
+                        borderWidth: 2, fill: true, tension: 0.1 
+                    }] 
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100 } } }
             });
         } else if (sheetId === 'PNR') {
             const displayRows = rows.slice(0, 15);
             if (PNRChartInstance) PNRChartInstance.destroy();
             PNRChartInstance = new Chart(document.getElementById('chartPNR').getContext('2d'), {
                 type: 'bar',
-                data: { labels: displayRows.map((r, i) => `Item #${i + 1}`), datasets: [{ label: 'Staff Trained PNR', data: displayRows.map(r => { for (let k in r) { if (/staff|trained|employee|karyawan|peserta/i.test(k)) return parseFloat(r[k]) || 0; } return 0; }), backgroundColor: 'rgba(255, 193, 7, 0.7)', borderColor: 'rgba(255, 193, 7, 1)', borderWidth: 1 }] },
+                data: { labels: displayRows.map((r, i) => `Item #${i + 1}`), datasets: [{ label: 'Staff Trained PNR', data: displayRows.map(r => { for (let k in r) if (/staff|trained|employee|karyawan|peserta/i.test(k)) return parseFloat(r[k]) || 0; return 0; }), backgroundColor: 'rgba(255, 193, 7, 0.7)' }] },
                 options: { responsive: true, maintainAspectRatio: false }
             });
         }
