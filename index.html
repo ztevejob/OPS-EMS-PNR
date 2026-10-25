@@ -114,16 +114,24 @@
 <!-- Bootstrap JS & Script Fetch -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzhcbSc_fKqy8uxq5joK9uz0LAAb-fWy3mCZiEDhBllyKaly6DtVXEIJSfuOaLjc9L7/exec';
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyrx-CcBPGLkCuH5eZnN9hqo_RKXuKqgkh3jlDdox_Ku2ebRHlT4zDNdnjpBzn_VqVb/exec';
 
     function loadData() {
         document.getElementById('loadingStatus').innerText = 'Menyinkronkan data...';
         fetch(WEB_APP_URL)
             .then(response => response.json())
             .then(data => {
-                renderTable('ops', data.OPS || data.ops || []);
-                renderTable('ems', data.EMS || data.ems || []);
-                renderTable('pnr', data.PnR || data.pnr || data.PNR || []);
+                // Fungsi helper untuk mencocokkan nama sheet secara case-insensitive (mengatasi PnR, ems, ops, dll)
+                function getSheetData(obj, targetName) {
+                    const keys = Object.keys(obj);
+                    const foundKey = keys.find(k => k.toLowerCase() === targetName.toLowerCase());
+                    return foundKey ? obj[foundKey] : [];
+                }
+
+                renderTable('ops', getSheetData(data, 'OPS'));
+                renderTable('ems', getSheetData(data, 'EMS'));
+                renderTable('pnr', getSheetData(data, 'PnR'));
+                
                 document.getElementById('loadingStatus').innerText = 'Data berhasil diperbarui!';
             })
             .catch(error => {
@@ -142,7 +150,7 @@
         tbody.innerHTML = '';
 
         if (!rows || rows.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-3">Tidak ada data ditemukan.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-3">Tidak ada data ditemukan. Pastikan sheet sudah terisi data di bawah header.</td></tr>`;
             return;
         }
 
