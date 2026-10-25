@@ -26,18 +26,20 @@
         .chart-inner-wrapper { position: relative; height: 100%; min-width: 100%; }
         .clickable-card { cursor: pointer; transition: transform 0.2s; }
         .clickable-card:hover { transform: translateY(-3px); }
+        
+        /* Padding bawah khusus mobile agar konten tidak tertutup dock navigasi bawah */
+        @media (max-width: 991px) {
+            body { padding-bottom: 75px; }
+        }
     </style>
 </head>
 <body>
 
-<!-- Top Navbar / Tabs Navigation -->
+<!-- Top Navbar / Tabs Navigation (Desktop) -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
     <div class="container-fluid px-4">
         <a class="navbar-brand" href="#"><i class="fa-solid fa-chart-pie me-2"></i>Dashboard OPS EMS PNR</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <div class="collapse navbar-collapse justify-content-end d-none d-lg-flex" id="navbarNav">
             <ul class="nav nav-pills" id="sheetTabList" role="tablist">
                 <li class="nav-item me-2" role="presentation">
                     <button class="nav-link active text-white" id="ops-tab" data-bs-toggle="tab" data-bs-target="#ops-content" type="button" role="tab"><i class="fa-solid fa-clipboard-list me-1"></i> Sheet: OPS</button>
@@ -53,6 +55,13 @@
     </div>
 </nav>
 
+<!-- Hidden Tab List untuk Bootstrap Tab API -->
+<ul class="nav d-none" id="sheetTabListHidden">
+    <li class="nav-item"><button class="nav-link active" id="ops-tab" data-bs-toggle="tab" data-bs-target="#ops-content" type="button">OPS</button></li>
+    <li class="nav-item"><button class="nav-link" id="ems-tab" data-bs-toggle="tab" data-bs-target="#ems-content" type="button">EMS</button></li>
+    <li class="nav-item"><button class="nav-link" id="PNR-tab" data-bs-toggle="tab" data-bs-target="#PNR-content" type="button">PNR</button></li>
+</ul>
+
 <div class="container-fluid px-4 py-4">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
         <h1 class="h2">Real-Time Operational Dashboard</h1>
@@ -67,7 +76,6 @@
         
         <!-- 1. OPS Content -->
         <div class="tab-pane fade show active" id="ops-content" role="tabpanel">
-            <!-- Global Filter Bar for OPS -->
             <div class="dashboard-container mb-3 py-3">
                 <div class="row g-3 align-items-center">
                     <div class="col-md-4">
@@ -150,7 +158,7 @@
                 </div>
             </div>
 
-            <!-- Tabel Rekap Bulanan OPS (Terurut Alfabetis) -->
+            <!-- Tabel Rekap Bulanan OPS -->
             <div class="dashboard-container">
                 <h4 class="mb-3 text-primary"><i class="fa-solid fa-table me-2"></i>Rekap Bulanan OPS (Per Toko)</h4>
                 <div class="table-responsive">
@@ -171,12 +179,12 @@
                 </div>
             </div>
 
-            <!-- Tabel Matriks Kalender Partisipasi Staff (Terurut Nama Toko & Staff) -->
+            <!-- Tabel Matriks Kalender Partisipasi Staff -->
             <div class="dashboard-container border-start border-danger border-4">
                 <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
                     <div>
                         <h4 class="m-0 text-danger"><i class="fa-solid fa-calendar-days me-2"></i>Matriks Partisipasi Staff Bulanan (Monitoring Jarang OPS)</h4>
-                        <p class="text-muted small mb-0">Bersumber dari Master RAW dan dicocokkan dengan OPS menggunakan Email (Diurutkan berdasarkan Nama Toko & Staff).</p>
+                        <p class="text-muted small mb-0">Bersumber dari Master RAW dan dicocokkan dengan OPS menggunakan Email.</p>
                     </div>
                     <span class="badge bg-danger fs-6" id="staff-matrix-count">0 Staff</span>
                 </div>
@@ -285,6 +293,28 @@
     </div>
 </div>
 
+<!-- Mobile Bottom Dock Navigation (Hanya tampil di HP / d-lg-none) -->
+<div class="d-lg-none fixed-bottom bg-dark border-top border-secondary py-2 px-3 shadow-lg" style="z-index: 1050;">
+    <div class="d-flex justify-content-around align-items-center">
+        <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="switchMobileTab('ops', this)" id="dock-ops">
+            <i class="fa-solid fa-clipboard-list fa-lg mb-1 text-primary"></i>
+            <span style="font-size: 0.7rem; font-weight: bold;">OPS</span>
+        </button>
+        <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="switchMobileTab('ems', this)" id="dock-ems">
+            <i class="fa-solid fa-laptop-code fa-lg mb-1 text-success"></i>
+            <span style="font-size: 0.7rem;">EMS</span>
+        </button>
+        <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="switchMobileTab('PNR', this)" id="dock-pnr">
+            <i class="fa-solid fa-address-book fa-lg mb-1 text-warning"></i>
+            <span style="font-size: 0.7rem;">PNR</span>
+        </button>
+        <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="loadData()">
+            <i class="fa-solid fa-rotate fa-lg mb-1 text-info"></i>
+            <span style="font-size: 0.7rem;">Refresh</span>
+        </button>
+    </div>
+</div>
+
 <!-- Modal Daftar Toko Belum Submit -->
 <div class="modal fade" id="unsubmittedModal" tabindex="-1" aria-labelledby="unsubmittedModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable">
@@ -358,6 +388,22 @@
     let PNRChartInstance = null;
     let opsChartMode = 'ops-top15';
     const MONTHLY_TARGET = 85;
+
+    function switchMobileTab(tabName, btnElement) {
+        let tabTrigger = document.querySelector(`#sheetTabListHidden #${tabName}-tab`) || document.querySelector(`#sheetTabList #${tabName}-tab`);
+        if (tabTrigger) {
+            let tab = new bootstrap.Tab(tabTrigger);
+            tab.show();
+        }
+
+        // Ubah indikator aktif pada tombol dock
+        document.querySelectorAll('.fixed-bottom button').forEach(b => {
+            b.style.opacity = '0.6';
+        });
+        if (btnElement) {
+            btnElement.style.opacity = '1';
+        }
+    }
 
     function loadData() {
         document.getElementById('loadingStatus').innerText = 'Menyinkronkan data...';
@@ -638,7 +684,6 @@
             grouped[key].count += 1;
         });
 
-        // Urutkan nama toko secara alfabetis
         let groupKeys = Object.keys(grouped).sort();
 
         const fragment = document.createDocumentFragment();
@@ -662,7 +707,6 @@
         tbody.appendChild(fragment);
     }
 
-    // Fungsi Render Matriks Kalender Partisipasi Staff (Diurutkan berdasarkan Nama Toko & Staff secara Alfabetis)
     function renderStaffCalendarMatrix(allOpsRows, selectedMonth, selectedStore, searchInput) {
         const table = document.getElementById('table-staff-matrix');
         const thead = table.querySelector('thead');
@@ -679,7 +723,6 @@
             daysInMonth = new Date(year, month, 0).getDate();
         }
 
-        // Header Table
         let headerHtml = '<tr>';
         headerHtml += '<th class="store-col">Store</th>';
         headerHtml += '<th class="name-col">Presenter Name</th>';
@@ -690,7 +733,6 @@
         headerHtml += '</tr>';
         thead.innerHTML = headerHtml;
 
-        // 1. Ambil daftar baseline staff dari sheet RAW
         let staffMap = {};
         globalData.raw.forEach(rawRow => {
             let rKeys = Object.keys(rawRow);
@@ -703,16 +745,13 @@
 
                 if (email && presenter) {
                     if (selectedStore && store !== selectedStore) return;
-
                     staffMap[email] = { store, presenter, email, days: {}, totalSesi: 0 };
                 }
             }
         });
 
-        // 2. Cocokkan dengan data OPS berdasarkan Email
         allOpsRows.forEach(row => {
             let keys = Object.keys(row);
-            
             let opsEmailKey = keys.find(k => /email/i.test(k));
             let opsEmail = opsEmailKey ? String(row[opsEmailKey] || '').trim().toLowerCase() : (keys.length >= 2 ? String(row[keys[1]] || '').trim().toLowerCase() : '');
 
@@ -754,7 +793,6 @@
             );
         }
 
-        // Urutkan berdasarkan Nama Toko secara alfabetis, lalu berdasarkan Nama Staff
         staffArray.sort((a, b) => {
             let storeCmp = a.store.localeCompare(b.store);
             if (storeCmp !== 0) return storeCmp;
