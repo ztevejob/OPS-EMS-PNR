@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPS EMS PNR - Live Dashboard with Month Filters</title>
+    <title>OPS EMS PNR - Live Dashboard with Charts</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
@@ -16,8 +16,10 @@
         .card-stat { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
         .dashboard-container { background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
         .table-responsive { max-height: 400px; overflow-y: auto; }
-        table th { position: sticky; top: 0; z-index: 1; background-color: #212529; color: #fff; }
-        .chart-container { position: relative; height: 260px; width: 100%; }
+        table th { position: sticky; top: 0; z-index: 1; background-color: #212529; color: #fff; text-align: center; vertical-align: middle; }
+        table td { text-align: center; vertical-align: middle; }
+        table td:first-child, table th:first-child { text-align: left; }
+        .chart-container { position: relative; height: 300px; width: 100%; }
     </style>
 </head>
 <body>
@@ -67,7 +69,7 @@
             
             <!-- Chart Section OPS -->
             <div class="dashboard-container">
-                <h5 class="mb-3 text-primary"><i class="fa-solid fa-chart-bar me-2"></i>Grafik Ringkasan OPS</h5>
+                <h5 class="mb-3 text-primary"><i class="fa-solid fa-chart-bar me-2"></i>Grafik Ringkasan OPS (Top 15 Toko)</h5>
                 <div class="chart-container">
                     <canvas id="chartOps"></canvas>
                 </div>
@@ -76,16 +78,27 @@
             <div class="dashboard-container">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <h4 class="m-0 text-primary"><i class="fa-solid fa-table me-2"></i>Tabel Data: OPS</h4>
-                    <div class="d-flex gap-2 w-100 w-md-auto">
-                        <select id="filter-month-ops" class="form-select w-auto" onchange="applyFilters('ops')">
-                            <option value="">Semua Bulan (OPS)</option>
+                    <div class="d-flex gap-2">
+                        <select id="filter-month-ops" class="form-select" style="width: 160px;" onchange="applyFilters('ops')">
+                            <option value="">Semua Bulan</option>
                         </select>
-                        <input type="text" id="search-ops" class="form-control" placeholder="Cari Toko / Data OPS..." onkeyup="applyFilters('ops')">
+                        <input type="text" id="search-ops" class="form-control" style="width: 220px;" placeholder="Cari Toko / Presenter..." onkeyup="applyFilters('ops')">
                     </div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover align-middle" id="table-ops">
-                        <thead></thead>
+                        <thead>
+                            <tr>
+                                <th>Store</th>
+                                <th>13:00</th>
+                                <th>15:00</th>
+                                <th>18:00</th>
+                                <th>TOTAL</th>
+                                <th>Presenter</th>
+                                <th>TARGET</th>
+                                <th>Presenter%</th>
+                            </tr>
+                        </thead>
                         <tbody></tbody>
                     </table>
                 </div>
@@ -102,7 +115,7 @@
 
             <!-- Chart Section EMS -->
             <div class="dashboard-container">
-                <h5 class="mb-3 text-success"><i class="fa-solid fa-chart-line me-2"></i>Grafik Ringkasan EMS</h5>
+                <h5 class="mb-3 text-success"><i class="fa-solid fa-chart-line me-2"></i>Grafik Ringkasan EMS (Top 15 Toko/Data)</h5>
                 <div class="chart-container">
                     <canvas id="chartEms"></canvas>
                 </div>
@@ -111,11 +124,11 @@
             <div class="dashboard-container">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <h4 class="m-0 text-success"><i class="fa-solid fa-table me-2"></i>Tabel Data: EMS</h4>
-                    <div class="d-flex gap-2 w-100 w-md-auto">
-                        <select id="filter-month-ems" class="form-select w-auto" onchange="applyFilters('ems')">
-                            <option value="">Semua Bulan (EMS)</option>
+                    <div class="d-flex gap-2">
+                        <select id="filter-month-ems" class="form-select" style="width: 160px;" onchange="applyFilters('ems')">
+                            <option value="">Semua Bulan</option>
                         </select>
-                        <input type="text" id="search-ems" class="form-control" placeholder="Cari Toko / Trainer..." onkeyup="applyFilters('ems')">
+                        <input type="text" id="search-ems" class="form-control" style="width: 220px;" placeholder="Cari Toko / Trainer..." onkeyup="applyFilters('ems')">
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -137,7 +150,7 @@
 
             <!-- Chart Section PNR -->
             <div class="dashboard-container">
-                <h5 class="mb-3 text-warning"><i class="fa-solid fa-chart-pie me-2"></i>Grafik Ringkasan PNR</h5>
+                <h5 class="mb-3 text-warning"><i class="fa-solid fa-chart-pie me-2"></i>Grafik Ringkasan PNR (Top 15 Toko/Data)</h5>
                 <div class="chart-container">
                     <canvas id="chartPNR"></canvas>
                 </div>
@@ -146,11 +159,11 @@
             <div class="dashboard-container">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <h4 class="m-0 text-warning"><i class="fa-solid fa-table me-2"></i>Tabel Data: PNR</h4>
-                    <div class="d-flex gap-2 w-100 w-md-auto">
-                        <select id="filter-month-PNR" class="form-select w-auto" onchange="applyFilters('PNR')">
-                            <option value="">Semua Bulan (PNR)</option>
+                    <div class="d-flex gap-2">
+                        <select id="filter-month-PNR" class="form-select" style="width: 160px;" onchange="applyFilters('PNR')">
+                            <option value="">Semua Bulan</option>
                         </select>
-                        <input type="text" id="search-PNR" class="form-control" placeholder="Cari Lokasi / Training..." onkeyup="applyFilters('PNR')">
+                        <input type="text" id="search-PNR" class="form-control" style="width: 220px;" placeholder="Cari Lokasi / Training..." onkeyup="applyFilters('PNR')">
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -170,13 +183,7 @@
 <script>
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzAAm8dsSyuTA2paIJ-i-EO9phCsRrqTWWGsgxIL6kqN7OeUKe-Uxmzd5dpkn15PDBO/exec';
 
-    // Global raw data storage
-    let rawDataStore = {
-        ops: [],
-        ems: [],
-        PNR: []
-    };
-
+    let globalData = { ops: [], ems: [], PNR: [] };
     let opsChartInstance = null;
     let emsChartInstance = null;
     let PNRChartInstance = null;
@@ -192,14 +199,13 @@
                     return foundKey ? obj[foundKey] : [];
                 }
 
-                rawDataStore.ops = getSheetData(data, 'OPS');
-                rawDataStore.ems = getSheetData(data, 'EMS');
-                rawDataStore.PNR = getSheetData(data, 'PNR');
+                globalData.ops = getSheetData(data, 'OPS');
+                globalData.ems = getSheetData(data, 'EMS');
+                globalData.PNR = getSheetData(data, 'PNR');
 
-                // Initialize dropdown filters & render all
-                initMonthDropdown('ops', rawDataStore.ops);
-                initMonthDropdown('ems', rawDataStore.ems);
-                initMonthDropdown('PNR', rawDataStore.PNR);
+                initMonthDropdown('ops', globalData.ops);
+                initMonthDropdown('ems', globalData.ems);
+                initMonthDropdown('PNR', globalData.PNR);
 
                 applyFilters('ops');
                 applyFilters('ems');
@@ -213,115 +219,146 @@
             });
     }
 
-    // Detect date/month column and populate dropdown options dynamically
-    function initMonthDropdown(sheetId, rows) {
-        const select = document.getElementById(`filter-month-${sheetId}`);
-        // Keep the default "All" option
-        const defaultText = select.options[0] ? select.options[0].text : `Semua Bulan`;
-        select.innerHTML = `<option value="">${defaultText}</option>`;
-
-        if (!rows || rows.length === 0) return;
-
-        const headers = Object.keys(rows[0]);
-        // Find a key that looks like date, time, timestamp, or month
-        const dateKey = headers.find(h => /date|tanggal|time|waktu|bulan|month|period/i.test(h));
-        if (!dateKey) return;
-
-        const monthsSet = new Set();
-        rows.forEach(row => {
-            const val = row[dateKey];
-            if (val) {
-                const monthStr = extractMonthString(val);
-                if (monthStr) monthsSet.add(monthStr);
-            }
-        });
-
-        const sortedMonths = Array.from(monthsSet).sort();
-        sortedMonths.forEach(m => {
-            const opt = document.createElement('option');
-            opt.value = m;
-            // Pretty label if formatted like YYYY-MM
-            opt.textContent = formatMonthLabel(m);
-            select.appendChild(opt);
-        });
-    }
-
     function extractMonthString(val) {
         if (!val) return null;
-        let str = String(val).trim();
+        let s = String(val).trim();
+        let matchYMD = s.match(/^(\d{4})-(\d{2})/);
+        if (matchYMD) return `${matchYMD[1]}-${matchYMD[2]}`;
         
-        // Try parsing ISO dates or standard date formats
-        const parsed = Date.parse(str);
-        if (!isNaN(parsed)) {
-            const d = new Date(parsed);
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, '0');
+        let d = new Date(s);
+        if (!isNaN(d.getTime()) && d.getFullYear() > 2000) {
+            let y = d.getFullYear();
+            let m = String(d.getMonth() + 1).padStart(2, '0');
             return `${y}-${m}`;
         }
-
-        // Match regex like YYYY-MM, YYYY/MM, MM/YYYY, etc.
-        const matchYMD = str.match(/^(\d{4})[-/](\d{1,2})/);
-        if (matchYMD) {
-            return `${matchYMD[1]}-${matchYMD[2].padStart(2, '0')}`;
-        }
-
-        const matchDMY = str.match(/^\d{1,2}[-/]\d{1,2}[-/](\d{4})/);
-        if (matchDMY) {
-            // Difficult without knowing day/month order, try general ISO fallback
-        }
-
         return null;
     }
 
-    function formatMonthLabel(ym) {
-        const parts = ym.split('-');
-        if (parts.length !== 2) return ym;
-        const year = parts[0];
-        const monthNum = parseInt(parts[1], 10);
-        const monthNames = [
-            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-        ];
-        if (monthNum >= 1 && monthNum <= 12) {
-            return `${monthNames[monthNum - 1]} ${year}`;
-        }
-        return ym;
-    }
+    function initMonthDropdown(sheetId, rows) {
+        const select = document.getElementById(`filter-month-${sheetId}`);
+        const currentVal = select.value;
+        let months = new Set();
 
-    // Filter rows based on search input and month dropdown
-    function applyFilters(sheetId) {
-        const rows = rawDataStore[sheetId] || [];
-        const searchInput = document.getElementById(`search-${sheetId}`).value.toLowerCase();
-        const selectedMonth = document.getElementById(`filter-month-${sheetId}`).value;
-
-        const headers = rows.length > 0 ? Object.keys(rows[0]) : [];
-        const dateKey = headers.find(h => /date|tanggal|time|waktu|bulan|month|period/i.test(h));
-
-        const filteredRows = rows.filter(row => {
-            // Month filter match
-            if (selectedMonth && dateKey) {
-                const rowMonth = extractMonthString(row[dateKey]);
-                if (rowMonth !== selectedMonth) return false;
-            }
-
-            // Search text match across columns
-            if (searchInput) {
-                let match = false;
-                for (let k in row) {
-                    if (String(row[k] !== undefined ? row[k] : '').toLowerCase().includes(searchInput)) {
-                        match = true;
-                        break;
-                    }
+        rows.forEach(row => {
+            for (let k in row) {
+                if (/date|tanggal|waktu|bulan|month|periode/i.test(k)) {
+                    let m = extractMonthString(row[k]);
+                    if (m) months.add(m);
                 }
-                if (!match) return false;
             }
-
-            return true;
         });
 
-        renderTable(sheetId, filteredRows);
-        calculateSummary(sheetId, filteredRows);
-        renderChart(sheetId, filteredRows);
+        let sortedMonths = Array.from(months).sort().reverse();
+        let html = '<option value="">Semua Bulan</option>';
+        sortedMonths.forEach(m => {
+            let parts = m.split('-');
+            let dateObj = new Date(parts[0], parts[1] - 1, 1);
+            let labelMonth = dateObj.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+            html += `<option value="${m}">${labelMonth}</option>`;
+        });
+        select.innerHTML = html;
+        select.value = sortedMonths.includes(currentVal) ? currentVal : "";
+    }
+
+    function applyFilters(sheetId) {
+        const rows = globalData[sheetId];
+        const searchInput = document.getElementById(`search-${sheetId}`).value.toLowerCase();
+        const monthSelect = document.getElementById(`filter-month-${sheetId}`).value;
+
+        let filtered = rows.filter(row => {
+            let matchSearch = true;
+            if (searchInput) {
+                matchSearch = Object.values(row).some(val => 
+                    String(val).toLowerCase().includes(searchInput)
+                );
+            }
+
+            let matchMonth = true;
+            if (monthSelect) {
+                matchMonth = false;
+                for (let k in row) {
+                    if (/date|tanggal|waktu|bulan|month|periode/i.test(k)) {
+                        if (extractMonthString(row[k]) === monthSelect) {
+                            matchMonth = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            return matchSearch && matchMonth;
+        });
+
+        if (sheetId === 'ops') {
+            renderOpsTable(filtered);
+        } else {
+            renderTable(sheetId, filtered);
+        }
+
+        calculateSummary(filtered, sheetId);
+        renderCharts(filtered, sheetId);
+    }
+
+    // Fungsi khusus untuk mapping kolom OPS sesuai permintaan
+    function findColumnValue(row, patterns) {
+        let keys = Object.keys(row);
+        for (let pat of patterns) {
+            let found = keys.find(k => pat.test(k));
+            if (found !== undefined && row[found] !== undefined) {
+                return row[found];
+            }
+        }
+        return '';
+    }
+
+    function renderOpsTable(rows) {
+        const table = document.getElementById(`table-ops`);
+        const tbody = table.querySelector('tbody');
+        document.getElementById(`count-ops`).innerText = rows.length;
+        tbody.innerHTML = '';
+
+        if (!rows || rows.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-3">Tidak ada data ditemukan.</td></tr>`;
+            return;
+        }
+
+        const fragment = document.createDocumentFragment();
+        rows.forEach(row => {
+            const store = findColumnValue(row, [/toko|store|lokasi|location|name|nama/i]);
+            const val13 = findColumnValue(row, [/13[:\.]00|1300|jam.*13/i]);
+            const val15 = findColumnValue(row, [/15[:\.]00|1500|jam.*15/i]);
+            const val18 = findColumnValue(row, [/18[:\.]00|1800|jam.*18/i]);
+            
+            // Hitung total jika di data mentah belum ada, atau ambil dari kolom total
+            let total = findColumnValue(row, [/total|jumlah|sum/i]);
+            if (total === '' || isNaN(parseFloat(total))) {
+                total = (parseFloat(val13) || 0) + (parseFloat(val15) || 0) + (parseFloat(val18) || 0);
+            }
+
+            const presenter = findColumnValue(row, [/presenter|pic|trainer|host/i]);
+            const target = findColumnValue(row, [/target|goal/i]);
+            
+            let presenterPct = findColumnValue(row, [/presenter.*%|percentage|pencapaian|ach/i]);
+            if ((presenterPct === '' || isNaN(parseFloat(presenterPct))) && target && parseFloat(target) > 0) {
+                presenterPct = ((parseFloat(total) / parseFloat(target)) * 100).toFixed(1) + '%';
+            } else if (presenterPct !== '' && !String(presenterPct).includes('%')) {
+                presenterPct = parseFloat(presenterPct).toFixed(1) + '%';
+            }
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="text-start">${store || '-'}</td>
+                <td>${val13 !== '' ? val13 : 0}</td>
+                <td>${val15 !== '' ? val15 : 0}</td>
+                <td>${val18 !== '' ? val18 : 0}</td>
+                <td class="fw-bold text-primary">${total}</td>
+                <td>${presenter || '-'}</td>
+                <td>${target !== '' ? target : '-'}</td>
+                <td class="fw-bold text-success">${presenterPct || '-'}</td>
+            `;
+            fragment.appendChild(tr);
+        });
+        tbody.appendChild(fragment);
     }
 
     function renderTable(sheetId, rows) {
@@ -359,16 +396,19 @@
         tbody.appendChild(fragment);
     }
 
-    function calculateSummary(sheetId, rows) {
+    function calculateSummary(rows, sheetId) {
         try {
             if (sheetId === 'ops') {
                 let totalOpsPartisipan = 0;
                 rows.forEach(row => {
-                    for (let key in row) {
-                        if (/partisipan|participant|jumlah|total/i.test(key)) {
-                            let val = parseFloat(row[key]) || 0;
-                            totalOpsPartisipan += val;
-                        }
+                    let t = findColumnValue(row, [/total|jumlah|sum/i]);
+                    if (t !== '' && !isNaN(parseFloat(t))) {
+                        totalOpsPartisipan += parseFloat(t);
+                    } else {
+                        let v13 = parseFloat(findColumnValue(row, [/13[:\.]00|1300|jam.*13/i])) || 0;
+                        let v15 = parseFloat(findColumnValue(row, [/15[:\.]00|1500|jam.*15/i])) || 0;
+                        let v18 = parseFloat(findColumnValue(row, [/18[:\.]00|1800|jam.*18/i])) || 0;
+                        totalOpsPartisipan += (v13 + v15 + v18);
                     }
                 });
                 document.getElementById('summary-ops-partisipan').innerText = totalOpsPartisipan;
@@ -392,26 +432,45 @@
                 rows.forEach(row => {
                     for (let key in row) {
                         if (/staff|trained|employee|karyawan|peserta/i.test(key)) {
-                            let val = parseFloat(row[key]) || 0;
-                            totalStaff += val;
+                            totalStaff += parseFloat(row[key]) || 0;
                         }
                     }
                 });
                 document.getElementById('summary-PNR-staff').innerText = totalStaff;
             }
         } catch (e) {
-            console.error("Error calculating summary for " + sheetId, e);
+            console.error("Error calculating summary:", e);
         }
     }
 
-    function renderChart(sheetId, rows) {
+    function getBestLabelKey(row) {
+        if (!row) return null;
+        let keys = Object.keys(row);
+        let found = keys.find(k => /toko|store|lokasi|location|name|nama|trainer|title|judul/i.test(k));
+        if (found) return found;
+        return keys[0];
+    }
+
+    function renderCharts(rows, sheetId) {
+        const displayRows = rows.slice(0, 15);
+        let labelKey = displayRows.length > 0 ? getBestLabelKey(displayRows[0]) : null;
+
+        const labels = displayRows.map((row, i) => {
+            if (labelKey && row[labelKey]) {
+                let text = String(row[labelKey]);
+                return text.length > 20 ? text.substring(0, 18) + '...' : text;
+            }
+            return `Item #${i + 1}`;
+        });
+
         if (sheetId === 'ops') {
-            const opsLabels = rows.slice(0, 10).map((_, i) => `Data #${i + 1}`);
-            const opsValues = rows.slice(0, 10).map(row => {
-                for (let k in row) {
-                    if (/partisipan|participant|jumlah|total/i.test(k)) return parseFloat(row[k]) || 0;
-                }
-                return 1;
+            const values = displayRows.map(row => {
+                let t = findColumnValue(row, [/total|jumlah|sum/i]);
+                if (t !== '' && !isNaN(parseFloat(t))) return parseFloat(t);
+                let v13 = parseFloat(findColumnValue(row, [/13[:\.]00|1300|jam.*13/i])) || 0;
+                let v15 = parseFloat(findColumnValue(row, [/15[:\.]00|1500|jam.*15/i])) || 0;
+                let v18 = parseFloat(findColumnValue(row, [/18[:\.]00|1800|jam.*18/i])) || 0;
+                return v13 + v15 + v18;
             });
 
             if (opsChartInstance) opsChartInstance.destroy();
@@ -419,10 +478,10 @@
             opsChartInstance = new Chart(ctxOps, {
                 type: 'bar',
                 data: {
-                    labels: opsLabels,
+                    labels: labels,
                     datasets: [{
-                        label: 'Partisipan / Jumlah OPS',
-                        data: opsValues,
+                        label: 'Total Partisipan OPS',
+                        data: values,
                         backgroundColor: 'rgba(13, 110, 253, 0.7)',
                         borderColor: 'rgba(13, 110, 253, 1)',
                         borderWidth: 1
@@ -431,8 +490,7 @@
                 options: { responsive: true, maintainAspectRatio: false }
             });
         } else if (sheetId === 'ems') {
-            const emsLabels = rows.slice(0, 10).map((_, i) => `Data #${i + 1}`);
-            const emsValues = rows.slice(0, 10).map(row => {
+            const values = displayRows.map(row => {
                 for (let k in row) {
                     if (/score|nilai|avg|rata/i.test(k)) return parseFloat(row[k]) || 0;
                 }
@@ -444,25 +502,25 @@
             emsChartInstance = new Chart(ctxEms, {
                 type: 'line',
                 data: {
-                    labels: emsLabels,
+                    labels: labels,
                     datasets: [{
                         label: 'Score EMS',
-                        data: emsValues,
+                        data: values,
                         backgroundColor: 'rgba(25, 135, 84, 0.2)',
                         borderColor: 'rgba(25, 135, 84, 1)',
                         borderWidth: 2,
-                        fill: true
+                        fill: true,
+                        tension: 0.1
                     }]
                 },
                 options: { responsive: true, maintainAspectRatio: false }
             });
         } else if (sheetId === 'PNR') {
-            const PNRLabels = rows.slice(0, 10).map((_, i) => `Data #${i + 1}`);
-            const PNRValues = rows.slice(0, 10).map(row => {
+            const values = displayRows.map(row => {
                 for (let k in row) {
                     if (/staff|trained|employee|karyawan|peserta/i.test(k)) return parseFloat(row[k]) || 0;
                 }
-                return 1;
+                return 0;
             });
 
             if (PNRChartInstance) PNRChartInstance.destroy();
@@ -470,10 +528,10 @@
             PNRChartInstance = new Chart(ctxPNR, {
                 type: 'bar',
                 data: {
-                    labels: PNRLabels,
+                    labels: labels,
                     datasets: [{
                         label: 'Staff Trained PNR',
-                        data: PNRValues,
+                        data: values,
                         backgroundColor: 'rgba(255, 193, 7, 0.7)',
                         borderColor: 'rgba(255, 193, 7, 1)',
                         borderWidth: 1
