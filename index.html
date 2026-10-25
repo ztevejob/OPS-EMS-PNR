@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPS EMS PnR - Live Dashboard with Charts</title>
+    <title>OPS EMS PNR - Live Dashboard with Charts</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
@@ -25,7 +25,7 @@
 <!-- Top Navbar / Tabs Navigation -->
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
     <div class="container-fluid px-4">
-        <a class="navbar-brand" href="#"><i class="fa-solid fa-chart-pie me-2"></i>Dashboard OPS EMS PnR</a>
+        <a class="navbar-brand" href="#"><i class="fa-solid fa-chart-pie me-2"></i>Dashboard OPS EMS PNR</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -38,7 +38,7 @@
                     <button class="nav-link text-white" id="ems-tab" data-bs-toggle="tab" data-bs-target="#ems-content" type="button" role="tab"><i class="fa-solid fa-laptop-code me-1"></i> Sheet: EMS</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link text-white" id="pnr-tab" data-bs-toggle="tab" data-bs-target="#pnr-content" type="button" role="tab"><i class="fa-solid fa-address-book me-1"></i> Sheet: PnR</button>
+                    <button class="nav-link text-white" id="PNR-tab" data-bs-toggle="tab" data-bs-target="#PNR-content" type="button" role="tab"><i class="fa-solid fa-address-book me-1"></i> Sheet: PNR</button>
                 </li>
             </ul>
         </div>
@@ -117,29 +117,29 @@
             </div>
         </div>
 
-        <!-- 3. PnR Content -->
-        <div class="tab-pane fade" id="pnr-content" role="tabpanel">
+        <!-- 3. PNR Content -->
+        <div class="tab-pane fade" id="PNR-content" role="tabpanel">
             <div class="row g-3 mb-4">
-                <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Baris PnR</h6><h3 class="fw-bold" id="count-pnr">0</h3></div></div>
-                <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Staff Trained</h6><h3 class="fw-bold text-warning" id="summary-pnr-staff">0</h3></div></div>
+                <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Baris PNR</h6><h3 class="fw-bold" id="count-PNR">0</h3></div></div>
+                <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Total Staff Trained</h6><h3 class="fw-bold text-warning" id="summary-PNR-staff">0</h3></div></div>
                 <div class="col-md-4"><div class="card card-stat p-3 bg-white"><h6 class="text-muted">Status Koneksi</h6><h3 class="fw-bold text-success">Live Cached</h3></div></div>
             </div>
 
-            <!-- Chart Section PnR -->
+            <!-- Chart Section PNR -->
             <div class="dashboard-container">
-                <h5 class="mb-3 text-warning"><i class="fa-solid fa-chart-pie me-2"></i>Grafik Ringkasan PnR</h5>
+                <h5 class="mb-3 text-warning"><i class="fa-solid fa-chart-pie me-2"></i>Grafik Ringkasan PNR</h5>
                 <div class="chart-container">
-                    <canvas id="chartPnr"></canvas>
+                    <canvas id="chartPNR"></canvas>
                 </div>
             </div>
 
             <div class="dashboard-container">
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h4 class="m-0 text-warning"><i class="fa-solid fa-table me-2"></i>Tabel Data: PnR</h4>
-                    <input type="text" id="search-pnr" class="form-control w-25" placeholder="Cari Lokasi / Training..." onkeyup="filterTable('pnr')">
+                    <h4 class="m-0 text-warning"><i class="fa-solid fa-table me-2"></i>Tabel Data: PNR</h4>
+                    <input type="text" id="search-PNR" class="form-control w-25" placeholder="Cari Lokasi / Training..." onkeyup="filterTable('PNR')">
                 </div>
                 <div class="table-responsive">
-                    <table class="table table-striped table-hover align-middle" id="table-pnr">
+                    <table class="table table-striped table-hover align-middle" id="table-PNR">
                         <thead></thead>
                         <tbody></tbody>
                     </table>
@@ -157,7 +157,7 @@
 
     let opsChartInstance = null;
     let emsChartInstance = null;
-    let pnrChartInstance = null;
+    let PNRChartInstance = null;
 
     function loadData() {
         document.getElementById('loadingStatus').innerText = 'Menyinkronkan data...';
@@ -172,14 +172,14 @@
 
                 const opsData = getSheetData(data, 'OPS');
                 const emsData = getSheetData(data, 'EMS');
-                const pnrData = getSheetData(data, 'PnR');
+                const PNRData = getSheetData(data, 'PNR');
 
                 renderTable('ops', opsData);
                 renderTable('ems', emsData);
-                renderTable('pnr', pnrData);
+                renderTable('PNR', PNRData);
 
-                calculateSummary(opsData, emsData, pnrData);
-                renderCharts(opsData, emsData, pnrData);
+                calculateSummary(opsData, emsData, PNRData);
+                renderCharts(opsData, emsData, PNRData);
                 
                 document.getElementById('loadingStatus').innerText = 'Data berhasil diperbarui!';
             })
@@ -234,7 +234,7 @@
         });
     }
 
-    function calculateSummary(ops, ems, pnr) {
+    function calculateSummary(ops, ems, PNR) {
         try {
             let totalOpsPartisipan = 0;
             ops.forEach(row => {
@@ -263,7 +263,7 @@
             document.getElementById('summary-ems-score').innerText = avgScore;
 
             let totalStaff = 0;
-            pnr.forEach(row => {
+            PNR.forEach(row => {
                 for (let key in row) {
                     if (/staff|trained|employee|karyawan|peserta/i.test(key)) {
                         let val = parseFloat(row[key]) || 0;
@@ -271,13 +271,13 @@
                     }
                 }
             });
-            document.getElementById('summary-pnr-staff').innerText = totalStaff;
+            document.getElementById('summary-PNR-staff').innerText = totalStaff;
         } catch (e) {
             console.error("Error calculating summary:", e);
         }
     }
 
-    function renderCharts(ops, ems, pnr) {
+    function renderCharts(ops, ems, PNR) {
         // Ambil label sampel (misal baris pertama sebagai kategori atau indeks baris)
         const opsLabels = ops.slice(0, 10).map((_, i) => `Data #${i + 1}`);
         const opsValues = ops.slice(0, 10).map(row => {
@@ -330,23 +330,23 @@
             options: { responsive: true, maintainAspectRatio: false }
         });
 
-        const pnrLabels = pnr.slice(0, 10).map((_, i) => `Data #${i + 1}`);
-        const pnrValues = pnr.slice(0, 10).map(row => {
+        const PNRLabels = PNR.slice(0, 10).map((_, i) => `Data #${i + 1}`);
+        const PNRValues = PNR.slice(0, 10).map(row => {
             for (let k in row) {
                 if (/staff|trained|employee|karyawan|peserta/i.test(k)) return parseFloat(row[k]) || 0;
             }
             return 1;
         });
 
-        if (pnrChartInstance) pnrChartInstance.destroy();
-        const ctxPnr = document.getElementById('chartPnr').getContext('2d');
-        pnrChartInstance = new Chart(ctxPnr, {
+        if (PNRChartInstance) PNRChartInstance.destroy();
+        const ctxPNR = document.getElementById('chartPNR').getContext('2d');
+        PNRChartInstance = new Chart(ctxPNR, {
             type: 'bar',
             data: {
-                labels: pnrLabels,
+                labels: PNRLabels,
                 datasets: [{
-                    label: 'Staff Trained PnR',
-                    data: pnrValues,
+                    label: 'Staff Trained PNR',
+                    data: PNRValues,
                     backgroundColor: 'rgba(255, 193, 7, 0.7)',
                     borderColor: 'rgba(255, 193, 7, 1)',
                     borderWidth: 1
