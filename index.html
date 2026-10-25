@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPS EMS PNR - Live Dashboard with Charts</title>
+    <title>OPS EMS PNR - Live Dashboard Complete</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
@@ -26,8 +26,32 @@
         .chart-inner-wrapper { position: relative; height: 100%; min-width: 100%; }
         .clickable-card { cursor: pointer; transition: transform 0.2s; }
         .clickable-card:hover { transform: translateY(-3px); }
-        
-        /* Padding bawah khusus mobile agar konten tidak tertutup dock navigasi bawah */
+
+        /* Styling Kartu Profil Staff */
+        .profile-card-table { max-width: 700px; margin: 0 auto; border: 3px solid #0d6efd; border-radius: 10px; overflow: hidden; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .profile-card-table th { background-color: #d8b4fe !important; color: #000 !important; width: 35%; text-align: left; padding: 15px; font-size: 1.05rem; border-bottom: 2px solid #bbb; }
+        .profile-card-table td { background-color: #e2e8f0; color: #000; text-align: left; padding: 15px; font-size: 1.05rem; font-weight: 600; border-bottom: 2px solid #bbb; }
+        .profile-header-row th { background-color: #9333ea !important; color: #fff !important; text-align: center; font-size: 1.2rem; }
+        .profile-dropdown-td { background-color: #f0abfc !important; }
+
+        /* Styling Tabel Open Studio (OPS) di Profil */
+        .open-studio-table { max-width: 700px; margin: 0 auto; border: 3px solid #198754; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .open-studio-table th { background-color: #fde047 !important; color: #000 !important; font-size: 1.1rem; border-bottom: 2px solid #198754; }
+        .open-studio-subhead th { background-color: #bbf7d0 !important; color: #000 !important; font-size: 0.95rem; border-bottom: 2px solid #198754; }
+        .open-studio-data td { background-color: #d1e7dd !important; color: #000 !important; font-size: 1.8rem; font-weight: bold; padding: 20px; }
+
+        /* Styling Tabel EMS di Profil */
+        .ems-profile-table { max-width: 700px; margin: 0 auto; border: 3px solid #0d6efd; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .ems-profile-table th { background-color: #93c5fd !important; color: #000 !important; font-size: 1.1rem; border-bottom: 2px solid #0d6efd; }
+        .ems-profile-subhead th { background-color: #bfdbfe !important; color: #000 !important; font-size: 0.95rem; border-bottom: 2px solid #0d6efd; }
+        .ems-profile-data td { background-color: #eff6ff !important; color: #000 !important; font-size: 1.8rem; font-weight: bold; padding: 20px; }
+
+        /* Styling Tabel PNR di Profil */
+        .pnr-profile-table { max-width: 700px; margin: 0 auto; border: 3px solid #0d6efd; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .pnr-profile-table th { background-color: #fde047 !important; color: #000 !important; font-size: 1.1rem; border-bottom: 2px solid #0d6efd; text-align: center; }
+        .pnr-profile-subhead th { background-color: #93c5fd !important; color: #000 !important; font-size: 0.95rem; border-bottom: 2px solid #0d6efd; text-align: center; }
+        .pnr-profile-data td { background-color: #bfdbfe !important; color: #000 !important; font-size: 1.8rem; font-weight: bold; padding: 20px; text-align: center; }
+
         @media (max-width: 991px) {
             body { padding-bottom: 75px; }
         }
@@ -42,13 +66,16 @@
         <div class="collapse navbar-collapse justify-content-end d-none d-lg-flex" id="navbarNav">
             <ul class="nav nav-pills" id="sheetTabList" role="tablist">
                 <li class="nav-item me-2" role="presentation">
-                    <button class="nav-link active text-white" id="ops-tab" data-bs-toggle="tab" data-bs-target="#ops-content" type="button" role="tab"><i class="fa-solid fa-clipboard-list me-1"></i> Sheet: OPS</button>
+                    <button class="nav-link active text-white" id="ops-tab" data-bs-toggle="tab" data-bs-target="#ops-content" type="button" role="tab"><i class="fa-solid fa-clipboard-list me-1"></i> OPS</button>
                 </li>
                 <li class="nav-item me-2" role="presentation">
-                    <button class="nav-link text-white" id="ems-tab" data-bs-toggle="tab" data-bs-target="#ems-content" type="button" role="tab"><i class="fa-solid fa-laptop-code me-1"></i> Sheet: EMS</button>
+                    <button class="nav-link text-white" id="ems-tab" data-bs-toggle="tab" data-bs-target="#ems-content" type="button" role="tab"><i class="fa-solid fa-laptop-code me-1"></i> EMS</button>
+                </li>
+                <li class="nav-item me-2" role="presentation">
+                    <button class="nav-link text-white" id="PNR-tab" data-bs-toggle="tab" data-bs-target="#PNR-content" type="button" role="tab"><i class="fa-solid fa-address-book me-1"></i> PNR</button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link text-white" id="PNR-tab" data-bs-toggle="tab" data-bs-target="#PNR-content" type="button" role="tab"><i class="fa-solid fa-address-book me-1"></i> Sheet: PNR</button>
+                    <button class="nav-link text-white" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-content" type="button" role="tab"><i class="fa-solid fa-id-card me-1"></i> Profile Staff</button>
                 </li>
             </ul>
         </div>
@@ -60,13 +87,30 @@
     <li class="nav-item"><button class="nav-link active" id="ops-tab" data-bs-toggle="tab" data-bs-target="#ops-content" type="button">OPS</button></li>
     <li class="nav-item"><button class="nav-link" id="ems-tab" data-bs-toggle="tab" data-bs-target="#ems-content" type="button">EMS</button></li>
     <li class="nav-item"><button class="nav-link" id="PNR-tab" data-bs-toggle="tab" data-bs-target="#PNR-content" type="button">PNR</button></li>
+    <li class="nav-item"><button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-content" type="button">Profile</button></li>
 </ul>
 
 <div class="container-fluid px-4 py-4">
-    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom gap-2">
         <h1 class="h2">Real-Time Operational Dashboard</h1>
-        <div>
-            <button class="btn btn-sm btn-primary me-2" onclick="loadData()"><i class="fa-solid fa-rotate me-1"></i> Refresh Data</button>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <!-- Dropdown Export Excel -->
+            <div class="dropdown">
+                <button class="btn btn-sm btn-outline-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fa-solid fa-file-excel me-1"></i> Export Excel
+                </button>
+                <ul class="dropdown-menu shadow">
+                    <li><h6 class="dropdown-header text-muted">Tab OPS</h6></li>
+                    <li><a class="dropdown-item small" href="#" onclick="exportTable('table-ops', 'Rekap_Bulanan_OPS.csv')"><i class="fa-solid fa-table me-2 text-primary"></i>Rekap OPS (Per Toko)</a></li>
+                    <li><a class="dropdown-item small" href="#" onclick="exportTable('table-staff-matrix', 'Matriks_Partisipasi_Staff.csv')"><i class="fa-solid fa-calendar-days me-2 text-danger"></i>Matriks Partisipasi Staff</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><h6 class="dropdown-header text-muted">Tab Lainnya</h6></li>
+                    <li><a class="dropdown-item small" href="#" onclick="exportTable('table-ems', 'Data_EMS.csv')"><i class="fa-solid fa-laptop-code me-2 text-success"></i>Sheet EMS</a></li>
+                    <li><a class="dropdown-item small" href="#" onclick="exportTable('table-PNR', 'Data_PNR.csv')"><i class="fa-solid fa-address-book me-2 text-warning"></i>Sheet PNR</a></li>
+                </ul>
+            </div>
+            <button class="btn btn-sm btn-outline-warning text-dark fw-semibold" onclick="copyWAReminder()"><i class="fa-brands fa-whatsapp me-1 text-success"></i> Copy WA Remind</button>
+            <button class="btn btn-sm btn-primary" onclick="loadData()"><i class="fa-solid fa-rotate me-1"></i> Refresh</button>
             <span id="loadingStatus" class="text-muted small">Memuat data...</span>
         </div>
     </div>
@@ -99,39 +143,14 @@
 
             <!-- Summary Cards (OPS) -->
             <div class="row g-3 mb-4 row-cols-1 row-cols-md-3 row-cols-xl-5">
-                <div class="col">
-                    <div class="card card-stat p-3 bg-white">
-                        <h6 class="text-muted small">Total Partisipan</h6>
-                        <h3 class="fw-bold text-primary" id="summary-ops-partisipan">0</h3>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card card-stat p-3 bg-white">
-                        <h6 class="text-muted small">Total Sesi Tercapai</h6>
-                        <h3 class="fw-bold text-info" id="summary-ops-sessions">0</h3>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card card-stat p-3 bg-white border-start border-warning border-4">
-                        <h6 class="text-muted small">Total Unit Terjual</h6>
-                        <h3 class="fw-bold text-warning" id="summary-ops-units">0</h3>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card card-stat p-3 bg-white border-start border-success border-4">
-                        <h6 class="text-muted small">Toko Sudah Submit</h6>
-                        <h3 class="fw-bold text-success" id="summary-submitted-stores">0</h3>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="card card-stat p-3 bg-white border-start border-danger border-4 clickable-card" onclick="showUnsubmittedModal()" title="Klik untuk lihat daftar toko belum submit">
-                        <h6 class="text-muted small">Toko Belum Submit <i class="fa-solid fa-circle-info text-danger small"></i></h6>
-                        <h3 class="fw-bold text-danger" id="summary-unsubmitted-stores">0</h3>
-                    </div>
-                </div>
+                <div class="col"><div class="card card-stat p-3 bg-white"><h6 class="text-muted small">Total Partisipan</h6><h3 class="fw-bold text-primary" id="summary-ops-partisipan">0</h3></div></div>
+                <div class="col"><div class="card card-stat p-3 bg-white"><h6 class="text-muted small">Total Sesi Tercapai</h6><h3 class="fw-bold text-info" id="summary-ops-sessions">0</h3></div></div>
+                <div class="col"><div class="card card-stat p-3 bg-white border-start border-warning border-4"><h6 class="text-muted small">Total Unit Terjual</h6><h3 class="fw-bold text-warning" id="summary-ops-units">0</h3></div></div>
+                <div class="col"><div class="card card-stat p-3 bg-white border-start border-success border-4"><h6 class="text-muted small">Toko Sudah Submit</h6><h3 class="fw-bold text-success" id="summary-submitted-stores">0</h3></div></div>
+                <div class="col"><div class="card card-stat p-3 bg-white border-start border-danger border-4 clickable-card" onclick="showUnsubmittedModal()"><h6 class="text-muted small">Toko Belum Submit <i class="fa-solid fa-circle-info text-danger small"></i></h6><h3 class="fw-bold text-danger" id="summary-unsubmitted-stores">0</h3></div></div>
             </div>
             
-            <!-- Chart Section OPS - Sesi Toko -->
+            <!-- Chart Section OPS -->
             <div class="dashboard-container">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <h5 class="m-0 text-primary"><i class="fa-solid fa-chart-bar me-2"></i>Grafik Akumulasi Sesi Bulanan OPS</h5>
@@ -141,45 +160,24 @@
                         <button type="button" class="btn btn-outline-primary" id="btn-all" onclick="setChartMode('ops', 'all')">Semua Toko (Scroll)</button>
                     </div>
                 </div>
-                <div class="chart-scroll-container" id="chartOpsContainer">
-                    <div class="chart-inner-wrapper" id="chartOpsInner">
-                        <canvas id="chartOps"></canvas>
-                    </div>
-                </div>
+                <div class="chart-scroll-container" id="chartOpsContainer"><div class="chart-inner-wrapper" id="chartOpsInner"><canvas id="chartOps"></canvas></div></div>
             </div>
 
-            <!-- Chart Section OPS - Topik Paling Diminati -->
             <div class="dashboard-container">
                 <h5 class="mb-3 text-primary"><i class="fa-solid fa-chart-pie me-2"></i>Topik Open Studio Paling Diminati</h5>
-                <div class="chart-scroll-container">
-                    <div class="chart-inner-wrapper" id="chartOpsTopicInner">
-                        <canvas id="chartOpsTopic"></canvas>
-                    </div>
-                </div>
+                <div class="chart-scroll-container"><div class="chart-inner-wrapper" id="chartOpsTopicInner"><canvas id="chartOpsTopic"></canvas></div></div>
             </div>
 
-            <!-- Tabel Rekap Bulanan OPS -->
             <div class="dashboard-container">
                 <h4 class="mb-3 text-primary"><i class="fa-solid fa-table me-2"></i>Rekap Bulanan OPS (Per Toko)</h4>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover align-middle" id="table-ops">
-                        <thead>
-                            <tr>
-                                <th>Store</th>
-                                <th>13:00</th>
-                                <th>15:00</th>
-                                <th>18:00</th>
-                                <th>TOTAL</th>
-                                <th>TARGET</th>
-                                <th>Presenter%</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Store</th><th>13:00</th><th>15:00</th><th>18:00</th><th>TOTAL</th><th>TARGET</th><th>Presenter%</th></tr></thead>
                         <tbody></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Tabel Matriks Kalender Partisipasi Staff -->
             <div class="dashboard-container border-start border-danger border-4">
                 <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
                     <div>
@@ -190,34 +188,19 @@
                 </div>
                 <div class="table-responsive mt-3">
                     <table class="table table-bordered table-hover align-middle" id="table-staff-matrix">
-                        <thead></thead>
-                        <tbody></tbody>
+                        <thead></thead><tbody></tbody>
                     </table>
                 </div>
             </div>
-
         </div>
 
         <!-- 2. EMS Content -->
         <div class="tab-pane fade" id="ems-content" role="tabpanel">
             <div class="dashboard-container mb-3 py-3">
                 <div class="row g-3 align-items-center">
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold text-muted">Filter Bulan:</label>
-                        <select id="filter-month-ems" class="form-select" onchange="applyFilters('ems')">
-                            <option value="">Semua Bulan</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold text-muted">Filter Toko:</label>
-                        <select id="filter-store-ems" class="form-select" onchange="applyFilters('ems')">
-                            <option value="">Semua Toko</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold text-muted">Pencarian Bebas:</label>
-                        <input type="text" id="search-ems" class="form-control" placeholder="Cari Toko / Trainer..." onkeyup="applyFilters('ems')">
-                    </div>
+                    <div class="col-md-4"><label class="form-label small fw-bold text-muted">Filter Bulan:</label><select id="filter-month-ems" class="form-select" onchange="applyFilters('ems')"><option value="">Semua Bulan</option></select></div>
+                    <div class="col-md-4"><label class="form-label small fw-bold text-muted">Filter Toko:</label><select id="filter-store-ems" class="form-select" onchange="applyFilters('ems')"><option value="">Semua Toko</option></select></div>
+                    <div class="col-md-4"><label class="form-label small fw-bold text-muted">Pencarian Bebas:</label><input type="text" id="search-ems" class="form-control" placeholder="Cari Toko / Trainer..." onkeyup="applyFilters('ems')"></div>
                 </div>
             </div>
             <div class="row g-3 mb-4">
@@ -227,20 +210,11 @@
             </div>
             <div class="dashboard-container">
                 <h5 class="mb-3 text-success"><i class="fa-solid fa-chart-line me-2"></i>Grafik Ringkasan EMS</h5>
-                <div class="chart-scroll-container">
-                    <div class="chart-inner-wrapper">
-                        <canvas id="chartEms"></canvas>
-                    </div>
-                </div>
+                <div class="chart-scroll-container"><div class="chart-inner-wrapper"><canvas id="chartEms"></canvas></div></div>
             </div>
             <div class="dashboard-container">
                 <h4 class="mb-3 text-success"><i class="fa-solid fa-table me-2"></i>Tabel Data: EMS</h4>
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover align-middle" id="table-ems">
-                        <thead></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+                <div class="table-responsive"><table class="table table-striped table-hover align-middle" id="table-ems"><thead></thead><tbody></tbody></table></div>
             </div>
         </div>
 
@@ -248,22 +222,9 @@
         <div class="tab-pane fade" id="PNR-content" role="tabpanel">
             <div class="dashboard-container mb-3 py-3">
                 <div class="row g-3 align-items-center">
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold text-muted">Filter Bulan:</label>
-                        <select id="filter-month-PNR" class="form-select" onchange="applyFilters('PNR')">
-                            <option value="">Semua Bulan</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold text-muted">Filter Toko:</label>
-                        <select id="filter-store-PNR" class="form-select" onchange="applyFilters('PNR')">
-                            <option value="">Semua Toko</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small fw-bold text-muted">Pencarian Bebas:</label>
-                        <input type="text" id="search-PNR" class="form-control" placeholder="Cari Lokasi / Training..." onkeyup="applyFilters('PNR')">
-                    </div>
+                    <div class="col-md-4"><label class="form-label small fw-bold text-muted">Filter Bulan:</label><select id="filter-month-PNR" class="form-select" onchange="applyFilters('PNR')"><option value="">Semua Bulan</option></select></div>
+                    <div class="col-md-4"><label class="form-label small fw-bold text-muted">Filter Toko:</label><select id="filter-store-PNR" class="form-select" onchange="applyFilters('PNR')"><option value="">Semua Toko</option></select></div>
+                    <div class="col-md-4"><label class="form-label small fw-bold text-muted">Pencarian Bebas:</label><input type="text" id="search-PNR" class="form-control" placeholder="Cari Lokasi / Training..." onkeyup="applyFilters('PNR')"></div>
                 </div>
             </div>
             <div class="row g-3 mb-4">
@@ -273,20 +234,130 @@
             </div>
             <div class="dashboard-container">
                 <h5 class="mb-3 text-warning"><i class="fa-solid fa-chart-pie me-2"></i>Grafik Ringkasan PNR</h5>
-                <div class="chart-scroll-container">
-                    <div class="chart-inner-wrapper">
-                        <canvas id="chartPNR"></canvas>
-                    </div>
-                </div>
+                <div class="chart-scroll-container"><div class="chart-inner-wrapper"><canvas id="chartPNR"></canvas></div></div>
             </div>
             <div class="dashboard-container">
                 <h4 class="mb-3 text-warning"><i class="fa-solid fa-table me-2"></i>Tabel Data: PNR</h4>
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover align-middle" id="table-PNR">
-                        <thead></thead>
-                        <tbody></tbody>
+                <div class="table-responsive"><table class="table table-striped table-hover align-middle" id="table-PNR"><thead></thead><tbody></tbody></table></div>
+            </div>
+        </div>
+
+        <!-- 4. Profile Staff Content (Dilengkapi Profil, Open Studio, EMS, & PNR) -->
+        <div class="tab-pane fade" id="profile-content" role="tabpanel">
+            <div class="dashboard-container text-center py-4">
+                <h3 class="text-purple fw-bold mb-3"><i class="fa-solid fa-id-card me-2"></i>Direktori & Profil Staff</h3>
+                <p class="text-muted">Pilih nama staff di bawah ini untuk melihat detail informasi kepegawaian serta performa Open Studio, EMS, & PNR.</p>
+                
+                <!-- Tabel Informasi Profil Kepegawaian -->
+                <div class="table-responsive mt-4 mb-4">
+                    <table class="table profile-card-table align-middle">
+                        <thead>
+                            <tr class="profile-header-row">
+                                <th colspan="2">E M P L O Y E E &nbsp; P R O F I L E</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>Employee Name</th>
+                                <td class="profile-dropdown-td">
+                                    <select id="profile-name-select" class="form-select form-select-lg fw-bold border-0 bg-transparent text-dark" onchange="updateProfileCard()">
+                                        <option value="">-- Pilih Nama Staff --</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Store</th>
+                                <td id="profile-store">-</td>
+                            </tr>
+                            <tr>
+                                <th>Type Store</th>
+                                <td id="profile-type-store">-</td>
+                            </tr>
+                            <tr>
+                                <th>NIK</th>
+                                <td id="profile-nik">-</td>
+                            </tr>
+                            <tr>
+                                <th>Work Experience</th>
+                                <td id="profile-experience">-</td>
+                            </tr>
+                            <tr>
+                                <th>Total Employee</th>
+                                <td id="profile-total-employee" class="fw-bold text-primary">0</td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
+
+                <!-- Tabel Open Studio (OPS) -->
+                <div class="table-responsive mt-3 mb-4">
+                    <table class="table open-studio-table align-middle text-center">
+                        <thead>
+                            <tr>
+                                <th colspan="3">Open Studio</th>
+                            </tr>
+                            <tr class="open-studio-subhead">
+                                <th>Target Activity Monthly</th>
+                                <th>Current Progress</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="open-studio-data">
+                                <td id="os-target">80</td>
+                                <td id="os-progress" class="text-primary">0</td>
+                                <td id="os-percentage" class="text-success">0%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Tabel EMS -->
+                <div class="table-responsive mt-3 mb-4">
+                    <table class="table ems-profile-table align-middle text-center">
+                        <thead>
+                            <tr>
+                                <th colspan="3">EMS</th>
+                            </tr>
+                            <tr class="ems-profile-subhead">
+                                <th>Target Activity Monthly</th>
+                                <th>Current Progress</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="ems-profile-data">
+                                <td id="ems-target">10</td>
+                                <td id="ems-progress" class="text-primary">0</td>
+                                <td id="ems-percentage" class="text-success">0%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Tabel PNR (Plan and Result Delivered) -->
+                <div class="table-responsive mt-3">
+                    <table class="table pnr-profile-table align-middle text-center">
+                        <thead>
+                            <tr>
+                                <th colspan="3">Plan and Result Delivered</th>
+                            </tr>
+                            <tr class="pnr-profile-subhead">
+                                <th>Min Target per month Training and Roleplay</th>
+                                <th>Current Progress</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="pnr-profile-data">
+                                <td id="pnr-target">11 Hours</td>
+                                <td id="pnr-progress" class="text-primary">0 Hours</td>
+                                <td id="pnr-percentage" class="text-success">0%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
 
@@ -308,8 +379,12 @@
             <i class="fa-solid fa-address-book fa-lg mb-1 text-warning"></i>
             <span style="font-size: 0.7rem;">PNR</span>
         </button>
+        <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="switchMobileTab('profile', this)" id="dock-profile">
+            <i class="fa-solid fa-id-card fa-lg mb-1 text-info"></i>
+            <span style="font-size: 0.7rem;">Profile</span>
+        </button>
         <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="loadData()">
-            <i class="fa-solid fa-rotate fa-lg mb-1 text-info"></i>
+            <i class="fa-solid fa-rotate fa-lg mb-1 text-light"></i>
             <span style="font-size: 0.7rem;">Refresh</span>
         </button>
     </div>
@@ -325,13 +400,9 @@
             </div>
             <div class="modal-body">
                 <p class="text-muted small">Berikut adalah daftar toko dari master referensi yang belum melakukan submit laporan OPS berdasarkan filter bulan aktif:</p>
-                <ul class="list-group" id="unsubmittedStoreList">
-                    <!-- Dinamis terisi -->
-                </ul>
+                <ul class="list-group" id="unsubmittedStoreList"></ul>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button>
-            </div>
+            <div class="modal-footer"><button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Tutup</button></div>
         </div>
     </div>
 </div>
@@ -341,7 +412,6 @@
 <script>
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzAAm8dsSyuTA2paIJ-i-EO9phCsRrqTWWGsgxIL6kqN7OeUKe-Uxmzd5dpkn15PDBO/exec';
 
-    // Master Daftar Toko Resmi Digimap
     const MASTER_STORES = [
         "M134 Digimap Beachwalk Bali", "M118 Digimap Pondok Indah Mall 3", "M119 Digimap Centrepoint Mall Medan", 
         "M120 Digimap Sun Plaza Medan", "M121 Digimap Tunjungan Plaza 3 Surabaya", "M122 Digimap Galaxy Mall Surabaya", 
@@ -387,7 +457,56 @@
     let emsChartInstance = null;
     let PNRChartInstance = null;
     let opsChartMode = 'ops-top15';
-    const MONTHLY_TARGET = 85;
+    const OPEN_STUDIO_TARGET = 80;
+    const EMS_TARGET = 10;
+    const PNR_TARGET = 11; // Target minimum jam Training & Roleplay PNR
+
+    function exportTable(tableId, fileName) {
+        let table = document.getElementById(tableId);
+        if (!table) { alert('Tabel tidak ditemukan.'); return; }
+        let csv = [];
+        let rows = table.querySelectorAll("tr");
+        for (let i = 0; i < rows.length; i++) {
+            let row = [], cols = rows[i].querySelectorAll("td, th");
+            for (let j = 0; j < cols.length; j++) {
+                let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, "").replace(/(\s+)/gm, " ");
+                row.push('"' + data + '"');
+            }
+            csv.push(row.join(","));
+        }
+        let csvFile = new Blob([csv.join("\n")], { type: "text/csv;charset=utf-8;" });
+        let downloadLink = document.createElement("a");
+        downloadLink.download = fileName;
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    }
+
+    function copyWAReminder() {
+        let submittedStoresSet = new Set();
+        lastFilteredOpsRows.forEach(row => {
+            let s = getStoreName(row, 'ops');
+            if (s) submittedStoresSet.add(s.toLowerCase());
+        });
+        let unsubmittedStores = [];
+        MASTER_STORES.forEach(store => {
+            let isSubmitted = Array.from(submittedStoresSet).some(sub => sub.includes(store.toLowerCase()) || store.toLowerCase().includes(sub));
+            if (!isSubmitted) unsubmittedStores.push(store);
+        });
+        let text = `📢 *REMINDER LAPORAN OPS DIGIMAP*\n\nHalo rekan-rekan Store / Presenter,\nMohon segera melakukan submit laporan OPS untuk periode ini.\n\n`;
+        if (unsubmittedStores.length > 0) {
+            text += `*Daftar Toko Belum Submit (${unsubmittedStores.length} Toko):*\n`;
+            unsubmittedStores.forEach((st, idx) => { text += `${idx + 1}. ${st}\n`; });
+        } else {
+            text += `Luar biasa! Semua toko sudah melakukan submit. 👍\n`;
+        }
+        text += `\nTerima kasih atas kerjasamanya! 🙏`;
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Pesan WhatsApp reminder berhasil disalin!');
+        });
+    }
 
     function switchMobileTab(tabName, btnElement) {
         let tabTrigger = document.querySelector(`#sheetTabListHidden #${tabName}-tab`) || document.querySelector(`#sheetTabList #${tabName}-tab`);
@@ -395,14 +514,8 @@
             let tab = new bootstrap.Tab(tabTrigger);
             tab.show();
         }
-
-        // Ubah indikator aktif pada tombol dock
-        document.querySelectorAll('.fixed-bottom button').forEach(b => {
-            b.style.opacity = '0.6';
-        });
-        if (btnElement) {
-            btnElement.style.opacity = '1';
-        }
+        document.querySelectorAll('.fixed-bottom button').forEach(b => { b.style.opacity = '0.6'; });
+        if (btnElement) { btnElement.style.opacity = '1'; }
     }
 
     function loadData() {
@@ -424,6 +537,7 @@
                 initDropdowns('ops', globalData.ops);
                 initDropdowns('ems', globalData.ems);
                 initDropdowns('PNR', globalData.PNR);
+                initProfileDropdown();
 
                 applyFilters('ops');
                 applyFilters('ems');
@@ -437,12 +551,169 @@
             });
     }
 
+    function initProfileDropdown() {
+        const select = document.getElementById('profile-name-select');
+        let staffList = [];
+
+        globalData.raw.forEach(row => {
+            let keys = Object.keys(row);
+            if (keys.length >= 3) {
+                let name = String(row[keys[2]] || '').trim();
+                let store = String(row[keys[1]] || '').trim();
+                if (name) {
+                    staffList.push({ name, store });
+                }
+            }
+        });
+
+        staffList.sort((a, b) => a.name.localeCompare(b.name));
+
+        let html = '<option value="">-- Pilih Nama Staff --</option>';
+        staffList.forEach(item => {
+            html += `<option value="${item.name}">${item.name} (${item.store})</option>`;
+        });
+        select.innerHTML = html;
+        document.getElementById('profile-total-employee').innerText = staffList.length;
+    }
+
+    // Update Kartu Profil & Perhitungan Open Studio, EMS, & PNR Berdasarkan Nama Staff
+    function updateProfileCard() {
+        const selectedName = document.getElementById('profile-name-select').value;
+        if (!selectedName) {
+            document.getElementById('profile-store').innerText = '-';
+            document.getElementById('profile-type-store').innerText = '-';
+            document.getElementById('profile-nik').innerText = '-';
+            document.getElementById('profile-experience').innerText = '-';
+            document.getElementById('os-progress').innerText = '0';
+            document.getElementById('os-percentage').innerText = '0%';
+            document.getElementById('ems-progress').innerText = '0';
+            document.getElementById('ems-percentage').innerText = '0%';
+            document.getElementById('pnr-progress').innerText = '0 Hours';
+            document.getElementById('pnr-percentage').innerText = '0%';
+            return;
+        }
+
+        let foundRow = globalData.raw.find(row => {
+            let keys = Object.keys(row);
+            return keys.length >= 3 && String(row[keys[2]] || '').trim() === selectedName;
+        });
+
+        if (foundRow) {
+            let keys = Object.keys(foundRow);
+            let store = String(foundRow[keys[1]] || '-').trim();
+            let emailKey = keys.find(k => /email/i.test(k));
+            let staffEmail = emailKey ? String(foundRow[emailKey] || '').trim().toLowerCase() : (keys.length >= 6 ? String(foundRow[keys[5]] || '').trim().toLowerCase() : '');
+            
+            let nikKey = keys.find(k => /nik|id/i.test(k));
+            let nik = nikKey ? String(foundRow[nikKey] || '-') : (keys.length >= 4 ? String(foundRow[keys[3]] || '-') : '-');
+            
+            let typeStore = 'AAR';
+            if (/flagship/i.test(store)) typeStore = 'Flagship';
+            else if (/store/i.test(store)) typeStore = 'Store';
+
+            let workExp = '2 Tahun 7 Bulan 29 Hari';
+            let joinDateKey = keys.find(k => /join|masuk|date|tanggal/i.test(k));
+            if (joinDateKey && foundRow[joinDateKey]) {
+                let dJoin = new Date(foundRow[joinDateKey]);
+                if (!isNaN(dJoin.getTime())) {
+                    let dNow = new Date();
+                    let diffTime = Math.abs(dNow - dJoin);
+                    let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    let years = Math.floor(diffDays / 365);
+                    let months = Math.floor((diffDays % 365) / 30);
+                    let days = (diffDays % 365) % 30;
+                    workExp = `${years} Tahun ${months} Bulan ${days} Hari`;
+                }
+            }
+
+            document.getElementById('profile-store').innerText = store;
+            document.getElementById('profile-type-store').innerText = typeStore;
+            document.getElementById('profile-nik').innerText = nik;
+            document.getElementById('profile-experience').innerText = workExp;
+
+            // 1. Hitung Open Studio (OPS)
+            let totalStaffSessions = 0;
+            globalData.ops.forEach(opsRow => {
+                let oKeys = Object.keys(opsRow);
+                let opsEmailKey = oKeys.find(k => /email/i.test(k));
+                let opsEmail = opsEmailKey ? String(opsRow[opsEmailKey] || '').trim().toLowerCase() : (oKeys.length >= 2 ? String(opsRow[oKeys[1]] || '').trim().toLowerCase() : '');
+
+                if (staffEmail && opsEmail === staffEmail) {
+                    let sessionsRaw = String(getOpsVal(opsRow, oKeys, 7, /sessions|jam|waktu/i));
+                    let sessCount = 0;
+                    if (/13/.test(sessionsRaw)) sessCount++;
+                    if (/15/.test(sessionsRaw)) sessCount++;
+                    if (/18/.test(sessionsRaw)) sessCount++;
+                    if (sessCount === 0) sessCount = 1;
+                    totalStaffSessions += sessCount;
+                }
+            });
+            let osPercentage = ((totalStaffSessions / OPEN_STUDIO_TARGET) * 100).toFixed(0) + '%';
+            document.getElementById('os-target').innerText = OPEN_STUDIO_TARGET;
+            document.getElementById('os-progress').innerText = totalStaffSessions;
+            document.getElementById('os-percentage').innerText = osPercentage;
+
+            // 2. Hitung EMS
+            let totalEmsCount = 0;
+            globalData.ems.forEach(emsRow => {
+                let eKeys = Object.keys(emsRow);
+                let emsEmailKey = eKeys.find(k => /email/i.test(k));
+                let emsNameKey = eKeys.find(k => /name|nama|trainer|presenter/i.test(k));
+                let emsEmail = emsEmailKey ? String(emsRow[emsEmailKey] || '').trim().toLowerCase() : '';
+                let emsName = emsNameKey ? String(emsRow[emsNameKey] || '').trim().toLowerCase() : '';
+
+                if ((staffEmail && emsEmail === staffEmail) || (selectedName && emsName === selectedName.toLowerCase())) {
+                    totalEmsCount++;
+                }
+            });
+            let emsPercentage = ((totalEmsCount / EMS_TARGET) * 100).toFixed(0) + '%';
+            document.getElementById('ems-target').innerText = EMS_TARGET;
+            document.getElementById('ems-progress').innerText = totalEmsCount;
+            document.getElementById('ems-percentage').innerText = emsPercentage;
+
+            // 3. Hitung PNR (Plan and Result Delivered)
+            let totalPnrHours = 0;
+            globalData.PNR.forEach(pnrRow => {
+                let pKeys = Object.keys(pnrRow);
+                let pnrEmailKey = pKeys.find(k => /email/i.test(k));
+                let pnrNameKey = pKeys.find(k => /name|nama|trainer|presenter/i.test(k));
+                let pnrEmail = pnrEmailKey ? String(pnrRow[pnrEmailKey] || '').trim().toLowerCase() : '';
+                let pnrName = pnrNameKey ? String(pnrRow[pnrNameKey] || '').trim().toLowerCase() : '';
+
+                if ((staffEmail && pnrEmail === staffEmail) || (selectedName && pnrName === selectedName.toLowerCase())) {
+                    for (let k in pnrRow) {
+                        if (/hour|jam|duration|durasi|total|time/i.test(k)) {
+                            let val = parseFloat(pnrRow[k]);
+                            if (!isNaN(val)) totalPnrHours += val;
+                        }
+                    }
+                }
+            });
+            // Fallback jika baris data PNR mencatat jumlah baris atau jam langsung
+            if (totalPnrHours === 0) {
+                globalData.PNR.forEach(pnrRow => {
+                    let pKeys = Object.keys(pnrRow);
+                    let pnrEmailKey = pKeys.find(k => /email/i.test(k));
+                    let pnrNameKey = pKeys.find(k => /name|nama|trainer|presenter/i.test(k));
+                    let pnrEmail = pnrEmailKey ? String(pnrRow[pnrEmailKey] || '').trim().toLowerCase() : '';
+                    let pnrName = pnrNameKey ? String(pnrRow[pnrNameKey] || '').trim().toLowerCase() : '';
+                    if ((staffEmail && pnrEmail === staffEmail) || (selectedName && pnrName === selectedName.toLowerCase())) {
+                        totalPnrHours += 1; // Asumsi per sesi 1 jam jika kolom jam tidak ditemukan
+                    }
+                });
+            }
+            let pnrPercentage = ((totalPnrHours / PNR_TARGET) * 100).toFixed(0) + '%';
+            document.getElementById('pnr-target').innerText = PNR_TARGET + ' Hours';
+            document.getElementById('pnr-progress').innerText = totalPnrHours + ' Hours';
+            document.getElementById('pnr-percentage').innerText = pnrPercentage;
+        }
+    }
+
     function extractMonthString(val) {
         if (!val) return null;
         let s = String(val).trim();
         let matchYMD = s.match(/^(\d{4})-(\d{2})/);
         if (matchYMD) return `${matchYMD[1]}-${matchYMD[2]}`;
-        
         let d = new Date(s);
         if (!isNaN(d.getTime()) && d.getFullYear() > 2000) {
             let y = d.getFullYear();
@@ -533,19 +804,14 @@
 
         let filtered = rows.filter(row => {
             let keys = Object.keys(row);
-            
             let matchSearch = true;
             if (searchInput) {
-                matchSearch = Object.values(row).some(val => 
-                    String(val).toLowerCase().includes(searchInput)
-                );
+                matchSearch = Object.values(row).some(val => String(val).toLowerCase().includes(searchInput));
             }
-
             let matchStore = true;
             if (storeSelect) {
                 matchStore = (getStoreName(row, sheetId) === storeSelect);
             }
-
             let matchMonth = true;
             if (monthSelect) {
                 matchMonth = false;
@@ -555,17 +821,11 @@
                 }
                 if (!monthVal) {
                     for (let k in row) {
-                        if (/bulan|month|date|tanggal|periode/i.test(k)) {
-                            monthVal = row[k];
-                            break;
-                        }
+                        if (/bulan|month|date|tanggal|periode/i.test(k)) { monthVal = row[k]; break; }
                     }
                 }
-                if (extractMonthString(monthVal) === monthSelect) {
-                    matchMonth = true;
-                }
+                if (extractMonthString(monthVal) === monthSelect) matchMonth = true;
             }
-
             return matchSearch && matchStore && matchMonth;
         });
 
@@ -598,9 +858,7 @@
             if (val !== undefined && val !== '') return val;
         }
         let foundKey = keys.find(k => keywordRegex.test(k));
-        if (foundKey !== undefined && row[foundKey] !== undefined) {
-            return row[foundKey];
-        }
+        if (foundKey !== undefined && row[foundKey] !== undefined) return row[foundKey];
         return '';
     }
 
@@ -608,21 +866,15 @@
         let submittedStoresSet = new Set();
         filteredRows.forEach(row => {
             let s = getStoreName(row, 'ops');
-            if (s && s !== 'Unknown Store') {
-                submittedStoresSet.add(s);
-            }
+            if (s && s !== 'Unknown Store') submittedStoresSet.add(s);
         });
-
         let totalMaster = MASTER_STORES.length;
         let submittedCount = 0;
-
         MASTER_STORES.forEach(store => {
             let isSubmitted = Array.from(submittedStoresSet).some(sub => sub.toLowerCase().includes(store.toLowerCase()) || store.toLowerCase().includes(sub.toLowerCase()));
             if (isSubmitted) submittedCount++;
         });
-
         let unsubmittedCount = Math.max(0, totalMaster - submittedCount);
-
         document.getElementById('summary-submitted-stores').innerText = submittedCount;
         document.getElementById('summary-unsubmitted-stores').innerText = unsubmittedCount;
     }
@@ -633,10 +885,8 @@
             let s = getStoreName(row, 'ops');
             if (s) submittedStoresSet.add(s.toLowerCase());
         });
-
         let unsubmittedListHtml = '';
         let unsubmittedCount = 0;
-
         MASTER_STORES.forEach(store => {
             let isSubmitted = Array.from(submittedStoresSet).some(sub => sub.includes(store.toLowerCase()) || store.toLowerCase().includes(sub));
             if (!isSubmitted) {
@@ -644,11 +894,9 @@
                 unsubmittedListHtml += `<li class="list-group-item d-flex justify-content-between align-items-center"><span class="fw-semibold">${store}</span><span class="badge bg-danger rounded-pill">Belum Submit</span></li>`;
             }
         });
-
         if (unsubmittedCount === 0) {
             unsubmittedListHtml = `<li class="list-group-item text-center text-success py-3">Luar biasa! Seluruh toko telah melakukan submit.</li>`;
         }
-
         document.getElementById('unsubmittedStoreList').innerHTML = unsubmittedListHtml;
         let myModal = new bootstrap.Modal(document.getElementById('unsubmittedModal'));
         myModal.show();
@@ -658,22 +906,18 @@
         const table = document.getElementById(`table-ops`);
         const tbody = table.querySelector('tbody');
         tbody.innerHTML = '';
-
         if (!rows || rows.length === 0) {
             tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-3">Tidak ada data ditemukan.</td></tr>`;
             return;
         }
-
         let grouped = {};
         rows.forEach(row => {
             let keys = Object.keys(row);
             let store = getStoreName(row, 'ops');
-            
             let sessionsRaw = String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i));
             let v13 = (/13/.test(sessionsRaw)) ? 1 : 0;
             let v15 = (/15/.test(sessionsRaw)) ? 1 : 0;
             let v18 = (/18/.test(sessionsRaw)) ? 1 : 0;
-
             let key = store;
             if (!grouped[key]) {
                 grouped[key] = { store, s13: 0, s15: 0, s18: 0, count: 0 };
@@ -683,25 +927,14 @@
             grouped[key].s18 += v18;
             grouped[key].count += 1;
         });
-
         let groupKeys = Object.keys(grouped).sort();
-
         const fragment = document.createDocumentFragment();
         groupKeys.forEach(k => {
             let item = grouped[k];
             let total = item.s13 + item.s15 + item.s18;
-            let presenterPct = ((total / MONTHLY_TARGET) * 100).toFixed(1) + '%';
-
+            let presenterPct = ((total / 85) * 100).toFixed(1) + '%';
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="text-start">${item.store}</td>
-                <td>${item.s13}</td>
-                <td>${item.s15}</td>
-                <td>${item.s18}</td>
-                <td class="fw-bold text-primary">${total}</td>
-                <td>${MONTHLY_TARGET}</td>
-                <td class="fw-bold text-success">${presenterPct}</td>
-            `;
+            tr.innerHTML = `<td class="text-start">${item.store}</td><td>${item.s13}</td><td>${item.s15}</td><td>${item.s18}</td><td class="fw-bold text-primary">${total}</td><td>85</td><td class="fw-bold text-success">${presenterPct}</td>`;
             fragment.appendChild(tr);
         });
         tbody.appendChild(fragment);
@@ -723,14 +956,9 @@
             daysInMonth = new Date(year, month, 0).getDate();
         }
 
-        let headerHtml = '<tr>';
-        headerHtml += '<th class="store-col">Store</th>';
-        headerHtml += '<th class="name-col">Presenter Name</th>';
-        for (let d = 1; d <= daysInMonth; d++) {
-            headerHtml += `<th>${d}</th>`;
-        }
-        headerHtml += '<th class="bg-primary">TOTAL SESI</th>';
-        headerHtml += '</tr>';
+        let headerHtml = '<tr><th class="store-col">Store</th><th class="name-col">Presenter Name</th>';
+        for (let d = 1; d <= daysInMonth; d++) { headerHtml += `<th>${d}</th>`; }
+        headerHtml += '<th class="bg-primary">TOTAL SESI</th></tr>';
         thead.innerHTML = headerHtml;
 
         let staffMap = {};
@@ -739,10 +967,8 @@
             if (rKeys.length >= 3) {
                 let store = String(rawRow[rKeys[1]] || '').trim();
                 let presenter = String(rawRow[rKeys[2]] || '').trim();
-                
                 let emailKey = rKeys.find(k => /email/i.test(k));
                 let email = emailKey ? String(rawRow[emailKey] || '').trim().toLowerCase() : (rKeys.length >= 6 ? String(rawRow[rKeys[5]] || '').trim().toLowerCase() : '');
-
                 if (email && presenter) {
                     if (selectedStore && store !== selectedStore) return;
                     staffMap[email] = { store, presenter, email, days: {}, totalSesi: 0 };
@@ -754,21 +980,17 @@
             let keys = Object.keys(row);
             let opsEmailKey = keys.find(k => /email/i.test(k));
             let opsEmail = opsEmailKey ? String(row[opsEmailKey] || '').trim().toLowerCase() : (keys.length >= 2 ? String(row[keys[1]] || '').trim().toLowerCase() : '');
-
             if (opsEmail && staffMap[opsEmail]) {
                 let monthVal = keys.length >= 12 ? (row[keys[11]] || row[keys[12]]) : '';
                 let mStr = extractMonthString(monthVal);
                 if (selectedMonth && mStr !== selectedMonth) return;
-
                 let dateVal = row[keys[12]] || row[keys[3]] || row[keys[0]];
                 let dObj = new Date(dateVal);
                 let dayNum = !isNaN(dObj.getDate()) ? dObj.getDate() : null;
-
                 if (!dayNum) {
                     let match = String(dateVal).match(/\b([1-3]?[0-9])\b/);
                     if (match) dayNum = parseInt(match[1]);
                 }
-
                 if (dayNum && dayNum >= 1 && dayNum <= daysInMonth) {
                     let sessionsRaw = String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i));
                     let sessCount = 0;
@@ -776,7 +998,6 @@
                     if (/15/.test(sessionsRaw)) sessCount++;
                     if (/18/.test(sessionsRaw)) sessCount++;
                     if (sessCount === 0) sessCount = 1;
-
                     staffMap[opsEmail].days[dayNum] = (staffMap[opsEmail].days[dayNum] || 0) + sessCount;
                     staffMap[opsEmail].totalSesi += sessCount;
                 }
@@ -784,15 +1005,9 @@
         });
 
         let staffArray = Object.values(staffMap);
-
         if (searchInput) {
-            staffArray = staffArray.filter(item => 
-                item.store.toLowerCase().includes(searchInput) || 
-                item.presenter.toLowerCase().includes(searchInput) ||
-                item.email.toLowerCase().includes(searchInput)
-            );
+            staffArray = staffArray.filter(item => item.store.toLowerCase().includes(searchInput) || item.presenter.toLowerCase().includes(searchInput) || item.email.toLowerCase().includes(searchInput));
         }
-
         staffArray.sort((a, b) => {
             let storeCmp = a.store.localeCompare(b.store);
             if (storeCmp !== 0) return storeCmp;
@@ -800,7 +1015,6 @@
         });
 
         document.getElementById('staff-matrix-count').innerText = `${staffArray.length} Staff (Master RAW)`;
-
         if (staffArray.length === 0) {
             tbody.innerHTML = `<tr><td colspan="${daysInMonth + 3}" class="text-center text-muted py-3">Tidak ada data staff ditemukan.</td></tr>`;
             return;
@@ -809,16 +1023,11 @@
         const fragment = document.createDocumentFragment();
         staffArray.forEach(item => {
             const tr = document.createElement('tr');
-            let rowHtml = `<td class="store-col fw-semibold">${item.store}</td>`;
-            rowHtml += `<td class="name-col">${item.presenter}</td>`;
-
+            let rowHtml = `<td class="store-col fw-semibold">${item.store}</td><td class="name-col">${item.presenter}</td>`;
             for (let d = 1; d <= daysInMonth; d++) {
                 let count = item.days[d];
-                if (count > 0) {
-                    rowHtml += `<td class="cell-active" title="Tanggal ${d}: ${count} sesi">✓</td>`;
-                } else {
-                    rowHtml += `<td class="cell-inactive">-</td>`;
-                }
+                if (count > 0) rowHtml += `<td class="cell-active" title="Tanggal ${d}: ${count} sesi">✓</td>`;
+                else rowHtml += `<td class="cell-inactive">-</td>`;
             }
             rowHtml += `<td class="fw-bold text-primary bg-light">${item.totalSesi}</td>`;
             tr.innerHTML = rowHtml;
@@ -832,23 +1041,17 @@
         const thead = table.querySelector('thead');
         const tbody = table.querySelector('tbody');
         document.getElementById(`count-${sheetId}`).innerText = rows.length;
-
         thead.innerHTML = '';
         tbody.innerHTML = '';
-
         if (!rows || rows.length === 0) {
             tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-3">Tidak ada data ditemukan.</td></tr>`;
             return;
         }
-
         const headers = Object.keys(rows[0]);
         let headerRow = '<tr>';
-        headers.forEach(h => {
-            headerRow += `<th>${h}</th>`;
-        });
+        headers.forEach(h => { headerRow += `<th>${h}</th>`; });
         headerRow += '</tr>';
         thead.innerHTML = headerRow;
-
         const fragment = document.createDocumentFragment();
         rows.forEach(row => {
             const tr = document.createElement('tr');
@@ -865,19 +1068,15 @@
     function calculateSummary(rows, sheetId) {
         try {
             if (sheetId === 'ops') {
-                let totalOpsPartisipan = 0;
-                let totalOpsSessions = 0;
-                let totalOpsUnits = 0;
+                let totalOpsPartisipan = 0, totalOpsSessions = 0, totalOpsUnits = 0;
                 rows.forEach(row => {
                     let keys = Object.keys(row);
                     let p = getOpsVal(row, keys, 4, /total.*participant|partisipan/i);
                     totalOpsPartisipan += parseFloat(p) || 0;
-
                     let sessionsRaw = String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i));
                     if (/13/.test(sessionsRaw)) totalOpsSessions++;
                     if (/15/.test(sessionsRaw)) totalOpsSessions++;
                     if (/18/.test(sessionsRaw)) totalOpsSessions++;
-
                     let u = getOpsVal(row, keys, 8, /unit.*terjual|terjual|sold/i);
                     totalOpsUnits += parseFloat(u) || 0;
                 });
@@ -890,10 +1089,7 @@
                     for (let key in row) {
                         if (/score|nilai|avg|rata/i.test(key)) {
                             let val = parseFloat(row[key]);
-                            if (!isNaN(val)) {
-                                totalScore += val;
-                                countScore++;
-                            }
+                            if (!isNaN(val)) { totalScore += val; countScore++; }
                         }
                     }
                 });
@@ -903,23 +1099,17 @@
                 let totalStaff = 0;
                 rows.forEach(row => {
                     for (let key in row) {
-                        if (/staff|trained|employee|karyawan|peserta/i.test(key)) {
-                            totalStaff += parseFloat(row[key]) || 0;
-                        }
+                        if (/staff|trained|employee|karyawan|peserta/i.test(key)) totalStaff += parseFloat(row[key]) || 0;
                     }
                 });
                 document.getElementById('summary-PNR-staff').innerText = totalStaff;
             }
-        } catch (e) {
-            console.error("Error calculating summary:", e);
-        }
+        } catch (e) { console.error(e); }
     }
 
     function renderCharts(rows, sheetId) {
         if (sheetId === 'ops') {
-            let storeTotals = {};
-            let topicCounts = {};
-
+            let storeTotals = {}, topicCounts = {};
             rows.forEach(row => {
                 let store = getStoreName(row, 'ops');
                 let keys = Object.keys(row);
@@ -929,147 +1119,49 @@
                 if (/15/.test(sessionsRaw)) sessCount++;
                 if (/18/.test(sessionsRaw)) sessCount++;
                 if (sessCount === 0) sessCount = 1;
-
                 storeTotals[store] = (storeTotals[store] || 0) + sessCount;
-
                 let topicVal = getOpsVal(row, keys, 6, /topic|topik/i);
                 if (topicVal) {
                     let t = String(topicVal).trim();
-                    if (t) {
-                        topicCounts[t] = (topicCounts[t] || 0) + 1;
-                    }
+                    if (t) topicCounts[t] = (topicCounts[t] || 0) + 1;
                 }
             });
-
-            let storeArray = Object.keys(storeTotals).map(store => ({
-                store, total: storeTotals[store]
-            })).sort((a, b) => b.total - a.total);
-
-            if (opsChartMode === 'ops-top15') {
-                storeArray = storeArray.slice(0, 15);
-            } else if (opsChartMode === 'ops-bottom15') {
-                storeArray = storeArray.reverse().slice(0, 15);
-            }
+            let storeArray = Object.keys(storeTotals).map(store => ({ store, total: storeTotals[store] })).sort((a, b) => b.total - a.total);
+            if (opsChartMode === 'ops-top15') storeArray = storeArray.slice(0, 15);
+            else if (opsChartMode === 'ops-bottom15') storeArray = storeArray.reverse().slice(0, 15);
 
             const innerWrapper = document.getElementById('chartOpsInner');
-            if (opsChartMode === 'ops-all' && storeArray.length > 15) {
-                innerWrapper.style.width = `${Math.max(100, storeArray.length * 40)}px`;
-            } else {
-                innerWrapper.style.width = '100%';
-            }
-
-            const labels = storeArray.map(item => item.store);
-            const values = storeArray.map(item => item.total);
+            if (opsChartMode === 'ops-all' && storeArray.length > 15) innerWrapper.style.width = `${Math.max(100, storeArray.length * 40)}px`;
+            else innerWrapper.style.width = '100%';
 
             if (opsChartInstance) opsChartInstance.destroy();
-            const ctxOps = document.getElementById('chartOps').getContext('2d');
-            opsChartInstance = new Chart(ctxOps, {
+            opsChartInstance = new Chart(document.getElementById('chartOps').getContext('2d'), {
                 type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Total Sesi Bulanan',
-                        data: values,
-                        backgroundColor: 'rgba(13, 110, 253, 0.7)',
-                        borderColor: 'rgba(13, 110, 253, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true }
-                    }
-                }
+                data: { labels: storeArray.map(i => i.store), datasets: [{ label: 'Total Sesi Bulanan', data: storeArray.map(i => i.total), backgroundColor: 'rgba(13, 110, 253, 0.7)', borderColor: 'rgba(13, 110, 253, 1)', borderWidth: 1 }] },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
             });
 
-            let topicArray = Object.keys(topicCounts).map(topic => ({
-                topic, count: topicCounts[topic]
-            })).sort((a, b) => b.count - a.count);
-
-            const topicInnerWrapper = document.getElementById('chartOpsTopicInner');
-            topicInnerWrapper.style.width = '100%';
-
-            const topicLabels = topicArray.map(item => item.topic);
-            const topicValues = topicArray.map(item => item.count);
-
+            let topicArray = Object.keys(topicCounts).map(topic => ({ topic, count: topicCounts[topic] })).sort((a, b) => b.count - a.count);
             if (opsTopicChartInstance) opsTopicChartInstance.destroy();
-            const ctxTopic = document.getElementById('chartOpsTopic').getContext('2d');
-            opsTopicChartInstance = new Chart(ctxTopic, {
+            opsTopicChartInstance = new Chart(document.getElementById('chartOpsTopic').getContext('2d'), {
                 type: 'bar',
-                data: {
-                    labels: topicLabels,
-                    datasets: [{
-                        label: 'Jumlah Pemilihan Topik',
-                        data: topicValues,
-                        backgroundColor: 'rgba(255, 159, 64, 0.7)',
-                        borderColor: 'rgba(255, 159, 64, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { beginAtZero: true }
-                    }
-                }
+                data: { labels: topicArray.map(i => i.topic), datasets: [{ label: 'Jumlah Pemilihan Topik', data: topicArray.map(i => i.count), backgroundColor: 'rgba(255, 159, 64, 0.7)', borderColor: 'rgba(255, 159, 64, 1)', borderWidth: 1 }] },
+                options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { beginAtZero: true } } }
             });
-
         } else if (sheetId === 'ems') {
             const displayRows = rows.slice(0, 15);
-            const labels = displayRows.map((row, i) => `Item #${i + 1}`);
-            const values = displayRows.map(row => {
-                for (let k in row) {
-                    if (/score|nilai|avg|rata/i.test(k)) return parseFloat(row[k]) || 0;
-                }
-                return 0;
-            });
-
             if (emsChartInstance) emsChartInstance.destroy();
-            const ctxEms = document.getElementById('chartEms').getContext('2d');
-            emsChartInstance = new Chart(ctxEms, {
+            emsChartInstance = new Chart(document.getElementById('chartEms').getContext('2d'), {
                 type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Score EMS',
-                        data: values,
-                        backgroundColor: 'rgba(25, 135, 84, 0.2)',
-                        borderColor: 'rgba(25, 135, 84, 1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.1
-                    }]
-                },
+                data: { labels: displayRows.map((r, i) => `Item #${i + 1}`), datasets: [{ label: 'Score EMS', data: displayRows.map(r => { for (let k in r) { if (/score|nilai|avg|rata/i.test(k)) return parseFloat(r[k]) || 0; } return 0; }), backgroundColor: 'rgba(25, 135, 84, 0.2)', borderColor: 'rgba(25, 135, 84, 1)', borderWidth: 2, fill: true, tension: 0.1 }] },
                 options: { responsive: true, maintainAspectRatio: false }
             });
         } else if (sheetId === 'PNR') {
             const displayRows = rows.slice(0, 15);
-            const labels = displayRows.map((row, i) => `Item #${i + 1}`);
-            const values = displayRows.map(row => {
-                for (let k in row) {
-                    if (/staff|trained|employee|karyawan|peserta/i.test(k)) return parseFloat(row[k]) || 0;
-                }
-                return 0;
-            });
-
             if (PNRChartInstance) PNRChartInstance.destroy();
-            const ctxPNR = document.getElementById('chartPNR').getContext('2d');
-            PNRChartInstance = new Chart(ctxPNR, {
+            PNRChartInstance = new Chart(document.getElementById('chartPNR').getContext('2d'), {
                 type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Staff Trained PNR',
-                        data: values,
-                        backgroundColor: 'rgba(255, 193, 7, 0.7)',
-                        borderColor: 'rgba(255, 193, 7, 1)',
-                        borderWidth: 1
-                    }]
-                },
+                data: { labels: displayRows.map((r, i) => `Item #${i + 1}`), datasets: [{ label: 'Staff Trained PNR', data: displayRows.map(r => { for (let k in r) { if (/staff|trained|employee|karyawan|peserta/i.test(k)) return parseFloat(r[k]) || 0; } return 0; }), backgroundColor: 'rgba(255, 193, 7, 0.7)', borderColor: 'rgba(255, 193, 7, 1)', borderWidth: 1 }] },
                 options: { responsive: true, maintainAspectRatio: false }
             });
         }
