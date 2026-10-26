@@ -1199,8 +1199,8 @@
         thead.innerHTML = headerHtml + '<th class="bg-success">TOTAL SESI</th></tr>';
 
         let staffMap = {};
-        let storeStaffMap = {};
 
+        // 1. Petakan Master RAW berdasarkan Email sebagai Key unik
         globalData.raw.forEach(rawRow => {
             let rKeys = Object.keys(rawRow);
             if (rKeys.length >= 3) {
@@ -1208,51 +1208,43 @@
                 let presenter = String(rawRow[rKeys[2]] || '').trim();
                 let emailKey = rKeys.find(k => /email/i.test(k.trim()));
                 let email = emailKey ? String(rawRow[emailKey] || '').trim().toLowerCase() : (rKeys.length >= 6 ? String(rawRow[rKeys[5]] || '').trim().toLowerCase() : '');
-                if (store && presenter) {
+                
+                if (email) {
                     if (selectedStore && store !== selectedStore) return;
-                    let staffObj = { store, presenter, email, days: {}, totalSessions: 0 };
-                    let mapKey = email || `${store}_${presenter}`.toLowerCase();
-                    staffMap[mapKey] = staffObj;
-
-                    let sKey = store.toLowerCase();
-                    if (!storeStaffMap[sKey]) storeStaffMap[sKey] = [];
-                    storeStaffMap[sKey].push(staffObj);
+                    staffMap[email] = {
+                        store: store,
+                        presenter: presenter,
+                        email: email,
+                        days: {},
+                        totalSessions: 0
+                    };
                 }
             }
         });
 
+        // 2. Cocokkan data submit EMS murni menggunakan Email dari kolom Participants Sales Coach
         allEmsRows.forEach(row => {
             let keys = Object.keys(row);
-            let emsEmailKey = keys.find(k => /email/i.test(k.trim()));
-            let emsEmail = emsEmailKey ? String(row[emsEmailKey] || '').trim().toLowerCase() : '';
-            let emsStore = getStoreName(row, 'ems');
+            
+            // Ambil email dari kolom Participants Sales Coach
+            let coachKey = keys.find(k => /participants.*sales.*coach|sales.*coach|coach/i.test(k.trim()));
+            let monthKey = keys.find(k => /^month$|bulan/i.test(k.trim()));
+            let dateKey = keys.find(k => /^date$|tanggal/i.test(k.trim()));
 
-            let monthVal = '';
-            let monthKey = keys.find(k => /^month$/i.test(k.trim()) || /bulan/i.test(k.trim()));
-            let dateKey = keys.find(k => /^date$/i.test(k.trim()) || /tanggal/i.test(k.trim()));
-            if (monthKey && row[monthKey] !== undefined) monthVal = row[monthKey];
-            else if (keys.length >= 7) monthVal = row[keys[6]];
+            let emsEmail = coachKey ? String(row[coachKey] || '').trim().toLowerCase() : '';
+            let monthVal = monthKey ? row[monthKey] : (keys.length >= 7 ? row[keys[6]] : '');
+            let dateVal = dateKey ? row[dateKey] : (keys.length >= 8 ? row[keys[7]] : '');
 
+            // Filter Bulan jika dipilih
             if (selectedMonth && extractMonthString(monthVal) !== selectedMonth) return;
 
-            let dateVal = String(row['Date'] || (dateKey ? row[dateKey] : (keys.length >= 8 ? row[keys[7]] : '')));
             let dayNum = parseDateToDay(dateVal);
             if (!dayNum) dayNum = 1;
 
-            let matchedStaff = null;
-            if (emsEmail && staffMap[emsEmail]) {
-                matchedStaff = staffMap[emsEmail];
-            } else if (emsStore) {
-                let sKey = emsStore.toLowerCase();
-                let candidates = storeStaffMap[sKey];
-                if (candidates && candidates.length > 0) {
-                    matchedStaff = candidates[0];
-                }
-            }
-
-            if (matchedStaff && dayNum >= 1 && dayNum <= daysInMonth) {
-                matchedStaff.days[dayNum] = (matchedStaff.days[dayNum] || 0) + 1;
-                matchedStaff.totalSessions++;
+            // Jika email submit match dengan email di Master RAW, masukkan ke tanggal yang sesuai
+            if (emsEmail && staffMap[emsEmail] && dayNum >= 1 && dayNum <= daysInMonth) {
+                staffMap[emsEmail].days[dayNum] = (staffMap[emsEmail].days[dayNum] || 0) + 1;
+                staffMap[emsEmail].totalSessions++;
             }
         });
 
