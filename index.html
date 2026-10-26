@@ -295,7 +295,7 @@
                 </div>
             </div>
 
-            <!-- TABEL DATA PNR RAW (DIPERBAIKI UKURAN & TATA LETAKNYA) -->
+            <!-- TABEL DATA PNR RAW -->
             <div class="dashboard-container">
                 <h4 class="mb-3 text-warning"><i class="fa-solid fa-table me-2"></i>Tabel Data: PNR (Raw)</h4>
                 <div class="table-responsive">
@@ -475,16 +475,23 @@
             year = parseInt(parts[0]);
             month = parseInt(parts[1]);
         }
+        
         let daysInMonth = new Date(year, month, 0).getDate();
-        let totalTarget = 0;
+        let weekdaysCount = 0; // Total hari Senin - Jumat
+        let weekendCount = 0;  // Total hari Sabtu & Minggu
+        
         for (let d = 1; d <= daysInMonth; d++) {
-            let dayOfWeek = new Date(year, month - 1, d).getDay();
+            let date = new Date(year, month - 1, d);
+            let dayOfWeek = date.getDay(); // 0 = Minggu, 6 = Sabtu
             if (dayOfWeek === 0 || dayOfWeek === 6) {
-                totalTarget += 2;
+                weekendCount++;
             } else {
-                totalTarget += 3;
+                weekdaysCount++;
             }
         }
+        
+        // Senin-Jumat dikali 3, Sabtu-Minggu dikali 2
+        let totalTarget = (weekdaysCount * 3) + (weekendCount * 2);
         return totalTarget;
     }
 
@@ -660,7 +667,8 @@
                 } else if (sheetId === 'PNR') {
                     dateVal = String(getPnrVal(row, 'Month', 12)).trim();
                 } else {
-                    for (let k in row) { if (/bulan|month|date|tanggal|periode/i.test(k.trim())) { dateVal = row[k]; break; } }
+                    let monthKey = keys.find(k => /^bulan$|^month$/i.test(k.trim()));
+                    dateVal = monthKey ? row[monthKey] : (keys.length >= 11 ? row[keys[11]] : (keys.length >= 7 ? row[keys[7]] : ''));
                 }
                 let ym = extractYearAndMonth(dateVal);
                 if (ym.year && ym.month) months.add(`${ym.year}-${ym.month}`);
@@ -718,6 +726,14 @@
         return '';
     }
 
+    function getOpsVal(row, colName, indexFallback) {
+        let keys = Object.keys(row);
+        let found = keys.find(k => k.trim().toLowerCase() === colName.toLowerCase() || k.trim().toLowerCase().replace(/[\s_"\n\r]/g, '') === colName.toLowerCase().replace(/[\s_"\n\r]/g, ''));
+        if (found !== undefined && row[found] !== undefined) return row[found];
+        if (keys.length > indexFallback && row[keys[indexFallback]] !== undefined) return row[keys[indexFallback]];
+        return '';
+    }
+
     function updateProfileCard() {
         const selectedName = document.getElementById('profile-search-input').value.trim();
         const selectedMonth = document.getElementById('profile-filter-month').value;
@@ -754,8 +770,6 @@
         if (foundRow) {
             let keys = Object.keys(foundRow);
             let store = String(foundRow[keys[1]] || '-').trim();
-            let emailKey = keys.find(k => /email/i.test(k.trim()));
-            let staffEmail = emailKey ? String(foundRow[emailKey] || '').trim().toLowerCase() : (keys.length >= 6 ? String(foundRow[keys[5]] || '').trim().toLowerCase() : '');
             let nikKey = keys.find(k => /nik|id/i.test(k.trim()));
             let nik = nikKey ? String(foundRow[nikKey] || '-') : (keys.length >= 4 ? String(foundRow[keys[3]] || '-') : '-');
             
@@ -783,22 +797,15 @@
             document.getElementById('profile-experience').innerText = workExp;
             document.getElementById('profile-total-employee').innerText = storeHeadcount;
 
-            // 1. OPEN STUDIO (OPS) PROGRESS (Pencocokan via Email OR Store Name)
+            // 1. OPEN STUDIO (OPS) PROGRESS (Berdasarkan Toko)
             let totalStaffSessions = 0;
             globalData.ops.forEach(opsRow => {
-                let oKeys = Object.keys(opsRow);
-                let opsEmailKey = oKeys.find(k => /email/i.test(k.trim()));
-                let opsEmail = opsEmailKey ? String(opsRow[opsEmailKey] || '').trim().toLowerCase() : (oKeys.length >= 2 ? String(opsRow[oKeys[1]] || '').trim().toLowerCase() : '');
                 let opsStore = getStoreName(opsRow, 'ops');
-                
-                let matchEmail = staffEmail && opsEmail && opsEmail === staffEmail;
-                let matchStore = store && opsStore && opsStore.toLowerCase() === store.toLowerCase();
+                if (opsStore && opsStore.toLowerCase() === store.toLowerCase()) {
+                    let monthVal = String(getOpsVal(opsRow, 'Bulan', 11)).trim();
+                    if (selectedMonth && extractMonthString(monthVal) !== selectedMonth) return;
 
-                if (matchEmail || matchStore) {
-                    let dateVal = opsRow[oKeys[12]] || opsRow[oKeys[3]] || opsRow[oKeys[0]];
-                    if (selectedMonth && extractMonthString(dateVal) !== selectedMonth) return;
-
-                    let sessionsRaw = String(getOpsVal(opsRow, oKeys, 7, /sessions|jam|waktu/i));
+                    let sessionsRaw = String(getOpsVal(opsRow, 'Sessions', 7));
                     let sessCount = (/13/.test(sessionsRaw) ? 1 : 0) + (/15/.test(sessionsRaw) ? 1 : 0) + (/18/.test(sessionsRaw) ? 1 : 0);
                     totalStaffSessions += (sessCount === 0 ? 1 : sessCount);
                 }
@@ -807,18 +814,12 @@
             document.getElementById('os-progress').innerText = totalStaffSessions;
             document.getElementById('os-percentage').innerText = dynamicOpsTarget > 0 ? ((totalStaffSessions / dynamicOpsTarget) * 100).toFixed(0) + '%' : '0%';
 
-            // 2. EMS PROGRESS (Pencocokan via Email OR Store Name)
+            // 2. EMS PROGRESS (Berdasarkan Toko)
             let totalEmsCount = 0;
             globalData.ems.forEach(emsRow => {
-                let eKeys = Object.keys(emsRow);
-                let emsEmailKey = eKeys.find(k => /email/i.test(k.trim()));
-                let emsEmail = emsEmailKey ? String(emsRow[emsEmailKey] || '').trim().toLowerCase() : '';
                 let emsStore = getStoreName(emsRow, 'ems');
-
-                let matchEmail = staffEmail && emsEmail && emsEmail === staffEmail;
-                let matchStore = store && emsStore && emsStore.toLowerCase() === store.toLowerCase();
-
-                if (matchEmail || matchStore) {
+                if (emsStore && emsStore.toLowerCase() === store.toLowerCase()) {
+                    let eKeys = Object.keys(emsRow);
                     let monthKey = eKeys.find(k => /^month$/i.test(k.trim()) || /bulan/i.test(k.trim()));
                     let dateVal = monthKey ? emsRow[monthKey] : (eKeys.length >= 7 ? emsRow[eKeys[6]] : '');
                     if (selectedMonth && extractMonthString(dateVal) !== selectedMonth) return;
@@ -830,13 +831,13 @@
             document.getElementById('ems-progress').innerText = totalEmsCount;
             document.getElementById('ems-percentage').innerText = dynamicEmsTarget > 0 ? ((totalEmsCount / dynamicEmsTarget) * 100).toFixed(0) + '%' : '0%';
 
-            // 3. PNR PROGRESS
+            // 3. PNR PROGRESS (Berdasarkan Toko)
             let totalPnrHours = 0;
             globalData.PNR.forEach(pnrRow => {
-                let pnrName = String(getPnrVal(pnrRow, 'Participant name', 4)).trim().toLowerCase();
+                let pnrStore = getStoreName(pnrRow, 'PNR');
                 let pnrMonth = String(getPnrVal(pnrRow, 'Month', 12)).trim();
                 
-                if (selectedName && pnrName.includes(selectedName.toLowerCase())) {
+                if (pnrStore && pnrStore.toLowerCase() === store.toLowerCase()) {
                     if (selectedMonth && extractMonthString(pnrMonth) !== selectedMonth) return;
 
                     let val = parseFloat(getPnrVal(pnrRow, 'Hours', 18));
@@ -905,13 +906,17 @@
     }
 
     function getStoreName(row, sheetId) {
-        let keys = Object.keys(row);
-        if (sheetId === 'ops' && keys.length >= 6) { let val = row[keys[5]]; if (val) return String(val).trim(); }
+        if (sheetId === 'ops') {
+            let val = getOpsVal(row, 'Store', 5);
+            if (val) return String(val).trim();
+        }
         if (sheetId === 'ems') {
+            let keys = Object.keys(row);
             let storeKey = keys.find(k => /^store$/i.test(k.trim()) || /toko|lokasi/i.test(k.trim()));
             let s = storeKey ? row[storeKey] : (row['Store'] || row[keys[1]] || '');
             if (s) return String(s).trim();
         }
+        let keys = Object.keys(row);
         let found = keys.find(k => /toko|store|lokasi|location|name|nama/i.test(k.trim()));
         if (found && row[found]) return String(row[found]).trim();
         return 'Unknown Store';
@@ -931,10 +936,10 @@
         let years = new Set(), months = new Set(), stores = new Set(sheetId === 'ops' ? MASTER_STORES : []), statuses = new Set();
 
         rows.forEach(row => {
-            let keys = Object.keys(row);
             let dateVal = '';
 
             if (sheetId === 'ems') {
+                let keys = Object.keys(row);
                 let monthKey = keys.find(k => /^month$/i.test(k.trim()) || /bulan/i.test(k.trim()));
                 let dateKey = keys.find(k => /^date$/i.test(k.trim()) || /tanggal/i.test(k.trim()));
                 if (monthKey && row[monthKey] !== undefined) dateVal = row[monthKey];
@@ -951,8 +956,8 @@
                 if (yVal) years.add(yVal);
                 if (mVal) months.add(mVal);
                 if (sVal) statuses.add(sVal);
-            } else {
-                for (let k in row) { if (/bulan|month|date|tanggal|periode/i.test(k.trim())) { dateVal = row[k]; break; } }
+            } else if (sheetId === 'ops') {
+                dateVal = String(getOpsVal(row, 'Bulan', 11)).trim();
                 let ym = extractYearAndMonth(dateVal);
                 if (ym.year) years.add(ym.year);
                 if (ym.year && ym.month) months.add(`${ym.year}-${ym.month}`);
@@ -1008,7 +1013,6 @@
         const statusSelect = document.getElementById(`filter-status-${sheetId}`) ? document.getElementById(`filter-status-${sheetId}`).value : '';
 
         let filtered = rows.filter(row => {
-            let keys = Object.keys(row);
             let matchSearch = searchInput ? Object.values(row).some(val => String(val).toLowerCase().includes(searchInput)) : true;
             let matchStore = storeSelect ? (getStoreName(row, sheetId) === storeSelect) : true;
             let matchYear = true;
@@ -1026,13 +1030,14 @@
             } else {
                 let dateVal = '';
                 if (sheetId === 'ems') {
+                    let keys = Object.keys(row);
                     let monthKey = keys.find(k => /^month$/i.test(k.trim()) || /bulan/i.test(k.trim()));
                     let dateKey = keys.find(k => /^date$/i.test(k.trim()) || /tanggal/i.test(k.trim()));
                     if (monthKey && row[monthKey] !== undefined) dateVal = row[monthKey];
                     else if (dateKey && row[dateKey] !== undefined) dateVal = row[dateKey];
                     else if (keys.length >= 7) dateVal = row[keys[6]] || row[keys[7]];
-                } else {
-                    for (let k in row) { if (/bulan|month|date|tanggal|periode/i.test(k.trim())) { dateVal = row[k]; break; } }
+                } else if (sheetId === 'ops') {
+                    dateVal = String(getOpsVal(row, 'Bulan', 11)).trim();
                 }
                 let ym = extractYearAndMonth(dateVal);
                 if (yearSelect && ym.year !== yearSelect) matchYear = false;
@@ -1047,7 +1052,7 @@
 
         if (sheetId === 'ops') {
             lastFilteredOpsRows = filtered;
-            renderGroupedOpsTable(filtered);
+            renderGroupedOpsTable(filtered, monthSelect);
             renderStaffCalendarMatrix(globalData.ops, monthSelect, storeSelect, searchInput);
             calculateOpsSubmissionSummary(filtered);
         } else if (sheetId === 'ems') {
@@ -1072,12 +1077,6 @@
             });
             applyFilters('ops');
         }
-    }
-
-    function getOpsVal(row, keys, indexGuess, keywordRegex) {
-        if (indexGuess >= 0 && keys.length > indexGuess && row[keys[indexGuess]] !== undefined && row[keys[indexGuess]] !== '') return row[keys[indexGuess]];
-        let foundKey = keys.find(k => keywordRegex.test(k.trim()));
-        return (foundKey !== undefined && row[foundKey] !== undefined) ? row[foundKey] : '';
     }
 
     function calculateOpsSubmissionSummary(filteredRows) {
@@ -1107,15 +1106,18 @@
         new bootstrap.Modal(document.getElementById('unsubmittedModal')).show();
     }
 
-    function renderGroupedOpsTable(rows) {
+    function renderGroupedOpsTable(rows, selectedMonth) {
         const table = document.getElementById(`table-ops`);
         const tbody = table.querySelector('tbody');
         tbody.innerHTML = '';
         if (!rows || rows.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-3">Tidak ada data ditemukan.</td></tr>`; return; }
+        
+        let dynamicTarget = getDynamicOpsTarget(selectedMonth);
+
         let grouped = {};
         rows.forEach(row => {
-            let keys = Object.keys(row), store = getStoreName(row, 'ops');
-            let sessionsRaw = String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i));
+            let store = getStoreName(row, 'ops');
+            let sessionsRaw = String(getOpsVal(row, 'Sessions', 7));
             let v13 = (/13/.test(sessionsRaw)) ? 1 : 0, v15 = (/15/.test(sessionsRaw)) ? 1 : 0, v18 = (/18/.test(sessionsRaw)) ? 1 : 0;
             if (!grouped[store]) grouped[store] = { store, s13: 0, s15: 0, s18: 0 };
             grouped[store].s13 += v13; grouped[store].s15 += v15; grouped[store].s18 += v18;
@@ -1123,8 +1125,9 @@
         const fragment = document.createDocumentFragment();
         Object.keys(grouped).sort().forEach(k => {
             let item = grouped[k], total = item.s13 + item.s15 + item.s18;
+            let pct = dynamicTarget > 0 ? ((total / dynamicTarget) * 100).toFixed(1) : 0;
             let tr = document.createElement('tr');
-            tr.innerHTML = `<td class="text-start">${item.store}</td><td>${item.s13}</td><td>${item.s15}</td><td>${item.s18}</td><td class="fw-bold text-primary">${total}</td><td>85</td><td class="fw-bold text-success">${((total / 85) * 100).toFixed(1)}%</td>`;
+            tr.innerHTML = `<td class="text-start">${item.store}</td><td>${item.s13}</td><td>${item.s15}</td><td>${item.s18}</td><td class="fw-bold text-primary">${total}</td><td>${dynamicTarget}</td><td class="fw-bold text-success">${pct}%</td>`;
             fragment.appendChild(tr);
         });
         tbody.appendChild(fragment);
@@ -1139,45 +1142,94 @@
         for (let d = 1; d <= daysInMonth; d++) headerHtml += `<th>${d}</th>`;
         thead.innerHTML = headerHtml + '<th class="bg-primary">TOTAL SESI</th></tr>';
 
-        let staffMap = {};
+        let staffMap = {};          
+        let staffByNameMap = {};    
+
         globalData.raw.forEach(rawRow => {
             let rKeys = Object.keys(rawRow);
             if (rKeys.length >= 3) {
-                let store = String(rawRow[rKeys[1]] || '').trim(), presenter = String(rawRow[rKeys[2]] || '').trim();
+                let store = String(rawRow[rKeys[1]] || '').trim();
+                let presenter = String(rawRow[rKeys[2]] || '').trim();
                 let emailKey = rKeys.find(k => /email/i.test(k.trim()));
                 let email = emailKey ? String(rawRow[emailKey] || '').trim().toLowerCase() : (rKeys.length >= 6 ? String(rawRow[rKeys[5]] || '').trim().toLowerCase() : '');
-                if (email && presenter) {
+                
+                if (store && presenter) {
                     if (selectedStore && store !== selectedStore) return;
-                    staffMap[email] = { store, presenter, email, days: {}, totalSesi: 0 };
+                    let staffObj = {
+                        store: store,
+                        presenter: presenter,
+                        email: email,
+                        days: {},
+                        totalSesi: 0
+                    };
+                    if (email && email !== '-' && email !== '') {
+                        staffMap[email] = staffObj;
+                    }
+                    let nameKey = `${store}_${presenter}`.toLowerCase().replace(/\s+/g, '');
+                    staffByNameMap[nameKey] = staffObj;
                 }
             }
         });
 
         allOpsRows.forEach(row => {
-            let keys = Object.keys(row);
-            let opsEmailKey = keys.find(k => /email/i.test(k.trim()));
-            let opsEmail = opsEmailKey ? String(row[opsEmailKey] || '').trim().toLowerCase() : (keys.length >= 2 ? String(row[keys[1]] || '').trim().toLowerCase() : '');
+            let opsEmail = String(getOpsVal(row, 'Email', 1)).trim().toLowerCase();
+            let opsStore = getStoreName(row, 'ops');
+            let opsPresenter = String(getOpsVal(row, 'Presenter Name', 2)).trim();
+            let monthVal = String(getOpsVal(row, 'Bulan', 11)).trim();
+
+            if (selectedMonth && extractMonthString(monthVal) !== selectedMonth) return;
+
+            let dateVal = String(getOpsVal(row, 'Date', 13)).trim();
+            if (!dateVal) dateVal = String(getOpsVal(row, 'Tanggal ( Hari, Bulan, Tahun ) Hari ini', 3)).trim();
+
+            let dayNum = parseDateToDay(dateVal);
+            let sessionsRaw = String(getOpsVal(row, 'Sessions', 7));
+            
+            let sessCount = (/13/.test(sessionsRaw) ? 1 : 0) + (/15/.test(sessionsRaw) ? 1 : 0) + (/18/.test(sessionsRaw) ? 1 : 0);
+            let finalSess = sessCount === 0 ? 1 : sessCount;
+
+            let matchedStaff = null;
             if (opsEmail && staffMap[opsEmail]) {
-                let monthVal = keys.length >= 12 ? (row[keys[11]] || row[keys[12]]) : '';
-                if (selectedMonth && extractMonthString(monthVal) !== selectedMonth) return;
-                let dateVal = row[keys[12]] || row[keys[3]] || row[keys[0]];
-                let dObj = new Date(dateVal);
-                let dayNum = !isNaN(dObj.getDate()) ? dObj.getDate() : (String(dateVal).match(/\b([1-3]?[0-9])\b/) ? parseInt(RegExp.$1) : null);
-                if (dayNum && dayNum >= 1 && dayNum <= daysInMonth) {
-                    let sessCount = (/13/.test(String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i))) ? 1 : 0) + (/15/.test(String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i))) ? 1 : 0) + (/18/.test(String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i))) ? 1 : 0);
-                    staffMap[opsEmail].days[dayNum] = (staffMap[opsEmail].days[dayNum] || 0) + (sessCount === 0 ? 1 : sessCount);
-                    staffMap[opsEmail].totalSesi += (sessCount === 0 ? 1 : sessCount);
+                matchedStaff = staffMap[opsEmail];
+            } else if (opsStore && opsPresenter) {
+                let lookupKey = `${opsStore}_${opsPresenter}`.toLowerCase().replace(/\s+/g, '');
+                matchedStaff = staffByNameMap[lookupKey];
+                
+                if (!matchedStaff) {
+                    for (let k in staffByNameMap) {
+                        let item = staffByNameMap[k];
+                        if (opsStore.toLowerCase().includes(item.store.toLowerCase()) && opsPresenter.toLowerCase().includes(item.presenter.toLowerCase())) {
+                            matchedStaff = item;
+                            break;
+                        }
+                    }
                 }
+            }
+
+            if (matchedStaff && dayNum && dayNum >= 1 && dayNum <= daysInMonth) {
+                matchedStaff.days[dayNum] = (matchedStaff.days[dayNum] || 0) + finalSess;
+                matchedStaff.totalSesi += finalSess;
             }
         });
 
-        let staffArray = Object.values(staffMap);
-        if (searchInput) staffArray = staffArray.filter(i => i.store.toLowerCase().includes(searchInput) || i.presenter.toLowerCase().includes(searchInput) || i.email.toLowerCase().includes(searchInput));
-        staffArray.sort((a, b) => a.store.localeCompare(b.store) || a.presenter.localeCompare(b.presenter));
+        let uniqueStaffMap = new Map();
+        Object.values(staffByNameMap).forEach(item => {
+            let uniqueKey = `${item.store}_${item.presenter}`.toLowerCase();
+            uniqueStaffMap.set(uniqueKey, item);
+        });
 
-        document.getElementById('staff-matrix-count').innerText = `${staffArray.length} Staff (Master RAW)`;
+        let staffList = Array.from(uniqueStaffMap.values());
+        if (selectedStore) {
+            staffList = staffList.filter(i => i.store.toLowerCase() === selectedStore.toLowerCase());
+        }
+        if (searchInput) {
+            staffList = staffList.filter(i => i.store.toLowerCase().includes(searchInput) || i.presenter.toLowerCase().includes(searchInput));
+        }
+        staffList.sort((a, b) => a.store.localeCompare(b.store) || a.presenter.localeCompare(b.presenter));
+
+        document.getElementById('staff-matrix-count').innerText = `${staffList.length} Staff (Master RAW)`;
         const fragment = document.createDocumentFragment();
-        staffArray.forEach(item => {
+        staffList.forEach(item => {
             let tr = document.createElement('tr');
             let rowHtml = `<td class="store-col fw-semibold">${item.store}</td><td class="name-col">${item.presenter}</td>`;
             for (let d = 1; d <= daysInMonth; d++) {
@@ -1200,7 +1252,6 @@
 
         let staffMap = {};
 
-        // 1. Petakan Master RAW berdasarkan Email sebagai Key unik
         globalData.raw.forEach(rawRow => {
             let rKeys = Object.keys(rawRow);
             if (rKeys.length >= 3) {
@@ -1222,11 +1273,9 @@
             }
         });
 
-        // 2. Cocokkan data submit EMS murni menggunakan Email dari kolom Participants Sales Coach
         allEmsRows.forEach(row => {
             let keys = Object.keys(row);
             
-            // Ambil email dari kolom Participants Sales Coach
             let coachKey = keys.find(k => /participants.*sales.*coach|sales.*coach|coach/i.test(k.trim()));
             let monthKey = keys.find(k => /^month$|bulan/i.test(k.trim()));
             let dateKey = keys.find(k => /^date$|tanggal/i.test(k.trim()));
@@ -1235,13 +1284,11 @@
             let monthVal = monthKey ? row[monthKey] : (keys.length >= 7 ? row[keys[6]] : '');
             let dateVal = dateKey ? row[dateKey] : (keys.length >= 8 ? row[keys[7]] : '');
 
-            // Filter Bulan jika dipilih
             if (selectedMonth && extractMonthString(monthVal) !== selectedMonth) return;
 
             let dayNum = parseDateToDay(dateVal);
             if (!dayNum) dayNum = 1;
 
-            // Jika email submit match dengan email di Master RAW, masukkan ke tanggal yang sesuai
             if (emsEmail && staffMap[emsEmail] && dayNum >= 1 && dayNum <= daysInMonth) {
                 staffMap[emsEmail].days[dayNum] = (staffMap[emsEmail].days[dayNum] || 0) + 1;
                 staffMap[emsEmail].totalSessions++;
@@ -1359,11 +1406,8 @@
             if (selectedStore && store !== selectedStore) return;
 
             let keys = Object.keys(row);
-            let dateKey = keys.find(k => /date|tanggal|waktu|timestamp|time/i.test(k.trim()));
-            let dateVal = dateKey ? row[dateKey] : '';
-            if (!dateVal && keys.length >= 8) {
-                dateVal = row[keys[7]] || row[keys[6]] || '';
-            }
+            let dateKey = keys.find(k => /^date$|tanggal/i.test(k.trim()));
+            let dateVal = dateKey ? row[dateKey] : (keys.length >= 8 ? row[keys[7]] : '');
 
             let dayNum = parseDateToDay(dateVal);
             if (!dayNum) {
@@ -1393,24 +1437,24 @@
 
         document.getElementById('ems-weekly-count').innerText = `${storeArray.length} Store`;
 
-        let totalActualRegional = filteredRows.length;
-        let totalMasterStores = MASTER_STORES.length;
-        let totalTargetRegional = totalMasterStores * dynamicTargetPerStore;
+        let totalActualFiltered = 0;
         let achievedStoreCount = 0;
 
         storeArray.forEach(item => {
             let totalSessions = 0;
             weeks.forEach(w => { totalSessions += item.weeksData[w.label]; });
+            totalActualFiltered += totalSessions;
             if (totalSessions >= dynamicTargetPerStore) achievedStoreCount++;
         });
 
-        let regionalPercentage = totalTargetRegional > 0 ? ((totalActualRegional / totalTargetRegional) * 100).toFixed(1) : 0;
+        let totalTargetFiltered = storeArray.length * dynamicTargetPerStore;
+        let filteredPercentage = totalTargetFiltered > 0 ? ((totalActualFiltered / totalTargetFiltered) * 100).toFixed(1) : 0;
 
-        document.getElementById('ems-sum-total-stores').innerText = totalMasterStores;
-        document.getElementById('ems-sum-actual').innerText = totalActualRegional;
-        document.getElementById('ems-sum-target').innerText = totalTargetRegional;
+        document.getElementById('ems-sum-total-stores').innerText = storeArray.length;
+        document.getElementById('ems-sum-actual').innerText = totalActualFiltered;
+        document.getElementById('ems-sum-target').innerText = totalTargetFiltered;
         document.getElementById('ems-sum-achieved').innerText = achievedStoreCount;
-        document.getElementById('ems-sum-regional-pct').innerText = regionalPercentage + '%';
+        document.getElementById('ems-sum-regional-pct').innerText = filteredPercentage + '%';
 
         if (storeArray.length === 0) {
             tbody.innerHTML = `<tr><td colspan="${weeks.length + 4}" class="text-center text-muted py-3">Tidak ada data mingguan ditemukan.</td></tr>`;
@@ -1594,11 +1638,10 @@
             if (sheetId === 'ops') {
                 let totalOpsPartisipan = 0, totalOpsSessions = 0, totalOpsUnits = 0;
                 rows.forEach(row => {
-                    let keys = Object.keys(row);
-                    totalOpsPartisipan += parseFloat(getOpsVal(row, keys, 4, /total.*participant|partisipan/i)) || 0;
-                    let sessRaw = String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i));
+                    totalOpsPartisipan += parseFloat(getOpsVal(row, 'Total Participants', 4)) || 0;
+                    let sessRaw = String(getOpsVal(row, 'Sessions', 7));
                     totalOpsSessions += (/13/.test(sessRaw) ? 1 : 0) + (/15/.test(sessRaw) ? 1 : 0) + (/18/.test(sessRaw) ? 1 : 0);
-                    totalOpsUnits += parseFloat(getOpsVal(row, keys, 8, /unit.*terjual|terjual|sold/i)) || 0;
+                    totalOpsUnits += parseFloat(getOpsVal(row, 'Unit yang terjual setelah Open Studio', 9)) || 0;
                 });
                 document.getElementById('summary-ops-partisipan').innerText = totalOpsPartisipan;
                 document.getElementById('summary-ops-sessions').innerText = totalOpsSessions;
@@ -1697,11 +1740,12 @@
         if (sheetId === 'ops') {
             let storeTotals = {}, topicCounts = {};
             rows.forEach(row => {
-                let store = getStoreName(row, 'ops'), keys = Object.keys(row);
-                let sessRaw = String(getOpsVal(row, keys, 7, /sessions|jam|waktu/i));
+                let store = getStoreName(row, 'ops');
+                let sessRaw = String(getOpsVal(row, 'Sessions', 7));
                 let sessCount = (/13/.test(sessRaw) ? 1 : 0) + (/15/.test(sessRaw) ? 1 : 0) + (/18/.test(sessRaw) ? 1 : 0);
                 storeTotals[store] = (storeTotals[store] || 0) + (sessCount === 0 ? 1 : sessCount);
-                let topicVal = getOpsVal(row, keys, 6, /topic|topik/i);
+                
+                let topicVal = getOpsVal(row, 'Open Studio Topics', 6);
                 if (topicVal) topicCounts[String(topicVal).trim()] = (topicCounts[String(topicVal).trim()] || 0) + 1;
             });
             let storeArray = Object.keys(storeTotals).map(store => ({ store, total: storeTotals[store] })).sort((a, b) => b.total - a.total);
