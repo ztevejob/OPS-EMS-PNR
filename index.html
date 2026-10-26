@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>OPS EMS PNR - Live Dashboard Complete</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -11,12 +11,12 @@
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { background-color: #f8f9fa; }
+        body { background-color: #f8f9fa; -webkit-tap-highlight-color: transparent; }
         .navbar-brand { font-weight: bold; }
         .card-stat { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: 100%; transition: transform 0.2s; }
         .card-stat:hover { transform: translateY(-2px); }
-        .dashboard-container { background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 25px; }
-        .table-responsive { max-height: 450px; overflow-y: auto; }
+        .dashboard-container { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .table-responsive { max-height: 450px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
         table th { position: sticky; top: 0; z-index: 2; background-color: #212529; color: #fff; text-align: center; vertical-align: middle; white-space: nowrap; }
         table td { text-align: center; vertical-align: middle; white-space: nowrap; font-size: 0.9rem; }
         table td.store-col, table th.store-col { text-align: left; left: 0; z-index: 3; }
@@ -27,15 +27,15 @@
 
         .cell-active { background-color: #d1e7dd; color: #0f5132; font-weight: bold; }
         .cell-inactive { background-color: #f8d7da; color: #842029; }
-        .chart-scroll-container { position: relative; height: 380px; width: 100%; overflow-x: auto; }
+        .chart-scroll-container { position: relative; height: 380px; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         .chart-inner-wrapper { position: relative; height: 100%; min-width: 100%; }
         .clickable-card { cursor: pointer; }
 
         /* Styling Kartu Profil Staff & Autocomplete */
         .profile-card-table { max-width: 700px; margin: 0 auto; border: 3px solid #0d6efd; border-radius: 10px; overflow: hidden; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .profile-card-table th { background-color: #d8b4fe !important; color: #000 !important; width: 35%; text-align: left; padding: 15px; font-size: 1.05rem; border-bottom: 2px solid #bbb; }
-        .profile-card-table td { background-color: #e2e8f0; color: #000; text-align: left; padding: 15px; font-size: 1.05rem; font-weight: 600; border-bottom: 2px solid #bbb; }
-        .profile-header-row th { background-color: #9333ea !important; color: #fff !important; text-align: center; font-size: 1.2rem; }
+        .profile-card-table th { background-color: #d8b4fe !important; color: #000 !important; width: 35%; text-align: left; padding: 12px 15px; font-size: 1rem; border-bottom: 2px solid #bbb; }
+        .profile-card-table td { background-color: #e2e8f0; color: #000; text-align: left; padding: 12px 15px; font-size: 1rem; font-weight: 600; border-bottom: 2px solid #bbb; }
+        .profile-header-row th { background-color: #9333ea !important; color: #fff !important; text-align: center; font-size: 1.1rem; }
         .profile-dropdown-td { background-color: #f0abfc !important; position: relative; }
         
         .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; z-index: 1000; background: #fff; border: 1px solid #ced4da; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: none; }
@@ -43,7 +43,17 @@
         .autocomplete-item:hover { background-color: #e2e8f0; }
 
         .open-studio-table, .ems-profile-table, .pnr-profile-table { max-width: 700px; margin: 0 auto; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        @media (max-width: 991px) { body { padding-bottom: 75px; } }
+        
+        /* Mobile Optimization: iPhone Safe Area & Bottom Dock */
+        @media (max-width: 991px) { 
+            body { padding-bottom: 90px; } 
+            .fixed-bottom { 
+                padding-bottom: calc(8px + env(safe-area-inset-bottom)); 
+                padding-top: 8px;
+            }
+            .container-fluid { padding-left: 12px; padding-right: 12px; }
+            h1.h2 { font-size: 1.5rem; }
+        }
     </style>
 </head>
 <body>
@@ -71,7 +81,7 @@
     <li class="nav-item"><button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-content" type="button">Profile</button></li>
 </ul>
 
-<div class="container-fluid px-4 py-4">
+<div class="container-fluid px-3 px-md-4 py-4">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom gap-2">
         <h1 class="h2">Real-Time Operational Dashboard</h1>
         <div class="d-flex flex-wrap gap-2 align-items-center">
@@ -477,12 +487,12 @@
         }
         
         let daysInMonth = new Date(year, month, 0).getDate();
-        let weekdaysCount = 0; // Total hari Senin - Jumat
-        let weekendCount = 0;  // Total hari Sabtu & Minggu
+        let weekdaysCount = 0; 
+        let weekendCount = 0;  
         
         for (let d = 1; d <= daysInMonth; d++) {
             let date = new Date(year, month - 1, d);
-            let dayOfWeek = date.getDay(); // 0 = Minggu, 6 = Sabtu
+            let dayOfWeek = date.getDay(); 
             if (dayOfWeek === 0 || dayOfWeek === 6) {
                 weekendCount++;
             } else {
@@ -490,7 +500,6 @@
             }
         }
         
-        // Senin-Jumat dikali 3, Sabtu-Minggu dikali 2
         let totalTarget = (weekdaysCount * 3) + (weekendCount * 2);
         return totalTarget;
     }
@@ -831,14 +840,17 @@
             document.getElementById('ems-progress').innerText = totalEmsCount;
             document.getElementById('ems-percentage').innerText = dynamicEmsTarget > 0 ? ((totalEmsCount / dynamicEmsTarget) * 100).toFixed(0) + '%' : '0%';
 
-            // 3. PNR PROGRESS (Berdasarkan Toko)
+            // 3. PNR PROGRESS (Berdasarkan Toko & Status Delivered)
             let totalPnrHours = 0;
             globalData.PNR.forEach(pnrRow => {
                 let pnrStore = getStoreName(pnrRow, 'PNR');
                 let pnrMonth = String(getPnrVal(pnrRow, 'Month', 12)).trim();
+                let pnrStatus = String(getPnrVal(pnrRow, 'Status', 14)).trim().toLowerCase();
                 
                 if (pnrStore && pnrStore.toLowerCase() === store.toLowerCase()) {
                     if (selectedMonth && extractMonthString(pnrMonth) !== selectedMonth) return;
+                    
+                    if (pnrStatus && !pnrStatus.includes('deliver')) return;
 
                     let val = parseFloat(getPnrVal(pnrRow, 'Hours', 18));
                     if (!isNaN(val)) totalPnrHours += val;
