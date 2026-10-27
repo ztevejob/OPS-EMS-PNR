@@ -16,7 +16,7 @@
         .card-stat { border: none; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: 100%; transition: transform 0.2s; }
         .card-stat:hover { transform: translateY(-2px); }
         .dashboard-container { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .table-responsive { max-height: 450px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .table-responsive { max-height: 450px; overflow-y: auto; -webkit-overflow-scrolling: touch; width: 100%; }
         table th { position: sticky; top: 0; z-index: 2; background-color: #212529; color: #fff; text-align: center; vertical-align: middle; white-space: nowrap; }
         table td { text-align: center; vertical-align: middle; white-space: nowrap; font-size: 0.9rem; }
         table td.store-col, table th.store-col { text-align: left; left: 0; z-index: 3; }
@@ -31,19 +31,26 @@
         .chart-inner-wrapper { position: relative; height: 100%; min-width: 100%; }
         .clickable-card { cursor: pointer; }
 
-        /* Styling Kartu Profil Staff & Autocomplete */
-        .profile-card-table { max-width: 700px; margin: 0 auto; border: 3px solid #0d6efd; border-radius: 10px; overflow: hidden; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .profile-card-table th { background-color: #d8b4fe !important; color: #000 !important; width: 35%; text-align: left; padding: 12px 15px; font-size: 1rem; border-bottom: 2px solid #bbb; }
-        .profile-card-table td { background-color: #e2e8f0; color: #000; text-align: left; padding: 12px 15px; font-size: 1rem; font-weight: 600; border-bottom: 2px solid #bbb; }
+        /* Perbaikan Styling Kartu Profil Staff & Autocomplete agar Responsif Mobile */
+        .profile-card-table, .open-studio-table, .ems-profile-table, .pnr-profile-table { 
+            width: 100% !important; 
+            max-width: 100% !important; 
+            margin: 0 auto; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
+        .profile-card-table { border: 3px solid #0d6efd; background: #fff; }
+        .profile-card-table th { background-color: #d8b4fe !important; color: #000 !important; width: 40%; text-align: left; padding: 12px 10px; font-size: 0.95rem; border-bottom: 2px solid #bbb; white-space: normal; }
+        .profile-card-table td { background-color: #e2e8f0; color: #000; text-align: left; padding: 12px 10px; font-size: 0.95rem; font-weight: 600; border-bottom: 2px solid #bbb; white-space: normal; word-break: break-word; }
         .profile-header-row th { background-color: #9333ea !important; color: #fff !important; text-align: center; font-size: 1.1rem; }
-        .profile-dropdown-td { background-color: #f0abfc !important; position: relative; }
+        .profile-dropdown-td { background-color: #f0abfc !important; position: relative; padding: 6px 10px !important; }
+        .profile-dropdown-td input { width: 100% !important; font-size: 0.95rem !important; padding: 6px !important; }
         
         .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; z-index: 1000; background: #fff; border: 1px solid #ced4da; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: none; }
         .autocomplete-item { padding: 10px 15px; cursor: pointer; font-size: 0.95rem; color: #000; border-bottom: 1px solid #f1f1f1; text-align: left; }
         .autocomplete-item:hover { background-color: #e2e8f0; }
 
-        .open-studio-table, .ems-profile-table, .pnr-profile-table { max-width: 700px; margin: 0 auto; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        
         /* Mobile Optimization: iPhone Safe Area & Bottom Dock */
         @media (max-width: 991px) { 
             body { padding-bottom: 90px; } 
@@ -51,8 +58,9 @@
                 padding-bottom: calc(8px + env(safe-area-inset-bottom)); 
                 padding-top: 8px;
             }
-            .container-fluid { padding-left: 12px; padding-right: 12px; }
-            h1.h2 { font-size: 1.5rem; }
+            .container-fluid { padding-left: 10px; padding-right: 10px; }
+            h1.h2 { font-size: 1.4rem; }
+            .dashboard-container { padding: 12px; }
         }
     </style>
 </head>
@@ -81,7 +89,7 @@
     <li class="nav-item"><button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-content" type="button">Profile</button></li>
 </ul>
 
-<div class="container-fluid px-3 px-md-4 py-4">
+<div class="container-fluid px-2 px-md-4 py-4">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom gap-2">
         <h1 class="h2">Real-Time Operational Dashboard</h1>
         <div class="d-flex flex-wrap gap-2 align-items-center">
@@ -334,13 +342,13 @@
 
         <!-- 4. Profile Staff Content -->
         <div class="tab-pane fade" id="profile-content" role="tabpanel">
-            <div class="dashboard-container text-center py-4">
+            <div class="dashboard-container text-center py-3 py-md-4">
                 <h3 class="text-purple fw-bold mb-3"><i class="fa-solid fa-id-card me-2"></i>Direktori & Profil Trainer</h3>
-                <p class="text-muted">Ketik nama trainer dan pilih bulan untuk melihat performa Open Studio, EMS, & PNR yang sinkron dengan tab utama.</p>
+                <p class="text-muted small">Ketik nama trainer dan pilih bulan untuk melihat performa Open Studio, EMS, & PNR yang sinkron dengan tab utama.</p>
                 
                 <!-- Filter Bulan Khusus Profile agar sinkron dengan tab OPS, EMS, PNR -->
-                <div class="row justify-content-center mb-4">
-                    <div class="col-md-4">
+                <div class="row justify-content-center mb-3">
+                    <div class="col-12 col-md-4">
                         <label class="form-label small fw-bold text-muted">Filter Periode Bulan (Sync):</label>
                         <select id="profile-filter-month" class="form-select" onchange="updateProfileCard()">
                             <option value="">Semua Bulan (Kumulatif)</option>
@@ -348,14 +356,14 @@
                     </div>
                 </div>
 
-                <div class="table-responsive mt-4 mb-4">
+                <div class="table-responsive mt-3 mb-3">
                     <table class="table profile-card-table align-middle">
                         <thead><tr class="profile-header-row"><th colspan="2">T R A I N E R &nbsp; P R O F I L E</th></tr></thead>
                         <tbody>
                             <tr>
                                 <th>Trainer Name</th>
                                 <td class="profile-dropdown-td">
-                                    <input type="text" id="profile-search-input" class="form-control form-control-lg fw-bold border-0 bg-transparent text-dark" placeholder="Ketik nama trainer..." autocomplete="off" oninput="filterTrainerSuggestions()" onfocus="filterTrainerSuggestions()">
+                                    <input type="text" id="profile-search-input" class="form-control fw-bold border-0 bg-transparent text-dark shadow-none" placeholder="Ketik nama trainer..." autocomplete="off" oninput="filterTrainerSuggestions()" onfocus="filterTrainerSuggestions()">
                                     <div id="trainer-autocomplete-list" class="autocomplete-list"></div>
                                 </td>
                             </tr>
@@ -368,14 +376,14 @@
                     </table>
                 </div>
 
-                <div class="table-responsive mt-3 mb-4">
+                <div class="table-responsive mt-3 mb-3">
                     <table class="table open-studio-table align-middle text-center">
                         <thead><tr><th colspan="3" class="bg-warning text-dark">Open Studio</th></tr><tr class="table-success"><th>Target Activity Monthly</th><th>Current Progress</th><th>%</th></tr></thead>
                         <tbody><tr><td id="os-target">0</td><td id="os-progress" class="text-primary fw-bold">0</td><td id="os-percentage" class="text-success fw-bold">0%</td></tr></tbody>
                     </table>
                 </div>
 
-                <div class="table-responsive mt-3 mb-4">
+                <div class="table-responsive mt-3 mb-3">
                     <table class="table ems-profile-table align-middle text-center">
                         <thead><tr><th colspan="3" class="bg-primary text-white">EMS</th></tr><tr class="table-primary"><th>Target Activity Monthly</th><th>Current Progress</th><th>%</th></tr></thead>
                         <tbody><tr><td id="ems-target">10</td><td id="ems-progress" class="text-primary fw-bold">0</td><td id="ems-percentage" class="text-success fw-bold">0%</td></tr></tbody>
