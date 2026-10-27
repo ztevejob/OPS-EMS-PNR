@@ -31,7 +31,7 @@
         .chart-inner-wrapper { position: relative; height: 100%; min-width: 100%; }
         .clickable-card { cursor: pointer; }
 
-        /* Perbaikan Styling Kartu Profil Staff & Autocomplete agar Responsif Mobile */
+        /* Styling Kartu Profil Staff & Autocomplete */
         .profile-card-table, .open-studio-table, .ems-profile-table, .pnr-profile-table { 
             width: 100% !important; 
             max-width: 100% !important; 
@@ -46,6 +46,24 @@
         .profile-header-row th { background-color: #9333ea !important; color: #fff !important; text-align: center; font-size: 1.1rem; }
         .profile-dropdown-td { background-color: #f0abfc !important; position: relative; padding: 6px 10px !important; }
         .profile-dropdown-td input { width: 100% !important; font-size: 0.95rem !important; padding: 6px !important; }
+
+        /* Optimasi Tabel Metrik Profil di Mobile */
+        .open-studio-table th, .ems-profile-table th, .pnr-profile-table th,
+        .open-studio-table td, .ems-profile-table td, .pnr-profile-table td {
+            font-size: 0.82rem;
+            padding: 8px 4px;
+            white-space: normal;
+            word-break: break-word;
+        }
+        .open-studio-table th:nth-child(1), .ems-profile-table th:nth-child(1), .pnr-profile-table th:nth-child(1) {
+            width: 45%;
+        }
+        .open-studio-table th:nth-child(2), .ems-profile-table th:nth-child(2), .pnr-profile-table th:nth-child(2) {
+            width: 40%;
+        }
+        .open-studio-table th:nth-child(3), .ems-profile-table th:nth-child(3), .pnr-profile-table th:nth-child(3) {
+            width: 15%;
+        }
         
         .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; z-index: 1000; background: #fff; border: 1px solid #ced4da; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: none; }
         .autocomplete-item { padding: 10px 15px; cursor: pointer; font-size: 0.95rem; color: #000; border-bottom: 1px solid #f1f1f1; text-align: left; }
