@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>OPS EMS PNR - Live Dashboard Multi-Sheet Excel & Combo Chart</title>
+    <title>OPS EMS PNR - Live Dashboard Multi-Sheet Excel & Modern Charts</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
@@ -35,7 +35,7 @@
         .card-stat:hover { transform: translateY(-2px); }
         .dashboard-container { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
         
-        /* Optimalisasi Scroll & Tabel Mobile (Header Kolom Store Terang & Jelas) */
+        /* Optimalisasi Scroll & Tabel Mobile */
         .table-responsive { 
             max-height: 450px; 
             overflow-y: auto; 
@@ -112,6 +112,13 @@
             .dashboard-container { padding: 12px; border-radius: 10px; }
             .btn-sm { padding: 6px 12px; font-size: 0.82rem; min-height: 36px; }
             .form-select-sm, .form-control-sm { min-height: 38px; font-size: 0.85rem; }
+        }
+
+        @media (max-width: 575.98px) {
+            .profile-card-table th { width: 45% !important; font-size: 0.8rem !important; }
+            .profile-card-table td { font-size: 0.8rem !important; }
+            .metric-card-box { padding: 6px 4px !important; }
+            .metric-card-box .h6 { font-size: 0.85rem !important; }
         }
     </style>
 </head>
@@ -467,14 +474,14 @@
             </div>
         </div>
 
-        <!-- 4. PROFILE TRAINER CONTENT -->
+        <!-- 4. PROFILE TRAINER CONTENT (Optimized Horizontal Bar Progress Gauges) -->
         <div class="tab-pane fade" id="profile-content" role="tabpanel">
             <div class="dashboard-container py-3">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 border-bottom pb-2">
                     <div>
                         <h5 class="m-0 text-purple fw-bold fs-6"><i class="fa-solid fa-id-card me-2"></i>Direktori & Profil Trainer</h5>
                     </div>
-                    <div class="d-flex align-items-center gap-2" style="min-width: 200px;">
+                    <div class="d-flex align-items-center gap-2 w-100 w-md-auto" style="max-width: 300px;">
                         <label class="form-label small fw-bold text-muted mb-0 text-nowrap">Periode:</label>
                         <select id="profile-filter-month" class="form-select form-select-sm" onchange="updateProfileCard()">
                             <option value="">Semua Bulan (Kumulatif)</option>
@@ -482,8 +489,9 @@
                     </div>
                 </div>
 
-                <div class="row g-3 align-items-stretch">
-                    <div class="col-lg-6 col-xl-5">
+                <div class="row g-3">
+                    <!-- Kartu Profil Trainer & Metric Box -->
+                    <div class="col-12 col-lg-5">
                         <div class="card h-100 border-0 shadow-sm p-2 bg-light">
                             <div class="table-responsive mb-2">
                                 <table class="table profile-card-table align-middle m-0">
@@ -509,68 +517,89 @@
                                 </table>
                             </div>
 
-                            <div class="row g-2 mt-auto">
+                            <div class="row g-2 mt-2">
                                 <div class="col-4">
-                                    <div class="metric-card-box border-warning">
-                                        <div class="text-muted small fw-bold" style="font-size: 0.7rem;">OPEN STUDIO</div>
-                                        <div class="d-flex align-items-baseline justify-content-between mt-1">
+                                    <div class="metric-card-box border-warning p-2 text-center">
+                                        <div class="text-muted small fw-bold" style="font-size: 0.65rem;">OPEN STUDIO</div>
+                                        <div class="d-flex align-items-baseline justify-content-center gap-1 mt-1">
                                             <span class="h6 fw-bold mb-0 text-dark" id="os-progress">0</span>
-                                            <span class="small text-muted" style="font-size: 0.65rem;">/ <span id="os-target">0</span></span>
+                                            <span class="small text-muted" style="font-size: 0.6rem;">/<span id="os-target">0</span></span>
                                         </div>
-                                        <div class="fw-bold text-warning text-end small" id="os-percentage" style="font-size: 0.72rem;">0%</div>
+                                        <div class="fw-bold text-warning small" id="os-percentage" style="font-size: 0.7rem;">0%</div>
                                     </div>
                                 </div>
                                 <div class="col-4">
-                                    <div class="metric-card-box border-primary">
-                                        <div class="text-muted small fw-bold" style="font-size: 0.7rem;">EMS</div>
-                                        <div class="d-flex align-items-baseline justify-content-between mt-1">
+                                    <div class="metric-card-box border-primary p-2 text-center">
+                                        <div class="text-muted small fw-bold" style="font-size: 0.65rem;">EMS</div>
+                                        <div class="d-flex align-items-baseline justify-content-center gap-1 mt-1">
                                             <span class="h6 fw-bold mb-0 text-dark" id="ems-progress">0</span>
-                                            <span class="small text-muted" style="font-size: 0.65rem;">/ <span id="ems-target">10</span></span>
+                                            <span class="small text-muted" style="font-size: 0.6rem;">/<span id="ems-target">10</span></span>
                                         </div>
-                                        <div class="fw-bold text-primary text-end small" id="ems-percentage" style="font-size: 0.72rem;">0%</div>
+                                        <div class="fw-bold text-primary small" id="ems-percentage" style="font-size: 0.7rem;">0%</div>
                                     </div>
                                 </div>
                                 <div class="col-4">
-                                    <div class="metric-card-box border-info">
-                                        <div class="text-muted small fw-bold" style="font-size: 0.7rem;">PNR HOURS</div>
-                                        <div class="d-flex align-items-baseline justify-content-between mt-1">
+                                    <div class="metric-card-box border-info p-2 text-center">
+                                        <div class="text-muted small fw-bold" style="font-size: 0.65rem;">PNR HOURS</div>
+                                        <div class="d-flex align-items-baseline justify-content-center gap-1 mt-1">
                                             <span class="h6 fw-bold mb-0 text-dark" id="pnr-progress">0h</span>
-                                            <span class="small text-muted" style="font-size: 0.65rem;">/ <span id="pnr-target">11h</span></span>
+                                            <span class="small text-muted" style="font-size: 0.6rem;">/<span id="pnr-target">11h</span></span>
                                         </div>
-                                        <div class="fw-bold text-info text-end small" id="pnr-percentage" style="font-size: 0.72rem;">0%</div>
+                                        <div class="fw-bold text-info small" id="pnr-percentage" style="font-size: 0.7rem;">0%</div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-lg-6 col-xl-7">
+                    <!-- Kartu Horizontal Bar Progress Gauges Kinerja -->
+                    <div class="col-12 col-lg-7">
                         <div class="card h-100 border-0 shadow-sm p-3 bg-white d-flex flex-column justify-content-between">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="fw-bold text-dark m-0 small"><i class="fa-solid fa-chart-pie me-2 text-primary"></i>Pencapaian Kinerja per Program</h6>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold text-dark m-0 small"><i class="fa-solid fa-chart-line me-2 text-primary"></i>Pencapaian Kinerja per Program</h6>
                                 <span class="badge bg-light text-dark border" style="font-size:0.7rem;">Progress Gauge (%)</span>
                             </div>
                             
-                            <div class="row align-items-center justify-content-center g-2 text-center my-auto" style="min-height: 200px;">
-                                <div class="col-4">
-                                    <div style="position: relative; height: 140px; width: 100%;"><canvas id="gaugeOS"></canvas></div>
-                                    <div class="fw-bold text-dark mt-1 small" style="font-size:0.75rem;">Open Studio</div>
-                                    <div class="small text-muted" id="gaugeOS-subtext" style="font-size:0.7rem;">0 / 0 Sesi</div>
+                            <!-- Horizontal Bar Gauge List -->
+                            <div class="d-flex flex-column gap-3 my-auto py-2">
+                                
+                                <!-- 1. Open Studio Bar Gauge -->
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-bold text-dark small"><i class="fa-solid fa-door-open me-1 text-warning"></i> Open Studio</span>
+                                        <span class="small text-muted"><strong id="gaugeOS-text" class="text-dark">0 / 0 Sesi</strong> (<span id="gaugeOS-pct" class="fw-bold text-warning">0%</span>)</span>
+                                    </div>
+                                    <div class="progress" style="height: 12px; border-radius: 8px; background-color: #e9ecef;">
+                                        <div id="gaugeOS-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 0%; border-radius: 8px;"></div>
+                                    </div>
                                 </div>
-                                <div class="col-4">
-                                    <div style="position: relative; height: 140px; width: 100%;"><canvas id="gaugeEMS"></canvas></div>
-                                    <div class="fw-bold text-dark mt-1 small" style="font-size:0.75rem;">EMS</div>
-                                    <div class="small text-muted" id="gaugeEMS-subtext" style="font-size:0.7rem;">0 / 0 Sesi</div>
+
+                                <!-- 2. EMS Bar Gauge -->
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-bold text-dark small"><i class="fa-solid fa-laptop-code me-1 text-primary"></i> EMS</span>
+                                        <span class="small text-muted"><strong id="gaugeEMS-text" class="text-dark">0 / 0 Sesi</strong> (<span id="gaugeEMS-pct" class="fw-bold text-primary">0%</span>)</span>
+                                    </div>
+                                    <div class="progress" style="height: 12px; border-radius: 8px; background-color: #e9ecef;">
+                                        <div id="gaugeEMS-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%; border-radius: 8px;"></div>
+                                    </div>
                                 </div>
-                                <div class="col-4">
-                                    <div style="position: relative; height: 140px; width: 100%;"><canvas id="gaugePNR"></canvas></div>
-                                    <div class="fw-bold text-dark mt-1 small" style="font-size:0.75rem;">PNR Hours</div>
-                                    <div class="small text-muted" id="gaugePNR-subtext" style="font-size:0.7rem;">0 / 0 Jam</div>
+
+                                <!-- 3. PNR Hours Bar Gauge -->
+                                <div>
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="fw-bold text-dark small"><i class="fa-solid fa-clock me-1 text-info"></i> PNR Hours</span>
+                                        <span class="small text-muted"><strong id="gaugePNR-text" class="text-dark">0 / 0 Jam</strong> (<span id="gaugePNR-pct" class="fw-bold text-info">0%</span>)</span>
+                                    </div>
+                                    <div class="progress" style="height: 12px; border-radius: 8px; background-color: #e9ecef;">
+                                        <div id="gaugePNR-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: 0%; border-radius: 8px;"></div>
+                                    </div>
                                 </div>
+
                             </div>
                             
-                            <div class="text-center text-muted small mt-2" style="font-size:0.72rem;">
-                                <span class="me-2"><i class="fa-solid fa-circle text-success me-1"></i>Tercapai (>=100%)</span>
+                            <div class="d-flex justify-content-between align-items-center text-muted small mt-3 pt-2 border-top" style="font-size:0.72rem;">
+                                <span><i class="fa-solid fa-circle text-success me-1"></i>Tercapai (&ge;100%)</span>
                                 <span><i class="fa-solid fa-circle text-primary me-1"></i>Proses (&lt;100%)</span>
                             </div>
                         </div>
@@ -659,7 +688,6 @@
     let globalData = { raw: [], ops: [], ems: [], PNR: [] };
     let lastFilteredOpsRows = [];
     let opsChartInstance = null, opsTopicChartInstance = null, emsChartInstance = null, PNRChartInstance = null;
-    let gaugeOSInstance = null, gaugeEMSInstance = null, gaugePNRInstance = null;
     let opsChartMode = 'ops-top15';
     let pnrChartMode = 'pnr-top15';
     let globalTrainerList = [];
@@ -1083,65 +1111,31 @@
         const emsPctReal = emsTarget > 0 ? Math.round((emsProgress / emsTarget) * 100) : 0;
         const pnrPctReal = pnrTarget > 0 ? Math.round((pnrProgress / pnrTarget) * 100) : 0;
 
-        document.getElementById('gaugeOS-subtext').innerText = `${osProgress} / ${osTarget} Sesi`;
-        document.getElementById('gaugeEMS-subtext').innerText = `${emsProgress} / ${emsTarget} Sesi`;
-        document.getElementById('gaugePNR-subtext').innerText = `${pnrProgress.toFixed(1)} / ${pnrTarget.toFixed(1)} Jam`;
+        function updateBar(barId, textId, pctId, actual, target, pct, unit) {
+            const barEl = document.getElementById(barId);
+            const textEl = document.getElementById(textId);
+            const pctEl = document.getElementById(pctId);
 
-        function createGauge(canvasId, realPct, colorHex) {
-            const canvasEl = document.getElementById(canvasId);
-            if (!canvasEl) return null;
-            const ctx = canvasEl.getContext('2d');
-            
-            const visualProgress = Math.min(realPct, 100);
-            const visualRemaining = Math.max(0, 100 - visualProgress);
+            if (textEl) textEl.innerText = `${actual} / ${target} ${unit}`;
+            if (pctEl) pctEl.innerText = `${pct}%`;
 
-            const centerTextPlugin = {
-                id: 'centerTextPlugin',
-                afterDraw(chart) {
-                    const { ctx, chartArea: { top, bottom, left, right } } = chart;
-                    const width = right - left; const height = bottom - top;
-                    ctx.save();
-                    ctx.font = 'bold 14px sans-serif';
-                    ctx.fillStyle = '#212529';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    ctx.fillText(realPct + '%', left + width / 2, top + height / 1.35);
-                    ctx.restore();
+            if (barEl) {
+                const visualWidth = Math.min(pct, 100);
+                barEl.style.width = `${visualWidth}%`;
+
+                if (pct >= 100) {
+                    barEl.className = 'progress-bar progress-bar-striped progress-bar-animated bg-success';
+                    if (pctEl) pctEl.className = 'fw-bold text-success';
+                } else {
+                    barEl.className = 'progress-bar progress-bar-striped progress-bar-animated bg-primary';
+                    if (pctEl) pctEl.className = 'fw-bold text-primary';
                 }
-            };
-
-            return new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    datasets: [{
-                        data: [visualProgress, visualRemaining],
-                        backgroundColor: [colorHex, '#e9ecef'],
-                        borderWidth: 0,
-                        circumference: 240,
-                        rotation: 240
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    cutout: '76%',
-                    plugins: { 
-                        legend: { display: false }, 
-                        tooltip: { enabled: false },
-                        datalabels: { display: false } // Nonaktifkan datalabels untuk gauge
-                    }
-                },
-                plugins: [centerTextPlugin]
-            });
+            }
         }
 
-        if (gaugeOSInstance) gaugeOSInstance.destroy();
-        if (gaugeEMSInstance) gaugeEMSInstance.destroy();
-        if (gaugePNRInstance) gaugePNRInstance.destroy();
-
-        gaugeOSInstance = createGauge('gaugeOS', osPctReal, osPctReal >= 100 ? '#198754' : '#0d6efd');
-        gaugeEMSInstance = createGauge('gaugeEMS', emsPctReal, emsPctReal >= 100 ? '#198754' : '#0d6efd');
-        gaugePNRInstance = createGauge('gaugePNR', pnrPctReal, pnrPctReal >= 100 ? '#198754' : '#0d6efd');
+        updateBar('gaugeOS-bar', 'gaugeOS-text', 'gaugeOS-pct', osProgress, osTarget, osPctReal, 'Sesi');
+        updateBar('gaugeEMS-bar', 'gaugeEMS-text', 'gaugeEMS-pct', emsProgress, emsTarget, emsPctReal, 'Sesi');
+        updateBar('gaugePNR-bar', 'gaugePNR-text', 'gaugePNR-pct', pnrProgress.toFixed(1), pnrTarget.toFixed(1), pnrPctReal, 'Jam');
     }
 
     function updateProfileCard() {
@@ -2100,7 +2094,7 @@
                 });
                 document.getElementById('summary-ops-partisipan').innerText = totalOpsPartisipan;
                 document.getElementById('summary-ops-sessions').innerText = totalOpsSessions;
-                document.getElementById('summary-ops-units').innerText = totalOpsSessions;
+                document.getElementById('summary-ops-units').innerText = totalOpsUnits;
             } else if (sheetId === 'ems') {
                 let totalScore = 0, countScore = 0;
                 rows.forEach(row => {
@@ -2152,7 +2146,7 @@
         } catch (e) { console.error(e); }
     }
 
-    /* ---------------- RENDER CHARTS DENGAN DATALABELS & COMBO CHART ---------------- */
+    /* ---------------- RENDER CHARTS DENGAN DATALABELS & GRADIENT ---------------- */
     function renderCharts(rows, sheetId) {
         if (sheetId === 'ops') {
             let storeTotals = {}, topicCounts = {};
@@ -2169,16 +2163,37 @@
             if (opsChartMode === 'ops-top15') storeArray = storeArray.slice(0, 15);
             else if (opsChartMode === 'ops-bottom15') storeArray = storeArray.reverse().slice(0, 15);
 
-            document.getElementById('chartOpsInner').style.width = (opsChartMode === 'ops-all' && storeArray.length > 15) ? `${Math.max(100, storeArray.length * 40)}px` : '100%';
+            document.getElementById('chartOpsInner').style.width = (opsChartMode === 'ops-all' && storeArray.length > 15) ? `${Math.max(100, storeArray.length * 45)}px` : '100%';
+
+            const ctxOps = document.getElementById('chartOps').getContext('2d');
+            let gradOps = ctxOps.createLinearGradient(0, 0, 0, 300);
+            gradOps.addColorStop(0, 'rgba(13, 110, 253, 0.9)');
+            gradOps.addColorStop(1, 'rgba(13, 110, 253, 0.15)');
 
             if (opsChartInstance) opsChartInstance.destroy();
-            opsChartInstance = new Chart(document.getElementById('chartOps').getContext('2d'), {
+            opsChartInstance = new Chart(ctxOps, {
                 type: 'bar',
-                data: { labels: storeArray.map(i => i.store), datasets: [{ label: 'Total Sesi Bulanan', data: storeArray.map(i => i.total), backgroundColor: 'rgba(13, 110, 253, 0.75)' }] },
+                data: { 
+                    labels: storeArray.map(i => i.store), 
+                    datasets: [{ 
+                        label: 'Total Sesi Bulanan', 
+                        data: storeArray.map(i => i.total), 
+                        backgroundColor: gradOps,
+                        borderColor: '#0d6efd',
+                        borderWidth: 1.5,
+                        borderRadius: { topLeft: 6, topRight: 6 },
+                        borderSkipped: false
+                    }] 
+                },
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false, 
-                    scales: { y: { beginAtZero: true } },
+                    categoryPercentage: 0.7,
+                    barPercentage: 0.85,
+                    scales: { 
+                        y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                    },
                     plugins: {
                         datalabels: {
                             anchor: 'end',
@@ -2200,15 +2215,17 @@
                     labels: topicArray.map(i => i.topic),
                     datasets: [{
                         data: topicArray.map(i => i.count),
-                        backgroundColor: ['rgba(13, 110, 253, 0.8)', 'rgba(25, 135, 84, 0.8)', 'rgba(255, 193, 7, 0.8)', 'rgba(220, 53, 69, 0.8)', 'rgba(111, 66, 193, 0.8)'],
-                        borderWidth: 1
+                        backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#dc3545', '#6f42c1'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
                     }]
                 },
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false, 
+                    cutout: '65%',
                     plugins: { 
-                        legend: { position: 'bottom' },
+                        legend: { position: 'bottom', labels: { font: { size: 11 } } },
                         datalabels: {
                             color: '#ffffff',
                             font: { weight: 'bold', size: 11 },
@@ -2229,20 +2246,46 @@
 
             document.getElementById('chartEmsContainer').style.width = `${Math.max(100, storeArray.length * 55)}px`;
 
+            const ctxEms = document.getElementById('chartEms').getContext('2d');
+            let gradEms = ctxEms.createLinearGradient(0, 0, 0, 300);
+            gradEms.addColorStop(0, 'rgba(25, 135, 84, 0.9)');
+            gradEms.addColorStop(1, 'rgba(25, 135, 84, 0.15)');
+
             if (emsChartInstance) emsChartInstance.destroy();
-            emsChartInstance = new Chart(document.getElementById('chartEms').getContext('2d'), {
+            emsChartInstance = new Chart(ctxEms, {
                 type: 'bar',
                 data: {
                     labels: storeArray.map(i => i.store),
                     datasets: [
-                        { label: 'Aktual Sesi', data: storeArray.map(i => i.actual), backgroundColor: 'rgba(25, 135, 84, 0.8)', borderColor: 'rgba(25, 135, 84, 1)', borderWidth: 1 },
-                        { label: 'Target Bulanan', data: storeArray.map(i => targetVal), backgroundColor: 'rgba(220, 53, 69, 0.6)', borderColor: 'rgba(220, 53, 69, 1)', borderWidth: 1 }
+                        { 
+                            label: 'Aktual Sesi', 
+                            data: storeArray.map(i => i.actual), 
+                            backgroundColor: gradEms, 
+                            borderColor: '#198754', 
+                            borderWidth: 1.5,
+                            borderRadius: { topLeft: 6, topRight: 6 },
+                            borderSkipped: false
+                        },
+                        { 
+                            label: 'Target Bulanan', 
+                            data: storeArray.map(i => targetVal), 
+                            backgroundColor: 'rgba(220, 53, 69, 0.25)', 
+                            borderColor: '#dc3545', 
+                            borderWidth: 1.5,
+                            borderRadius: { topLeft: 6, topRight: 6 },
+                            borderSkipped: false 
+                        }
                     ]
                 },
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false, 
-                    scales: { y: { beginAtZero: true } },
+                    categoryPercentage: 0.7,
+                    barPercentage: 0.85,
+                    scales: { 
+                        y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                    },
                     plugins: {
                         datalabels: {
                             anchor: 'end',
@@ -2255,7 +2298,6 @@
                 }
             });
         } else if (sheetId === 'PNR') {
-            // PNR COMBO CHART (BAR AKTUAL + LINE TARGET + DYNAMIC COLORS)
             let storeHoursMap = {};
             rows.forEach(row => {
                 let store = getStoreName(row, 'PNR');
@@ -2295,11 +2337,21 @@
 
             document.getElementById('chartPNRContainer').style.width = (pnrList.length > 15) ? `${Math.max(100, pnrList.length * 55)}px` : '100%';
 
-            let barColors = pnrList.map(i => i.actual >= i.target ? 'rgba(25, 135, 84, 0.85)' : 'rgba(220, 53, 69, 0.85)');
-            let borderColors = pnrList.map(i => i.actual >= i.target ? 'rgba(25, 135, 84, 1)' : 'rgba(220, 53, 69, 1)');
+            const ctxPnr = document.getElementById('chartPNR').getContext('2d');
+            
+            let barGradSuccess = ctxPnr.createLinearGradient(0, 0, 0, 300);
+            barGradSuccess.addColorStop(0, 'rgba(25, 135, 84, 0.9)');
+            barGradSuccess.addColorStop(1, 'rgba(25, 135, 84, 0.2)');
+
+            let barGradDanger = ctxPnr.createLinearGradient(0, 0, 0, 300);
+            barGradDanger.addColorStop(0, 'rgba(220, 53, 69, 0.9)');
+            barGradDanger.addColorStop(1, 'rgba(220, 53, 69, 0.2)');
+
+            let barColors = pnrList.map(i => i.actual >= i.target ? barGradSuccess : barGradDanger);
+            let borderColors = pnrList.map(i => i.actual >= i.target ? '#198754' : '#dc3545');
 
             if (PNRChartInstance) PNRChartInstance.destroy();
-            PNRChartInstance = new Chart(document.getElementById('chartPNR').getContext('2d'), {
+            PNRChartInstance = new Chart(ctxPnr, {
                 type: 'bar',
                 data: { 
                     labels: pnrList.map(i => i.store), 
@@ -2310,18 +2362,21 @@
                             data: pnrList.map(i => i.actual), 
                             backgroundColor: barColors, 
                             borderColor: borderColors, 
-                            borderWidth: 1,
+                            borderWidth: 1.5,
+                            borderRadius: { topLeft: 6, topRight: 6 },
+                            borderSkipped: false,
                             order: 2
                         },
                         {
                             type: 'line',
                             label: 'Min Target Hours',
                             data: pnrList.map(i => i.target),
-                            borderColor: 'rgba(220, 53, 69, 1)',
+                            borderColor: '#dc3545',
                             borderWidth: 2,
-                            borderDash: [5, 5],
-                            pointRadius: 3,
-                            pointBackgroundColor: 'rgba(220, 53, 69, 1)',
+                            borderDash: [4, 4],
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            pointBackgroundColor: '#dc3545',
                             fill: false,
                             order: 1
                         }
@@ -2330,7 +2385,12 @@
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false, 
-                    scales: { y: { beginAtZero: true } },
+                    categoryPercentage: 0.7,
+                    barPercentage: 0.85,
+                    scales: { 
+                        y: { beginAtZero: true, grid: { color: '#f0f0f0' } },
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                    },
                     plugins: {
                         datalabels: {
                             anchor: 'end',
