@@ -31,35 +31,33 @@
         .chart-inner-wrapper { position: relative; height: 100%; min-width: 100%; }
         .clickable-card { cursor: pointer; }
 
-        /* Styling Kartu Profil Staff & Autocomplete */
-        .profile-card-table, .open-studio-table, .ems-profile-table, .pnr-profile-table { 
+        /* Styling Kartu Profil Staff Compact & Autocomplete */
+        .profile-card-table { 
             width: 100% !important; 
-            max-width: 100% !important; 
             margin: 0 auto; 
-            border-radius: 10px; 
+            border-radius: 8px; 
             overflow: hidden; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+            border: 1px solid #dee2e6;
         }
-        .profile-card-table { border: 3px solid #0d6efd; background: #fff; }
-        .profile-card-table th { background-color: #d8b4fe !important; color: #000 !important; width: 40%; text-align: left; padding: 12px 10px; font-size: 0.95rem; border-bottom: 2px solid #bbb; white-space: normal; }
-        .profile-card-table td { background-color: #e2e8f0; color: #000; text-align: left; padding: 12px 10px; font-size: 0.95rem; font-weight: 600; border-bottom: 2px solid #bbb; white-space: normal; word-break: break-word; }
-        .profile-header-row th { background-color: #9333ea !important; color: #fff !important; text-align: center; font-size: 1.1rem; }
-        .profile-dropdown-td { background-color: #f0abfc !important; position: relative; padding: 6px 10px !important; }
-        .profile-dropdown-td input { width: 100% !important; font-size: 0.95rem !important; padding: 6px !important; }
+        .profile-card-table th { background-color: #f1f3f5 !important; color: #495057 !important; width: 38%; text-align: left; padding: 8px 12px; font-size: 0.85rem; border-bottom: 1px solid #dee2e6; }
+        .profile-card-table td { background-color: #ffffff; color: #212529; text-align: left; padding: 8px 12px; font-size: 0.85rem; font-weight: 600; border-bottom: 1px solid #dee2e6; word-break: break-word; }
+        .profile-header-row th { background-color: #6f42c1 !important; color: #fff !important; text-align: center; font-size: 0.95rem; font-weight: bold; }
+        .profile-dropdown-td { position: relative; padding: 4px 8px !important; }
+        .profile-dropdown-td input { width: 100% !important; font-size: 0.85rem !important; padding: 4px 8px !important; }
 
-        .open-studio-table th, .ems-profile-table th, .pnr-profile-table th,
-        .open-studio-table td, .ems-profile-table td, .pnr-profile-table td {
-            font-size: 0.82rem;
-            padding: 8px 4px;
-            white-space: normal;
-            word-break: break-word;
+        .metric-card-box {
+            border-radius: 8px;
+            padding: 12px;
+            background: #fff;
+            border-left: 4px solid #0d6efd;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            transition: all 0.2s ease;
         }
-        .open-studio-table th:nth-child(1), .ems-profile-table th:nth-child(1), .pnr-profile-table th:nth-child(1) { width: 45%; }
-        .open-studio-table th:nth-child(2), .ems-profile-table th:nth-child(2), .pnr-profile-table th:nth-child(2) { width: 40%; }
-        .open-studio-table th:nth-child(3), .ems-profile-table th:nth-child(3), .pnr-profile-table th:nth-child(3) { width: 15%; }
-        
+        .metric-card-box:hover { transform: translateY(-2px); }
+
         .autocomplete-list { position: absolute; top: 100%; left: 0; right: 0; z-index: 1000; background: #fff; border: 1px solid #ced4da; max-height: 200px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: none; }
-        .autocomplete-item { padding: 10px 15px; cursor: pointer; font-size: 0.95rem; color: #000; border-bottom: 1px solid #f1f1f1; text-align: left; }
+        .autocomplete-item { padding: 8px 12px; cursor: pointer; font-size: 0.85rem; color: #000; border-bottom: 1px solid #f1f1f1; text-align: left; }
         .autocomplete-item:hover { background-color: #e2e8f0; }
 
         @media (max-width: 991px) { 
@@ -165,7 +163,6 @@
                 <div class="chart-scroll-container" style="height: 320px;"><div class="chart-inner-wrapper"><canvas id="chartOpsTopic"></canvas></div></div>
             </div>
 
-            <!-- TABEL PERFORMA MINGGUAN OPS -->
             <div class="dashboard-container border-start border-primary border-4">
                 <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
                     <div>
@@ -355,60 +352,129 @@
             </div>
         </div>
 
-        <!-- 4. Profile Staff Content -->
+        <!-- 4. Profile Staff Content (UPDATED TO RADIAL / SEMI-DOUGHNUT GAUGE) -->
         <div class="tab-pane fade" id="profile-content" role="tabpanel">
-            <div class="dashboard-container text-center py-3 py-md-4">
-                <h3 class="text-purple fw-bold mb-3"><i class="fa-solid fa-id-card me-2"></i>Direktori & Profil Trainer</h3>
-                <p class="text-muted small">Ketik nama trainer dan pilih bulan untuk melihat performa Open Studio, EMS, & PNR yang sinkron dengan tab utama.</p>
-                
-                <div class="row justify-content-center mb-3">
-                    <div class="col-12 col-md-4">
-                        <label class="form-label small fw-bold text-muted">Filter Periode Bulan (Sync):</label>
-                        <select id="profile-filter-month" class="form-select" onchange="updateProfileCard()">
+            <div class="dashboard-container py-3">
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 border-bottom pb-2">
+                    <div>
+                        <h4 class="m-0 text-purple fw-bold"><i class="fa-solid fa-id-card me-2"></i>Direktori & Profil Trainer</h4>
+                        <p class="text-muted small mb-0">Pilih nama trainer dan periode untuk melihat profil serta komparasi pencapaian aktivitas.</p>
+                    </div>
+                    <div class="d-flex align-items-center gap-2" style="min-width: 250px;">
+                        <label class="form-label small fw-bold text-muted mb-0 text-nowrap">Filter Periode:</label>
+                        <select id="profile-filter-month" class="form-select form-select-sm" onchange="updateProfileCard()">
                             <option value="">Semua Bulan (Kumulatif)</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="table-responsive mt-3 mb-3">
-                    <table class="table profile-card-table align-middle">
-                        <thead><tr class="profile-header-row"><th colspan="2">T R A I N E R &nbsp; P R O F I L E</th></tr></thead>
-                        <tbody>
-                            <tr>
-                                <th>Trainer Name</th>
-                                <td class="profile-dropdown-td">
-                                    <input type="text" id="profile-search-input" class="form-control fw-bold border-0 bg-transparent text-dark shadow-none" placeholder="Ketik nama trainer..." autocomplete="off" oninput="filterTrainerSuggestions()" onfocus="filterTrainerSuggestions()">
-                                    <div id="trainer-autocomplete-list" class="autocomplete-list"></div>
-                                </td>
-                            </tr>
-                            <tr><th>Store</th><td id="profile-store">-</td></tr>
-                            <tr><th>Type Store</th><td id="profile-type-store">-</td></tr>
-                            <tr><th>NIK</th><td id="profile-nik">-</td></tr>
-                            <tr><th>Work Experience</th><td id="profile-experience">-</td></tr>
-                            <tr><th>Total Employee</th><td id="profile-total-employee" class="fw-bold text-primary">0</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+                <div class="row g-3 align-items-stretch">
+                    
+                    <!-- Kiri: Profil Detail & Ringkasan Performa -->
+                    <div class="col-lg-6 col-xl-5">
+                        <div class="card h-100 border-0 shadow-sm p-2 bg-light">
+                            <div class="table-responsive mb-2">
+                                <table class="table profile-card-table align-middle m-0">
+                                    <thead>
+                                        <tr class="profile-header-row">
+                                            <th colspan="2"><i class="fa-solid fa-user-gear me-1"></i> TRAINER PROFILE</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th>Trainer Name</th>
+                                            <td class="profile-dropdown-td">
+                                                <input type="text" id="profile-search-input" class="form-control fw-bold border-0 bg-transparent text-dark shadow-none p-1" placeholder="Ketik nama trainer..." autocomplete="off" oninput="filterTrainerSuggestions()" onfocus="filterTrainerSuggestions()">
+                                                <div id="trainer-autocomplete-list" class="autocomplete-list"></div>
+                                            </td>
+                                        </tr>
+                                        <tr><th>Store</th><td id="profile-store">-</td></tr>
+                                        <tr><th>Type Store</th><td id="profile-type-store">-</td></tr>
+                                        <tr><th>NIK</th><td id="profile-nik">-</td></tr>
+                                        <tr><th>Work Experience</th><td id="profile-experience">-</td></tr>
+                                        <tr><th>Total Employee</th><td id="profile-total-employee" class="fw-bold text-primary">0</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
 
-                <div class="table-responsive mt-3 mb-3">
-                    <table class="table open-studio-table align-middle text-center">
-                        <thead><tr><th colspan="3" class="bg-warning text-dark">Open Studio</th></tr><tr class="table-success"><th>Target Activity Monthly</th><th>Current Progress</th><th>%</th></tr></thead>
-                        <tbody><tr><td id="os-target">0</td><td id="os-progress" class="text-primary fw-bold">0</td><td id="os-percentage" class="text-success fw-bold">0%</td></tr></tbody>
-                    </table>
-                </div>
+                            <div class="row g-2 mt-auto">
+                                <div class="col-4">
+                                    <div class="metric-card-box border-warning">
+                                        <div class="text-muted small fw-bold" style="font-size: 0.72rem;">OPEN STUDIO</div>
+                                        <div class="d-flex align-items-baseline justify-content-between mt-1">
+                                            <span class="h6 fw-bold mb-0 text-dark" id="os-progress">0</span>
+                                            <span class="small text-muted" style="font-size: 0.7rem;">/ <span id="os-target">0</span></span>
+                                        </div>
+                                        <div class="fw-bold text-warning text-end small" id="os-percentage" style="font-size: 0.75rem;">0%</div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="metric-card-box border-primary">
+                                        <div class="text-muted small fw-bold" style="font-size: 0.72rem;">EMS</div>
+                                        <div class="d-flex align-items-baseline justify-content-between mt-1">
+                                            <span class="h6 fw-bold mb-0 text-dark" id="ems-progress">0</span>
+                                            <span class="small text-muted" style="font-size: 0.7rem;">/ <span id="ems-target">10</span></span>
+                                        </div>
+                                        <div class="fw-bold text-primary text-end small" id="ems-percentage" style="font-size: 0.75rem;">0%</div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="metric-card-box border-info">
+                                        <div class="text-muted small fw-bold" style="font-size: 0.72rem;">PNR HOURS</div>
+                                        <div class="d-flex align-items-baseline justify-content-between mt-1">
+                                            <span class="h6 fw-bold mb-0 text-dark" id="pnr-progress">0h</span>
+                                            <span class="small text-muted" style="font-size: 0.7rem;">/ <span id="pnr-target">11h</span></span>
+                                        </div>
+                                        <div class="fw-bold text-info text-end small" id="pnr-percentage" style="font-size: 0.75rem;">0%</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="table-responsive mt-3 mb-3">
-                    <table class="table ems-profile-table align-middle text-center">
-                        <thead><tr><th colspan="3" class="bg-primary text-white">EMS</th></tr><tr class="table-primary"><th>Target Activity Monthly</th><th>Current Progress</th><th>%</th></tr></thead>
-                        <tbody><tr><td id="ems-target">10</td><td id="ems-progress" class="text-primary fw-bold">0</td><td id="ems-percentage" class="text-success fw-bold">0%</td></tr></tbody>
-                    </table>
-                </div>
+                    <!-- Kanan: Visual Graphic 3 Semi-Doughnut Progress Gauge -->
+                    <div class="col-lg-6 col-xl-7">
+                        <div class="card h-100 border-0 shadow-sm p-3 bg-white d-flex flex-column justify-content-between">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="fw-bold text-dark m-0"><i class="fa-solid fa-chart-pie me-2 text-primary"></i>Pencapaian Kinerja per Program</h6>
+                                <span class="badge bg-light text-dark border small">Progress Gauge (%)</span>
+                            </div>
+                            
+                            <!-- CONTAINER 3 GAUGE BERSAMPINGAN -->
+                            <div class="row align-items-center justify-content-center g-2 text-center my-auto" style="min-height: 220px;">
+                                <!-- Gauge 1: Open Studio -->
+                                <div class="col-4">
+                                    <div style="position: relative; height: 150px; width: 100%;">
+                                        <canvas id="gaugeOS"></canvas>
+                                    </div>
+                                    <div class="fw-bold text-dark mt-1 small">Open Studio</div>
+                                    <div class="small text-muted" id="gaugeOS-subtext">0 / 0 Sesi</div>
+                                </div>
+                                <!-- Gauge 2: EMS -->
+                                <div class="col-4">
+                                    <div style="position: relative; height: 150px; width: 100%;">
+                                        <canvas id="gaugeEMS"></canvas>
+                                    </div>
+                                    <div class="fw-bold text-dark mt-1 small">EMS</div>
+                                    <div class="small text-muted" id="gaugeEMS-subtext">0 / 0 Sesi</div>
+                                </div>
+                                <!-- Gauge 3: PNR Hours -->
+                                <div class="col-4">
+                                    <div style="position: relative; height: 150px; width: 100%;">
+                                        <canvas id="gaugePNR"></canvas>
+                                    </div>
+                                    <div class="fw-bold text-dark mt-1 small">PNR Hours</div>
+                                    <div class="small text-muted" id="gaugePNR-subtext">0 / 0 Jam</div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center text-muted small mt-2">
+                                <span class="me-3"><i class="fa-solid fa-circle text-success me-1"></i>Tercapai (>=100%)</span>
+                                <span><i class="fa-solid fa-circle text-primary me-1"></i>Dalam Proses (&lt;100%)</span>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="table-responsive mt-3">
-                    <table class="table pnr-profile-table align-middle text-center">
-                        <thead><tr><th colspan="3" class="bg-warning text-dark">Plan and Result Delivered</th></tr><tr class="table-info"><th>Min Target per month Training & Roleplay</th><th>Current Progress</th><th>%</th></tr></thead>
-                        <tbody><tr><td id="pnr-target">11 Hours</td><td id="pnr-progress" class="text-primary fw-bold">0 Hours</td><td id="pnr-percentage" class="text-success fw-bold">0%</td></tr></tbody>
-                    </table>
                 </div>
             </div>
         </div>
@@ -417,7 +483,7 @@
 </div>
 
 <div class="d-lg-none fixed-bottom bg-dark border-top border-secondary py-2 px-3 shadow-lg" style="z-index: 1050;">
-    <div class="d-flex justify-content-around align-items-center">
+    <div class="d-flex justify-around align-items-center">
         <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="switchMobileTab('ops', this)" id="dock-ops"><i class="fa-solid fa-clipboard-list fa-lg mb-1 text-primary"></i><span style="font-size: 0.7rem; font-weight: bold;">OPS</span></button>
         <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="switchMobileTab('ems', this)" id="dock-ems"><i class="fa-solid fa-laptop-code fa-lg mb-1 text-success"></i><span style="font-size: 0.7rem;">EMS</span></button>
         <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1" onclick="switchMobileTab('PNR', this)" id="dock-pnr"><i class="fa-solid fa-address-book fa-lg mb-1 text-warning"></i><span style="font-size: 0.7rem;">PNR</span></button>
@@ -483,6 +549,7 @@
     let globalData = { raw: [], ops: [], ems: [], PNR: [] };
     let lastFilteredOpsRows = [];
     let opsChartInstance = null, opsTopicChartInstance = null, emsChartInstance = null, PNRChartInstance = null;
+    let gaugeOSInstance = null, gaugeEMSInstance = null, gaugePNRInstance = null;
     let opsChartMode = 'ops-top15';
     let globalTrainerList = [];
 
@@ -764,6 +831,74 @@
         return '';
     }
 
+    /* FUNGSI RENDER PROFILE CHART BERBASIS 3 RADIAL / SEMI-DOUGHNUT GAUGE */
+    function renderProfileChart(osTarget, osProgress, emsTarget, emsProgress, pnrTarget, pnrProgress) {
+        const osPctReal = osTarget > 0 ? Math.round((osProgress / osTarget) * 100) : 0;
+        const emsPctReal = emsTarget > 0 ? Math.round((emsProgress / emsTarget) * 100) : 0;
+        const pnrPctReal = pnrTarget > 0 ? Math.round((pnrProgress / pnrTarget) * 100) : 0;
+
+        document.getElementById('gaugeOS-subtext').innerText = `${osProgress} / ${osTarget} Sesi`;
+        document.getElementById('gaugeEMS-subtext').innerText = `${emsProgress} / ${emsTarget} Sesi`;
+        document.getElementById('gaugePNR-subtext').innerText = `${pnrProgress.toFixed(1)} / ${pnrTarget.toFixed(1)} Jam`;
+
+        function createGauge(canvasId, realPct, colorHex) {
+            const canvasEl = document.getElementById(canvasId);
+            if (!canvasEl) return null;
+            const ctx = canvasEl.getContext('2d');
+            
+            const visualProgress = Math.min(realPct, 100);
+            const visualRemaining = Math.max(0, 100 - visualProgress);
+
+            const centerTextPlugin = {
+                id: 'centerTextPlugin',
+                afterDraw(chart) {
+                    const { ctx, chartArea: { top, bottom, left, right } } = chart;
+                    const width = right - left;
+                    const height = bottom - top;
+
+                    ctx.save();
+                    ctx.font = 'bold 15px sans-serif';
+                    ctx.fillStyle = '#212529';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(realPct + '%', left + width / 2, top + height / 1.35);
+                    ctx.restore();
+                }
+            };
+
+            return new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [visualProgress, visualRemaining],
+                        backgroundColor: [colorHex, '#e9ecef'],
+                        borderWidth: 0,
+                        circumference: 240,
+                        rotation: 240
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '76%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    }
+                },
+                plugins: [centerTextPlugin]
+            });
+        }
+
+        if (gaugeOSInstance) gaugeOSInstance.destroy();
+        if (gaugeEMSInstance) gaugeEMSInstance.destroy();
+        if (gaugePNRInstance) gaugePNRInstance.destroy();
+
+        gaugeOSInstance = createGauge('gaugeOS', osPctReal, osPctReal >= 100 ? '#198754' : '#0d6efd');
+        gaugeEMSInstance = createGauge('gaugeEMS', emsPctReal, emsPctReal >= 100 ? '#198754' : '#0d6efd');
+        gaugePNRInstance = createGauge('gaugePNR', pnrPctReal, pnrPctReal >= 100 ? '#198754' : '#0d6efd');
+    }
+
     function updateProfileCard() {
         const selectedName = document.getElementById('profile-search-input').value.trim();
         const selectedMonth = document.getElementById('profile-filter-month').value;
@@ -783,9 +918,10 @@
             document.getElementById('ems-target').innerText = dynamicEmsTarget;
             document.getElementById('ems-progress').innerText = '0';
             document.getElementById('ems-percentage').innerText = '0%';
-            document.getElementById('pnr-target').innerText = '11 Hours';
-            document.getElementById('pnr-progress').innerText = '0 Hours';
+            document.getElementById('pnr-target').innerText = '11h';
+            document.getElementById('pnr-progress').innerText = '0h';
             document.getElementById('pnr-percentage').innerText = '0%';
+            renderProfileChart(dynamicOpsTarget, 0, dynamicEmsTarget, 0, 11, 0);
             return;
         }
 
@@ -811,7 +947,7 @@
                 if (!isNaN(dJoin.getTime())) {
                     let diffTime = Math.abs(new Date() - dJoin);
                     let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    workExp = `${Math.floor(diffDays / 365)} Tahun ${Math.floor((diffDays % 365) / 30)} Bulan`;
+                    workExp = `${Math.floor(diffDays / 365)} Thn ${Math.floor((diffDays % 365) / 30)} Bln`;
                 }
             }
 
@@ -881,9 +1017,11 @@
             });
 
             let individualPnrTarget = 3 + ((storeHeadcount - 1) * 1.5);
-            document.getElementById('pnr-target').innerText = individualPnrTarget.toFixed(1) + ' Hours';
-            document.getElementById('pnr-progress').innerText = totalPnrHours.toFixed(1) + ' Hours';
+            document.getElementById('pnr-target').innerText = individualPnrTarget.toFixed(1) + 'h';
+            document.getElementById('pnr-progress').innerText = totalPnrHours.toFixed(1) + 'h';
             document.getElementById('pnr-percentage').innerText = individualPnrTarget > 0 ? ((totalPnrHours / individualPnrTarget) * 100).toFixed(0) + '%' : '0%';
+
+            renderProfileChart(dynamicOpsTarget, totalStaffSessions, dynamicEmsTarget, totalEmsCount, individualPnrTarget, totalPnrHours);
         }
     }
 
@@ -990,7 +1128,7 @@
                 if (ym.year && ym.month) months.add(`${ym.year}-${ym.month}`);
             } else if (sheetId === 'PNR') {
                 let yVal = String(getPnrVal(row, 'Year', 1)).trim();
-                let mVal = String(getPnrVal(row, 'Month', 12)).trim(); // Murni membaca Kolom M (Month)
+                let mVal = String(getPnrVal(row, 'Month', 12)).trim();
                 let sVal = String(getPnrVal(row, 'Status', 14)).trim();
                 
                 ym = extractYearAndMonth(`${mVal} ${yVal}`);
@@ -1059,7 +1197,7 @@
 
             if (sheetId === 'PNR') {
                 let rowYear = String(getPnrVal(row, 'Year', 1)).trim();
-                let rowMonth = String(getPnrVal(row, 'Month', 12)).trim(); // Ambil dari Kolom M
+                let rowMonth = String(getPnrVal(row, 'Month', 12)).trim();
                 let rowStatus = String(getPnrVal(row, 'Status', 14)).trim();
 
                 let ym = extractYearAndMonth(`${rowMonth} ${rowYear}`);
@@ -1229,10 +1367,7 @@
 
             let key = store.toLowerCase();
             if (!storeMap[key]) {
-                storeMap[key] = {
-                    store: store,
-                    weeksData: {}
-                };
+                storeMap[key] = { store: store, weeksData: {} };
                 weeks.forEach(w => { storeMap[key].weeksData[w.label] = 0; });
             }
 
@@ -1305,13 +1440,7 @@
                 
                 if (store && presenter) {
                     if (selectedStore && store !== selectedStore) return;
-                    let staffObj = {
-                        store: store,
-                        presenter: presenter,
-                        email: email,
-                        days: {},
-                        totalSesi: 0
-                    };
+                    let staffObj = { store: store, presenter: presenter, email: email, days: {}, totalSesi: 0 };
                     if (email && email !== '-' && email !== '') {
                         staffMap[email] = staffObj;
                     }
@@ -1415,20 +1544,13 @@
                 
                 if (email) {
                     if (selectedStore && store !== selectedStore) return;
-                    staffMap[email] = {
-                        store: store,
-                        presenter: presenter,
-                        email: email,
-                        days: {},
-                        totalSessions: 0
-                    };
+                    staffMap[email] = { store: store, presenter: presenter, email: email, days: {}, totalSessions: 0 };
                 }
             }
         });
 
         allEmsRows.forEach(row => {
             let keys = Object.keys(row);
-            
             let coachKey = keys.find(k => /participants.*sales.*coach|sales.*coach|coach/i.test(k.trim()));
             let monthKey = keys.find(k => /^month$|bulan/i.test(k.trim()));
             let dateKey = keys.find(k => /^date$|tanggal/i.test(k.trim()));
@@ -1569,10 +1691,7 @@
 
             let key = store.toLowerCase();
             if (!storeMap[key]) {
-                storeMap[key] = {
-                    store: store,
-                    weeksData: {}
-                };
+                storeMap[key] = { store: store, weeksData: {} };
                 weeks.forEach(w => { storeMap[key].weeksData[w.label] = 0; });
             }
 
@@ -1943,10 +2062,7 @@
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            labels: {
-                                boxWidth: 12,
-                                font: { size: 11 }
-                            }
+                            labels: { boxWidth: 12, font: { size: 11 } }
                         },
                         tooltip: {
                             callbacks: {
