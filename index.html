@@ -3,34 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>OPS EMS PNR - Live Dashboard Multi-Sheet Excel & PDF Export</title>
+    <title>OPS EMS PNR - Live Dashboard Multi-Sheet Excel & Combo Chart</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js Plugin Datalabels (Menampilkan Angka di Chart) -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
     <!-- SheetJS CDN (Multi-Sheet Excel Export) -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- html2pdf.js CDN (Executive PDF Export) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root {
             --sat: env(safe-area-inset-top);
             --sab: env(safe-area-inset-bottom);
+            --sal: env(safe-area-inset-left);
+            --sar: env(safe-area-inset-right);
         }
         body { 
             background-color: #f8f9fa; 
             -webkit-tap-highlight-color: transparent; 
             -webkit-touch-callout: none;
             touch-action: manipulation;
+            padding-top: var(--sat);
+            padding-left: var(--sal);
+            padding-right: var(--sar);
         }
         .navbar-brand { font-weight: bold; user-select: none; -webkit-user-select: none; }
         .card-stat { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); height: 100%; transition: transform 0.2s; }
         .card-stat:hover { transform: translateY(-2px); }
         .dashboard-container { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
         
-        /* Optimalisasi Scroll & Tabel (Header Kolom Store Terang/Jelas) */
+        /* Optimalisasi Scroll & Tabel Mobile (Header Kolom Store Terang & Jelas) */
         .table-responsive { 
             max-height: 450px; 
             overflow-y: auto; 
@@ -42,7 +47,7 @@
         table th { position: sticky; top: 0; z-index: 2; background-color: #212529; color: #ffffff; text-align: center; vertical-align: middle; white-space: nowrap; }
         table td { text-align: center; vertical-align: middle; white-space: nowrap; font-size: 0.88rem; }
         
-        /* Fixed Header & Store Column - Warna Terang Bebas Blok Hitam */
+        /* Fixed Header & Store Column */
         table td.store-col, table th.store-col { text-align: left; position: sticky; left: 0; z-index: 3; }
         table td.store-col { background-color: #ffffff !important; color: #212529 !important; font-weight: 600; }
         table th.store-col { background-color: #e9ecef !important; color: #212529 !important; font-weight: bold; border-bottom: 2px solid #dee2e6; z-index: 4; }
@@ -53,6 +58,8 @@
 
         .cell-active { background-color: #d1e7dd; color: #0f5132; font-weight: bold; }
         .cell-inactive { background-color: #f8d7da; color: #842029; }
+        
+        /* Mobile Touch Target Optimizations */
         .chart-scroll-container { position: relative; height: 380px; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         .chart-inner-wrapper { position: relative; height: 100%; min-width: 100%; }
         .clickable-card { cursor: pointer; }
@@ -96,14 +103,15 @@
             .fixed-bottom { 
                 padding-bottom: calc(10px + var(--sab)); 
                 padding-top: 10px;
-                background-color: rgba(33, 37, 41, 0.95) !important;
+                background-color: rgba(33, 37, 41, 0.96) !important;
                 backdrop-filter: blur(10px);
                 -webkit-backdrop-filter: blur(10px);
             }
-            .container-fluid { padding-left: 12px; padding-right: 12px; }
-            h1.h2 { font-size: 1.3rem; }
-            .dashboard-container { padding: 14px; border-radius: 10px; }
-            .btn-sm { padding: 6px 10px; font-size: 0.8rem; }
+            .container-fluid { padding-left: 10px; padding-right: 10px; }
+            h1.h2 { font-size: 1.25rem; }
+            .dashboard-container { padding: 12px; border-radius: 10px; }
+            .btn-sm { padding: 6px 12px; font-size: 0.82rem; min-height: 36px; }
+            .form-select-sm, .form-control-sm { min-height: 38px; font-size: 0.85rem; }
         }
     </style>
 </head>
@@ -134,26 +142,21 @@
 
 <div class="container-fluid px-2 px-md-4 py-3">
     <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-2 pb-2 mb-3 border-bottom gap-2">
-        <h1 class="h2 mb-0">Real-Time Dashboard</h1>
+        <h1 class="h2 mb-0 fw-bold">Real-Time Dashboard</h1>
         <div class="d-flex flex-wrap gap-2 align-items-center">
             
             <!-- Tombol Export Excel Multi-Sheet -->
             <button class="btn btn-sm btn-outline-success fw-bold shadow-sm" onclick="exportActiveTabExcel()">
-                <i class="fa-solid fa-file-excel me-1"></i> Export Excel Multi-Sheet (<span id="export-tab-label">OPS</span>)
-            </button>
-
-            <!-- Tombol Export PDF Laporan Eksekutif -->
-            <button class="btn btn-sm btn-outline-danger fw-bold shadow-sm" onclick="exportActiveTabPDF()">
-                <i class="fa-solid fa-file-pdf me-1"></i> Export PDF (<span id="pdf-tab-label">OPS</span>)
+                <i class="fa-solid fa-file-excel me-1"></i> Export Excel (<span id="export-tab-label">OPS</span>)
             </button>
             
             <button id="btn-wa-admin" class="btn btn-sm btn-warning text-dark fw-bold d-none shadow-sm" onclick="copyWAReminderAdmin()">
                 <i class="fa-brands fa-whatsapp me-1 text-success"></i> Copy WA Remind (<span id="active-tab-label">OPS</span>)
             </button>
             
-            <button id="btn-refresh" class="btn btn-sm btn-primary" onclick="loadData()"><i class="fa-solid fa-rotate me-1" id="refresh-icon"></i> Refresh</button>
+            <button id="btn-refresh" class="btn btn-sm btn-primary fw-semibold" onclick="loadData()"><i class="fa-solid fa-rotate me-1" id="refresh-icon"></i> Refresh</button>
             
-            <div id="loadingStatusWrapper" class="d-flex flex-column" style="min-width: 140px;">
+            <div id="loadingStatusWrapper" class="d-flex flex-column" style="min-width: 130px;">
                 <span id="loadingStatus" class="text-muted small fw-semibold"></span>
                 <div class="progress mt-1 d-none" id="loadingProgressContainer" style="height: 5px;">
                     <div id="loadingProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%"></div>
@@ -164,7 +167,7 @@
 
     <div class="tab-content" id="sheetTabContent">
         
-        <!-- 1. OPS CONTENT (SUMMARY -> CHART -> TABEL) -->
+        <!-- 1. OPS CONTENT -->
         <div class="tab-pane fade show active" id="ops-content" role="tabpanel">
             
             <div class="dashboard-container mb-3 py-3">
@@ -255,7 +258,7 @@
             </div>
         </div>
 
-        <!-- 2. EMS CONTENT (SUMMARY -> CHART -> TABEL) -->
+        <!-- 2. EMS CONTENT -->
         <div class="tab-pane fade" id="ems-content" role="tabpanel">
             
             <div class="dashboard-container mb-3 py-3">
@@ -347,7 +350,7 @@
             </div>
         </div>
 
-        <!-- 3. PNR CONTENT (SUMMARY -> CHART -> TABEL) -->
+        <!-- 3. PNR CONTENT -->
         <div class="tab-pane fade" id="PNR-content" role="tabpanel">
             
             <div class="dashboard-container mb-3 py-3">
@@ -373,8 +376,20 @@
                 <div class="col"><div class="card card-stat p-2 bg-white border-start border-info border-3"><h6 class="text-muted small mb-1" style="font-size:0.75rem;">Other Roleplay</h6><h5 class="fw-bold text-info mb-0" id="summary-pnr-other-roleplay">0</h5></div></div>
             </div>
 
+            <!-- Dashboard Container Chart PNR Combo -->
             <div class="dashboard-container">
-                <h5 class="mb-3 text-warning fs-6 fw-bold"><i class="fa-solid fa-chart-bar me-2"></i>Komparasi Aktual vs Target Hours (PNR)</h5>
+                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <div>
+                        <h5 class="m-0 text-warning text-dark fs-6 fw-bold"><i class="fa-solid fa-chart-bar me-2"></i>Komparasi Aktual vs Target Hours (PNR Combo Chart)</h5>
+                        <small class="text-muted" style="font-size:0.72rem;">🟢 Batang Hijau: Capai Target | 🔴 Batang Merah: Belum Capai | 🔴 Garis: Target Hours</small>
+                    </div>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-danger fw-semibold" id="btn-pnr-undertarget" onclick="setChartMode('pnr', 'undertarget')"><i class="fa-solid fa-triangle-exclamation me-1"></i>Under Target Only</button>
+                        <button type="button" class="btn btn-outline-warning text-dark active fw-semibold" id="btn-pnr-top15" onclick="setChartMode('pnr', 'top15')">Top 15</button>
+                        <button type="button" class="btn btn-outline-warning text-dark fw-semibold" id="btn-pnr-bottom15" onclick="setChartMode('pnr', 'bottom15')">Bottom 15</button>
+                        <button type="button" class="btn btn-outline-warning text-dark fw-semibold" id="btn-pnr-all" onclick="setChartMode('pnr', 'all')">Semua Store</button>
+                    </div>
+                </div>
                 <div class="chart-scroll-container"><div class="chart-inner-wrapper" id="chartPNRContainer"><canvas id="chartPNR"></canvas></div></div>
             </div>
 
@@ -594,6 +609,9 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // Register Chart.js Datalabels Plugin
+    Chart.register(ChartDataLabels);
+
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzAAm8dsSyuTA2paIJ-i-EO9phCsRrqTWWGsgxIL6kqN7OeUKe-Uxmzd5dpkn15PDBO/exec';
     
     const ADMIN_PIN = "3333"; 
@@ -643,16 +661,16 @@
     let opsChartInstance = null, opsTopicChartInstance = null, emsChartInstance = null, PNRChartInstance = null;
     let gaugeOSInstance = null, gaugeEMSInstance = null, gaugePNRInstance = null;
     let opsChartMode = 'ops-top15';
+    let pnrChartMode = 'pnr-top15';
     let globalTrainerList = [];
 
     function setActiveTabName(tab) {
         currentActiveTab = tab;
         document.getElementById('active-tab-label').innerText = tab.toUpperCase();
         document.getElementById('export-tab-label').innerText = tab.toUpperCase();
-        document.getElementById('pdf-tab-label').innerText = tab.toUpperCase();
     }
 
-    /* ---------------- 1. EXPORT EXCEL MULTI-SHEET DINAMIS ---------------- */
+    /* ---------------- EXPORT EXCEL MULTI-SHEET DINAMIS ---------------- */
     function exportActiveTabExcel() {
         if (typeof XLSX === 'undefined') {
             alert('Library Excel sedang dimuat, silakan coba beberapa detik lagi.');
@@ -687,31 +705,6 @@
         }
 
         XLSX.writeFile(wb, fileName);
-    }
-
-    /* ---------------- 2. EXPORT PDF LAPORAN EKSEKUTIF ---------------- */
-    function exportActiveTabPDF() {
-        if (typeof html2pdf === 'undefined') {
-            alert('Library PDF sedang dimuat, silakan coba beberapa detik lagi.');
-            return;
-        }
-
-        let element = document.getElementById(`${currentActiveTab}-content`);
-        if (!element) {
-            alert('Konten tab tidak ditemukan.');
-            return;
-        }
-
-        let opt = {
-            margin:       [0.3, 0.3, 0.3, 0.3],
-            filename:     `Laporan_Eksekutif_${currentActiveTab.toUpperCase()}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2, useCORS: true, logging: false },
-            jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
-        };
-
-        alert('📄 Menyiapkan File PDF... Silakan tunggu beberapa detik.');
-        html2pdf().set(opt).from(element).save();
     }
 
     function handleSecretAdminClick() {
@@ -1132,7 +1125,11 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     cutout: '76%',
-                    plugins: { legend: { display: false }, tooltip: { enabled: false } }
+                    plugins: { 
+                        legend: { display: false }, 
+                        tooltip: { enabled: false },
+                        datalabels: { display: false } // Nonaktifkan datalabels untuk gauge
+                    }
                 },
                 plugins: [centerTextPlugin]
             });
@@ -1449,6 +1446,19 @@
                 document.getElementById(`btn-${m}`).className = (mode === m) ? 'btn btn-primary' : 'btn btn-outline-primary';
             });
             applyFilters('ops');
+        } else if (sheetId === 'pnr') {
+            pnrChartMode = `pnr-${mode}`;
+            ['undertarget', 'top15', 'bottom15', 'all'].forEach(m => {
+                let btn = document.getElementById(`btn-pnr-${m}`);
+                if (btn) {
+                    if (m === 'undertarget') {
+                        btn.className = (mode === m) ? 'btn btn-danger text-white fw-bold' : 'btn btn-outline-danger fw-semibold';
+                    } else {
+                        btn.className = (mode === m) ? 'btn btn-warning text-dark fw-bold active' : 'btn btn-outline-warning text-dark fw-semibold';
+                    }
+                }
+            });
+            applyFilters('PNR');
         }
     }
 
@@ -2090,7 +2100,7 @@
                 });
                 document.getElementById('summary-ops-partisipan').innerText = totalOpsPartisipan;
                 document.getElementById('summary-ops-sessions').innerText = totalOpsSessions;
-                document.getElementById('summary-ops-units').innerText = totalOpsUnits;
+                document.getElementById('summary-ops-units').innerText = totalOpsSessions;
             } else if (sheetId === 'ems') {
                 let totalScore = 0, countScore = 0;
                 rows.forEach(row => {
@@ -2142,6 +2152,7 @@
         } catch (e) { console.error(e); }
     }
 
+    /* ---------------- RENDER CHARTS DENGAN DATALABELS & COMBO CHART ---------------- */
     function renderCharts(rows, sheetId) {
         if (sheetId === 'ops') {
             let storeTotals = {}, topicCounts = {};
@@ -2163,8 +2174,21 @@
             if (opsChartInstance) opsChartInstance.destroy();
             opsChartInstance = new Chart(document.getElementById('chartOps').getContext('2d'), {
                 type: 'bar',
-                data: { labels: storeArray.map(i => i.store), datasets: [{ label: 'Total Sesi Bulanan', data: storeArray.map(i => i.total), backgroundColor: 'rgba(13, 110, 253, 0.7)' }] },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+                data: { labels: storeArray.map(i => i.store), datasets: [{ label: 'Total Sesi Bulanan', data: storeArray.map(i => i.total), backgroundColor: 'rgba(13, 110, 253, 0.75)' }] },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    scales: { y: { beginAtZero: true } },
+                    plugins: {
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            font: { weight: 'bold', size: 10 },
+                            color: '#0d6efd',
+                            formatter: (val) => val > 0 ? val : ''
+                        }
+                    }
+                }
             });
 
             let topicArray = Object.keys(topicCounts).map(topic => ({ topic, count: topicCounts[topic] })).sort((a, b) => b.count - a.count);
@@ -2180,7 +2204,18 @@
                         borderWidth: 1
                     }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { position: 'bottom' },
+                        datalabels: {
+                            color: '#ffffff',
+                            font: { weight: 'bold', size: 11 },
+                            formatter: (val) => val > 0 ? val : ''
+                        }
+                    } 
+                }
             });
         } else if (sheetId === 'ems') {
             let storeActuals = {};
@@ -2204,29 +2239,116 @@
                         { label: 'Target Bulanan', data: storeArray.map(i => targetVal), backgroundColor: 'rgba(220, 53, 69, 0.6)', borderColor: 'rgba(220, 53, 69, 1)', borderWidth: 1 }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    scales: { y: { beginAtZero: true } },
+                    plugins: {
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            font: { weight: 'bold', size: 10 },
+                            color: '#198754',
+                            formatter: (val) => val > 0 ? val : ''
+                        }
+                    }
+                }
             });
         } else if (sheetId === 'PNR') {
-            let storeHours = {};
+            // PNR COMBO CHART (BAR AKTUAL + LINE TARGET + DYNAMIC COLORS)
+            let storeHoursMap = {};
             rows.forEach(row => {
                 let store = getStoreName(row, 'PNR');
                 let hours = parseFloat(getPnrVal(row, 'Hours', 18)) || 0;
-                if (store && store !== 'Unknown Store') storeHours[store] = (storeHours[store] || 0) + hours;
+                let status = String(getPnrVal(row, 'Status', 14)).trim().toLowerCase();
+                if (store && store !== 'Unknown Store' && status.includes('deliver')) {
+                    storeHoursMap[store] = (storeHoursMap[store] || 0) + hours;
+                }
             });
 
-            let pnrArray = Object.keys(storeHours).map(store => ({ name: store, actual: storeHours[store] })).sort((a, b) => b.actual - a.actual).slice(0, 20);
-            document.getElementById('chartPNRContainer').style.width = `${Math.max(100, pnrArray.length * 60)}px`;
+            let pnrList = MASTER_STORES.map(store => {
+                let storeHeadcount = globalData.raw.filter(r => {
+                    let rKeys = Object.keys(r);
+                    return rKeys.length >= 2 && String(r[rKeys[1]] || '').trim().toLowerCase() === store.toLowerCase();
+                }).length;
+                if (storeHeadcount === 0) storeHeadcount = 6;
+                let targetH = 3 + ((storeHeadcount - 1) * 1.5);
+
+                let actualH = 0;
+                for (let sKey in storeHoursMap) {
+                    if (sKey.toLowerCase().includes(store.toLowerCase()) || store.toLowerCase().includes(sKey.toLowerCase())) {
+                        actualH += storeHoursMap[sKey];
+                    }
+                }
+                return { store: store, actual: actualH, target: targetH, diff: actualH - targetH };
+            });
+
+            if (pnrChartMode === 'pnr-undertarget') {
+                pnrList = pnrList.filter(i => i.actual < i.target);
+            } else if (pnrChartMode === 'pnr-top15') {
+                pnrList = pnrList.sort((a, b) => b.actual - a.actual).slice(0, 15);
+            } else if (pnrChartMode === 'pnr-bottom15') {
+                pnrList = pnrList.sort((a, b) => a.actual - b.actual).slice(0, 15);
+            } else {
+                pnrList = pnrList.sort((a, b) => a.store.localeCompare(b.store));
+            }
+
+            document.getElementById('chartPNRContainer').style.width = (pnrList.length > 15) ? `${Math.max(100, pnrList.length * 55)}px` : '100%';
+
+            let barColors = pnrList.map(i => i.actual >= i.target ? 'rgba(25, 135, 84, 0.85)' : 'rgba(220, 53, 69, 0.85)');
+            let borderColors = pnrList.map(i => i.actual >= i.target ? 'rgba(25, 135, 84, 1)' : 'rgba(220, 53, 69, 1)');
 
             if (PNRChartInstance) PNRChartInstance.destroy();
             PNRChartInstance = new Chart(document.getElementById('chartPNR').getContext('2d'), {
                 type: 'bar',
                 data: { 
-                    labels: pnrArray.map(i => i.name), 
+                    labels: pnrList.map(i => i.store), 
                     datasets: [
-                        { label: 'Aktual Hours', data: pnrArray.map(i => i.actual), backgroundColor: 'rgba(255, 193, 7, 0.8)', borderColor: 'rgba(255, 193, 7, 1)', borderWidth: 1 }
+                        { 
+                            type: 'bar',
+                            label: 'Aktual Hours', 
+                            data: pnrList.map(i => i.actual), 
+                            backgroundColor: barColors, 
+                            borderColor: borderColors, 
+                            borderWidth: 1,
+                            order: 2
+                        },
+                        {
+                            type: 'line',
+                            label: 'Min Target Hours',
+                            data: pnrList.map(i => i.target),
+                            borderColor: 'rgba(220, 53, 69, 1)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointRadius: 3,
+                            pointBackgroundColor: 'rgba(220, 53, 69, 1)',
+                            fill: false,
+                            order: 1
+                        }
                     ] 
                 },
-                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    scales: { y: { beginAtZero: true } },
+                    plugins: {
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                            font: { weight: 'bold', size: 10 },
+                            color: (context) => {
+                                let idx = context.dataIndex;
+                                return pnrList[idx] && pnrList[idx].actual >= pnrList[idx].target ? '#198754' : '#dc3545';
+                            },
+                            formatter: (val, context) => {
+                                if (context.dataset.type === 'bar') {
+                                    return val > 0 ? val.toFixed(1) + 'h' : '0h';
+                                }
+                                return '';
+                            }
+                        }
+                    }
+                }
             });
         }
     }
