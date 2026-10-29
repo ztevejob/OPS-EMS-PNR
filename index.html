@@ -1777,7 +1777,18 @@
         headerHtml += '<th class="bg-primary text-white">Total Sesi</th><th>Target Bulanan</th><th>%</th></tr>';
         thead.innerHTML = headerHtml;
 
+        // Inisialisasi storeMap berdasarkan MASTER_STORES
+        let targetStores = getTargetStoresList(selectedStore, selectedHo);
+        if (searchInput) targetStores = targetStores.filter(s => s.toLowerCase().includes(searchInput));
+
         let storeMap = {};
+        targetStores.forEach(st => {
+            let key = st.toLowerCase();
+            storeMap[key] = { store: st, weeksData: {} };
+            weeks.forEach(w => { storeMap[key].weeksData[w.label] = 0; });
+        });
+
+        // Mapping data laporan OPS
         filteredRows.forEach(row => {
             let store = getStoreName(row, 'ops');
             if (!store || store === 'Unknown Store') return;
@@ -1789,20 +1800,15 @@
             let sessCount = (/13/.test(sessionsRaw) ? 1 : 0) + (/15/.test(sessionsRaw) ? 1 : 0) + (/18/.test(sessionsRaw) ? 1 : 0);
             let finalSess = sessCount === 0 ? 1 : sessCount;
 
-            let key = store.toLowerCase();
-            if (!storeMap[key]) {
-                storeMap[key] = { store: store, weeksData: {} };
-                weeks.forEach(w => { storeMap[key].weeksData[w.label] = 0; });
+            let matchedKey = Object.keys(storeMap).find(k => k.includes(store.toLowerCase()) || store.toLowerCase().includes(k));
+            if (matchedKey) {
+                let targetWeek = weeks.find(w => dayNum >= w.startDay && dayNum <= w.endDay);
+                if (targetWeek) storeMap[matchedKey].weeksData[targetWeek.label] += finalSess;
+                else if (weeks.length > 0) storeMap[matchedKey].weeksData[weeks[0].label] += finalSess;
             }
-            let targetWeek = weeks.find(w => dayNum >= w.startDay && dayNum <= w.endDay);
-            if (targetWeek) storeMap[key].weeksData[targetWeek.label] += finalSess;
-            else if (weeks.length > 0) storeMap[key].weeksData[weeks[0].label] += finalSess;
         });
 
         let storeArray = Object.values(storeMap);
-        if (selectedHo) storeArray = storeArray.filter(i => getTrainerHoByStore(i.store).toLowerCase() === selectedHo.toLowerCase());
-        if (selectedStore) storeArray = storeArray.filter(i => i.store.toLowerCase() === selectedStore.toLowerCase());
-        if (searchInput) storeArray = storeArray.filter(i => i.store.toLowerCase().includes(searchInput));
         storeArray.sort((a, b) => a.store.localeCompare(b.store));
 
         document.getElementById('ops-weekly-count').innerText = `${storeArray.length} Store`;
@@ -2003,7 +2009,18 @@
         headerHtml += '<th class="bg-success">Total Sesi</th><th>Target Bulanan</th><th>%</th></tr>';
         thead.innerHTML = headerHtml;
 
+        // Inisialisasi storeMap dari MASTER_STORES
+        let targetStores = getTargetStoresList(selectedStore, selectedHo);
+        if (searchInput) targetStores = targetStores.filter(s => s.toLowerCase().includes(searchInput));
+
         let storeMap = {};
+        targetStores.forEach(st => {
+            let key = st.toLowerCase();
+            storeMap[key] = { store: st, weeksData: {} };
+            weeks.forEach(w => { storeMap[key].weeksData[w.label] = 0; });
+        });
+
+        // Map data aktual sesi dari laporan EMS
         filteredRows.forEach(row => {
             let store = getStoreName(row, 'ems');
             if (!store || store === 'Unknown Store') return;
@@ -2012,20 +2029,15 @@
             let dateKey = keys.find(k => /^date$|tanggal/i.test(k.trim()));
             let dayNum = parseDateToDay(dateKey ? row[dateKey] : (keys.length >= 8 ? row[keys[7]] : '')) || 1;
 
-            let key = store.toLowerCase();
-            if (!storeMap[key]) {
-                storeMap[key] = { store: store, weeksData: {} };
-                weeks.forEach(w => { storeMap[key].weeksData[w.label] = 0; });
+            let matchedKey = Object.keys(storeMap).find(k => k.includes(store.toLowerCase()) || store.toLowerCase().includes(k));
+            if (matchedKey) {
+                let targetWeek = weeks.find(w => dayNum >= w.startDay && dayNum <= w.endDay);
+                if (targetWeek) storeMap[matchedKey].weeksData[targetWeek.label] += 1;
+                else if (weeks.length > 0) storeMap[matchedKey].weeksData[weeks[0].label] += 1;
             }
-            let targetWeek = weeks.find(w => dayNum >= w.startDay && dayNum <= w.endDay);
-            if (targetWeek) storeMap[key].weeksData[targetWeek.label] += 1;
-            else if (weeks.length > 0) storeMap[key].weeksData[weeks[0].label] += 1;
         });
 
         let storeArray = Object.values(storeMap);
-        if (selectedHo) storeArray = storeArray.filter(i => getTrainerHoByStore(i.store).toLowerCase() === selectedHo.toLowerCase());
-        if (selectedStore) storeArray = storeArray.filter(i => i.store.toLowerCase() === selectedStore.toLowerCase());
-        if (searchInput) storeArray = storeArray.filter(i => i.store.toLowerCase().includes(searchInput));
         storeArray.sort((a, b) => a.store.localeCompare(b.store));
 
         document.getElementById('ems-weekly-count').innerText = `${storeArray.length} Store`;
@@ -2099,56 +2111,63 @@
         const tbody = table.querySelector('tbody');
         tbody.innerHTML = '';
 
+        // Kunci daftar toko dari MASTER_STORES
+        let targetStores = getTargetStoresList(selectedStoreFilter, selectedHo);
         let storeMap = {};
-        
+        targetStores.forEach(st => {
+            storeMap[st.toLowerCase()] = { store: st, trainers: new Set(), headcount: 0, actualHours: 0 };
+        });
+
+        // Hitung headcount & trainer dari RAW yang sesuai master
         globalData.raw.forEach(r => {
             let rKeys = Object.keys(r);
             if (rKeys.length >= 3) {
-                let store = String(r[rKeys[1]] || '').trim();
-                if (store) {
-                    let normKey = store.toLowerCase().replace(/\s+/g, ' ');
-                    if (!storeMap[normKey]) storeMap[normKey] = { store: store, trainers: new Set(), headcount: 0, actualHours: 0 };
-                    storeMap[normKey].headcount++;
+                let rawStore = String(r[rKeys[1]] || '').trim();
+                if (rawStore) {
+                    let matchedKey = Object.keys(storeMap).find(k => k.includes(rawStore.toLowerCase()) || rawStore.toLowerCase().includes(k));
+                    if (matchedKey) {
+                        storeMap[matchedKey].headcount++;
 
-                    let trainerColKey = rKeys.find(k => /store trainer|trainer name/i.test(k.trim()));
-                    if (trainerColKey && r[trainerColKey]) {
-                        String(r[trainerColKey]).split(',').forEach(t => {
-                            let cleanT = t.trim();
-                            if (cleanT && cleanT !== '-') storeMap[normKey].trainers.add(cleanT);
-                        });
-                    } else {
-                        let roleKey = rKeys.find(k => /position|positions|role|jabatan/i.test(k.trim()));
-                        if (roleKey && String(r[roleKey]).toLowerCase().includes('trainer')) {
-                            let staffName = String(r[rKeys[2]] || '').trim();
-                            if (staffName && staffName !== '-') storeMap[normKey].trainers.add(staffName);
+                        let trainerColKey = rKeys.find(k => /store trainer|trainer name/i.test(k.trim()));
+                        if (trainerColKey && r[trainerColKey]) {
+                            String(r[trainerColKey]).split(',').forEach(t => {
+                                let cleanT = t.trim();
+                                if (cleanT && cleanT !== '-') storeMap[matchedKey].trainers.add(cleanT);
+                            });
+                        } else {
+                            let roleKey = rKeys.find(k => /position|positions|role|jabatan/i.test(k.trim()));
+                            if (roleKey && String(r[roleKey]).toLowerCase().includes('trainer')) {
+                                let staffName = String(r[rKeys[2]] || '').trim();
+                                if (staffName && staffName !== '-') storeMap[matchedKey].trainers.add(staffName);
+                            }
                         }
                     }
                 }
             }
         });
 
+        // Akumulasi jam dari PNR ke toko master
         filteredPnrRows.forEach(row => {
-            let store = getStoreName(row, 'PNR');
+            let pnrStore = getStoreName(row, 'PNR');
             let hours = parseFloat(getPnrVal(row, 'Hours', 18)) || 0;
             let trainerNamePnr = String(getPnrVal(row, 'Trainer Name', 3)).trim();
 
-            if (store && store !== 'Unknown Store') {
-                let normKey = store.toLowerCase().replace(/\s+/g, ' ');
-                if (!storeMap[normKey]) storeMap[normKey] = { store: store, trainers: new Set(), headcount: 0, actualHours: 0 };
-                storeMap[normKey].actualHours += hours;
+            if (pnrStore && pnrStore !== 'Unknown Store') {
+                let matchedKey = Object.keys(storeMap).find(k => k.includes(pnrStore.toLowerCase()) || pnrStore.toLowerCase().includes(k));
+                if (matchedKey) {
+                    storeMap[matchedKey].actualHours += hours;
 
-                if (trainerNamePnr && trainerNamePnr !== '-' && trainerNamePnr !== 'undefined') {
-                    trainerNamePnr.split(',').forEach(tn => {
-                        let cleanName = tn.trim();
-                        if (cleanName && cleanName !== '-') storeMap[normKey].trainers.add(cleanName);
-                    });
+                    if (trainerNamePnr && trainerNamePnr !== '-' && trainerNamePnr !== 'undefined') {
+                        trainerNamePnr.split(',').forEach(tn => {
+                            let cleanName = tn.trim();
+                            if (cleanName && cleanName !== '-') storeMap[matchedKey].trainers.add(cleanName);
+                        });
+                    }
                 }
             }
         });
 
         let storeArray = Object.values(storeMap);
-        if (selectedHo) storeArray = storeArray.filter(i => getTrainerHoByStore(i.store).toLowerCase() === selectedHo.toLowerCase());
-        if (selectedStoreFilter) storeArray = storeArray.filter(i => i.store.toLowerCase() === selectedStoreFilter.toLowerCase());
         storeArray.sort((a, b) => a.store.localeCompare(b.store));
 
         document.getElementById('pnr-store-count').innerText = `${storeArray.length} Store`;
