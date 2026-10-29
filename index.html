@@ -47,8 +47,12 @@
         table th { position: sticky; top: 0; z-index: 2; background-color: #212529; color: #ffffff; text-align: center; vertical-align: middle; white-space: nowrap; }
         table td { text-align: center; vertical-align: middle; white-space: nowrap; font-size: 0.88rem; }
         
-        /* Fixed Store Column */
-        table td.store-col, table th.store-col { text-align: left; position: sticky; left: 0; z-index: 3; }
+        /* Fixed No & Store Column */
+        table td.no-col, table th.no-col { width: 45px; text-align: center; position: sticky; left: 0; z-index: 3; }
+        table td.no-col { background-color: #f8f9fa !important; color: #6c757d !important; font-weight: 600; }
+        table th.no-col { background-color: #212529 !important; color: #ffffff !important; z-index: 4; }
+
+        table td.store-col, table th.store-col { text-align: left; position: sticky; left: 45px; z-index: 3; }
         table td.store-col { background-color: #ffffff !important; color: #212529 !important; font-weight: 600; }
         table th.store-col { background-color: #e9ecef !important; color: #212529 !important; font-weight: bold; border-bottom: 2px solid #dee2e6; z-index: 4; }
         table td.name-col, table th.name-col { text-align: left; }
@@ -219,6 +223,7 @@
                     <table class="table table-bordered table-hover align-middle mb-0" id="table-ops-mom">
                         <thead>
                             <tr>
+                                <th class="no-col">No</th>
                                 <th class="store-col">Store Name</th>
                                 <th>Bulan Lalu (M-1)</th>
                                 <th>Bulan Ini (M)</th>
@@ -248,7 +253,7 @@
 
             <div class="dashboard-container">
                 <h5 class="mb-3 text-primary fs-6 fw-bold"><i class="fa-solid fa-table me-2"></i>Rekap Bulanan OPS (Per Toko)</h5>
-                <div class="table-responsive"><table class="table table-striped table-hover align-middle" id="table-ops"><thead><tr><th class="store-col">Store</th><th>13:00</th><th>15:00</th><th>18:00</th><th>TOTAL</th><th>TARGET</th><th>Presenter%</th></tr></thead><tbody></tbody></table></div>
+                <div class="table-responsive"><table class="table table-striped table-hover align-middle" id="table-ops"><thead><tr><th class="no-col">No</th><th class="store-col">Store</th><th>13:00</th><th>15:00</th><th>18:00</th><th>TOTAL</th><th>TARGET</th><th>Presenter%</th></tr></thead><tbody></tbody></table></div>
             </div>
 
             <div class="dashboard-container border-start border-danger border-4">
@@ -310,6 +315,7 @@
                     <table class="table table-bordered table-hover align-middle mb-0" id="table-ems-mom">
                         <thead>
                             <tr>
+                                <th class="no-col">No</th>
                                 <th class="store-col">Store Name</th>
                                 <th>Bulan Lalu (M-1)</th>
                                 <th>Bulan Ini (M)</th>
@@ -333,6 +339,7 @@
                     <table class="table table-bordered table-hover align-middle" id="table-ems-weekly">
                         <thead>
                             <tr>
+                                <th class="no-col">No</th>
                                 <th class="store-col">Store Name</th>
                                 <th class="bg-success">Total Sesi</th>
                                 <th>Target Bulanan</th>
@@ -410,6 +417,7 @@
                     <table class="table table-bordered table-hover align-middle mb-0" id="table-pnr-mom">
                         <thead>
                             <tr>
+                                <th class="no-col">No</th>
                                 <th class="store-col">Store Name</th>
                                 <th>Bulan Lalu (M-1)</th>
                                 <th>Bulan Ini (M)</th>
@@ -433,6 +441,7 @@
                     <table class="table table-bordered table-hover align-middle" id="table-pnr-store-summary">
                         <thead>
                             <tr>
+                                <th class="no-col">No</th>
                                 <th class="store-col">Store</th>
                                 <th>Store Trainer</th>
                                 <th>Total Employee</th>
@@ -452,6 +461,7 @@
                     <table class="table table-striped table-hover table-sm align-middle" id="table-PNR">
                         <thead>
                             <tr>
+                                <th class="no-col">No</th>
                                 <th>Modules</th>
                                 <th>Type of Training</th>
                                 <th>Total Session</th>
@@ -1565,7 +1575,7 @@
         document.getElementById('ops-mom-count').innerText = `${stores.length} Store`;
 
         const fragment = document.createDocumentFragment();
-        stores.forEach(store => {
+        stores.forEach((store, idx) => {
             let mCurrent = curMap[store] || 0;
             let mPrev = prevMap[store] || 0;
             let diff = mCurrent - mPrev;
@@ -1577,6 +1587,7 @@
 
             let tr = document.createElement('tr');
             tr.innerHTML = `
+                <td class="no-col">${idx + 1}</td>
                 <td class="store-col">${store}</td>
                 <td>${mPrev} Sesi</td>
                 <td class="fw-bold text-primary">${mCurrent} Sesi</td>
@@ -1616,7 +1627,7 @@
         document.getElementById('ems-mom-count').innerText = `${stores.length} Store`;
 
         const fragment = document.createDocumentFragment();
-        stores.forEach(store => {
+        stores.forEach((store, idx) => {
             let mCurrent = curMap[store] || 0;
             let mPrev = prevMap[store] || 0;
             let diff = mCurrent - mPrev;
@@ -1628,6 +1639,7 @@
 
             let tr = document.createElement('tr');
             tr.innerHTML = `
+                <td class="no-col">${idx + 1}</td>
                 <td class="store-col">${store}</td>
                 <td>${mPrev} Sesi</td>
                 <td class="fw-bold text-success">${mCurrent} Sesi</td>
@@ -1672,7 +1684,7 @@
         document.getElementById('pnr-mom-count').innerText = `${stores.length} Store`;
 
         const fragment = document.createDocumentFragment();
-        stores.forEach(store => {
+        stores.forEach((store, idx) => {
             let mCurrent = curMap[store] || 0;
             let mPrev = prevMap[store] || 0;
             let diff = mCurrent - mPrev;
@@ -1684,6 +1696,7 @@
 
             let tr = document.createElement('tr');
             tr.innerHTML = `
+                <td class="no-col">${idx + 1}</td>
                 <td class="store-col">${store}</td>
                 <td>${mPrev.toFixed(1)} Hours</td>
                 <td class="fw-bold text-warning">${mCurrent.toFixed(1)} Hours</td>
@@ -1736,7 +1749,7 @@
         const table = document.getElementById(`table-ops`);
         const tbody = table.querySelector('tbody');
         tbody.innerHTML = '';
-        if (!rows || rows.length === 0) { tbody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-3">Tidak ada data ditemukan.</td></tr>`; return; }
+        if (!rows || rows.length === 0) { tbody.innerHTML = `<tr><td colspan="8" class="text-center text-muted py-3">Tidak ada data ditemukan.</td></tr>`; return; }
         
         let dynamicTarget = getDynamicOpsTarget(selectedMonth);
         let grouped = {};
@@ -1748,11 +1761,11 @@
             grouped[store].s13 += v13; grouped[store].s15 += v15; grouped[store].s18 += v18;
         });
         const fragment = document.createDocumentFragment();
-        Object.keys(grouped).sort().forEach(k => {
+        Object.keys(grouped).sort().forEach((k, idx) => {
             let item = grouped[k], total = item.s13 + item.s15 + item.s18;
             let pct = dynamicTarget > 0 ? ((total / dynamicTarget) * 100).toFixed(1) : 0;
             let tr = document.createElement('tr');
-            tr.innerHTML = `<td class="store-col">${item.store}</td><td>${item.s13}</td><td>${item.s15}</td><td>${item.s18}</td><td class="fw-bold text-primary">${total}</td><td>${dynamicTarget}</td><td class="fw-bold text-success">${pct}%</td>`;
+            tr.innerHTML = `<td class="no-col">${idx + 1}</td><td class="store-col">${item.store}</td><td>${item.s13}</td><td>${item.s15}</td><td>${item.s18}</td><td class="fw-bold text-primary">${total}</td><td>${dynamicTarget}</td><td class="fw-bold text-success">${pct}%</td>`;
             fragment.appendChild(tr);
         });
         tbody.appendChild(fragment);
@@ -1772,12 +1785,11 @@
         let weeks = getMonthWeeks(year, month);
         let dynamicTargetPerStore = getDynamicOpsTarget(selectedMonth);
 
-        let headerHtml = '<tr><th class="store-col">Store Name</th>';
+        let headerHtml = '<tr><th class="no-col">No</th><th class="store-col">Store Name</th>';
         weeks.forEach(w => { headerHtml += `<th>${w.label}</th>`; });
         headerHtml += '<th class="bg-primary text-white">Total Sesi</th><th>Target Bulanan</th><th>%</th></tr>';
         thead.innerHTML = headerHtml;
 
-        // Inisialisasi storeMap berdasarkan MASTER_STORES
         let targetStores = getTargetStoresList(selectedStore, selectedHo);
         if (searchInput) targetStores = targetStores.filter(s => s.toLowerCase().includes(searchInput));
 
@@ -1788,7 +1800,6 @@
             weeks.forEach(w => { storeMap[key].weeksData[w.label] = 0; });
         });
 
-        // Mapping data laporan OPS
         filteredRows.forEach(row => {
             let store = getStoreName(row, 'ops');
             if (!store || store === 'Unknown Store') return;
@@ -1814,9 +1825,9 @@
         document.getElementById('ops-weekly-count').innerText = `${storeArray.length} Store`;
 
         const fragment = document.createDocumentFragment();
-        storeArray.forEach(item => {
+        storeArray.forEach((item, idx) => {
             let tr = document.createElement('tr');
-            let rowHtml = `<td class="store-col">${item.store}</td>`;
+            let rowHtml = `<td class="no-col">${idx + 1}</td><td class="store-col">${item.store}</td>`;
             let totalSessions = 0;
             weeks.forEach(w => {
                 let count = item.weeksData[w.label];
@@ -1837,7 +1848,7 @@
         const thead = table.querySelector('thead'), tbody = table.querySelector('tbody');
         thead.innerHTML = ''; tbody.innerHTML = '';
         let daysInMonth = (selectedMonth && selectedMonth.includes('-')) ? new Date(selectedMonth.split('-')[0], selectedMonth.split('-')[1], 0).getDate() : 31;
-        let headerHtml = '<tr><th class="store-col">Store</th><th class="name-col">Presenter Name</th>';
+        let headerHtml = '<tr><th class="no-col">No</th><th class="store-col">Store</th><th class="name-col">Presenter Name</th>';
         for (let d = 1; d <= daysInMonth; d++) headerHtml += `<th>${d}</th>`;
         thead.innerHTML = headerHtml + '<th class="bg-primary">TOTAL SESI</th></tr>';
 
@@ -1889,9 +1900,9 @@
 
         document.getElementById('staff-matrix-count').innerText = `${staffList.length} Staff`;
         const fragment = document.createDocumentFragment();
-        staffList.forEach(item => {
+        staffList.forEach((item, idx) => {
             let tr = document.createElement('tr');
-            let rowHtml = `<td class="store-col">${item.store}</td><td class="name-col">${item.presenter}</td>`;
+            let rowHtml = `<td class="no-col">${idx + 1}</td><td class="store-col">${item.store}</td><td class="name-col">${item.presenter}</td>`;
             for (let d = 1; d <= daysInMonth; d++) {
                 rowHtml += item.days[d] ? `<td class="cell-active">${item.days[d]}</td>` : `<td class="cell-inactive">-</td>`;
             }
@@ -1906,7 +1917,7 @@
         const thead = table.querySelector('thead'), tbody = table.querySelector('tbody');
         thead.innerHTML = ''; tbody.innerHTML = '';
         let daysInMonth = (selectedMonth && selectedMonth.includes('-')) ? new Date(selectedMonth.split('-')[0], selectedMonth.split('-')[1], 0).getDate() : 31;
-        let headerHtml = '<tr><th class="store-col">Store</th><th class="name-col">Trainer Name</th>';
+        let headerHtml = '<tr><th class="no-col">No</th><th class="store-col">Store</th><th class="name-col">Trainer Name</th>';
         for (let d = 1; d <= daysInMonth; d++) headerHtml += `<th>${d}</th>`;
         thead.innerHTML = headerHtml + '<th class="bg-success">TOTAL SESI</th></tr>';
 
@@ -1949,9 +1960,9 @@
 
         document.getElementById('ems-matrix-count').innerText = `${staffArray.length} Staff`;
         const fragment = document.createDocumentFragment();
-        staffArray.forEach(item => {
+        staffArray.forEach((item, idx) => {
             let tr = document.createElement('tr');
-            let rowHtml = `<td class="store-col">${item.store}</td><td class="name-col">${item.presenter}</td>`;
+            let rowHtml = `<td class="no-col">${idx + 1}</td><td class="store-col">${item.store}</td><td class="name-col">${item.presenter}</td>`;
             for (let d = 1; d <= daysInMonth; d++) {
                 rowHtml += item.days[d] ? `<td class="cell-active">${item.days[d]}</td>` : `<td class="cell-inactive">-</td>`;
             }
@@ -2004,12 +2015,11 @@
         let weeks = getMonthWeeks(year, month);
         let dynamicTargetPerStore = getDynamicEmsTarget(selectedMonth);
 
-        let headerHtml = '<tr><th class="store-col">Store Name</th>';
+        let headerHtml = '<tr><th class="no-col">No</th><th class="store-col">Store Name</th>';
         weeks.forEach(w => { headerHtml += `<th>${w.label}</th>`; });
         headerHtml += '<th class="bg-success">Total Sesi</th><th>Target Bulanan</th><th>%</th></tr>';
         thead.innerHTML = headerHtml;
 
-        // Inisialisasi storeMap dari MASTER_STORES
         let targetStores = getTargetStoresList(selectedStore, selectedHo);
         if (searchInput) targetStores = targetStores.filter(s => s.toLowerCase().includes(searchInput));
 
@@ -2020,7 +2030,6 @@
             weeks.forEach(w => { storeMap[key].weeksData[w.label] = 0; });
         });
 
-        // Map data aktual sesi dari laporan EMS
         filteredRows.forEach(row => {
             let store = getStoreName(row, 'ems');
             if (!store || store === 'Unknown Store') return;
@@ -2060,9 +2069,9 @@
         document.getElementById('ems-sum-regional-pct').innerText = filteredPercentage + '%';
 
         const fragment = document.createDocumentFragment();
-        storeArray.forEach(item => {
+        storeArray.forEach((item, idx) => {
             let tr = document.createElement('tr');
-            let rowHtml = `<td class="store-col">${item.store}</td>`;
+            let rowHtml = `<td class="no-col">${idx + 1}</td><td class="store-col">${item.store}</td>`;
             let totalSessions = 0;
             weeks.forEach(w => {
                 let count = item.weeksData[w.label];
@@ -2081,7 +2090,7 @@
         const table = document.getElementById('table-PNR');
         const tbody = table.querySelector('tbody');
         tbody.innerHTML = '';
-        if (!rows || rows.length === 0) { tbody.innerHTML = `<tr><td colspan="12" class="text-center text-muted py-3">Tidak ada data ditemukan.</td></tr>`; return; }
+        if (!rows || rows.length === 0) { tbody.innerHTML = `<tr><td colspan="13" class="text-center text-muted py-3">Tidak ada data ditemukan.</td></tr>`; return; }
         const expectedCols = [
             { name: 'Modules', idx: 6, wrap: false }, { name: 'Type of Training', idx: 9, wrap: false },
             { name: 'Total Session', idx: 10, wrap: false }, { name: 'Total Staff Trained', idx: 11, wrap: false },
@@ -2091,8 +2100,13 @@
             { name: 'Any Comment', idx: 17, wrap: true }, { name: 'Hours', idx: 18, wrap: false }
         ];
         const fragment = document.createDocumentFragment();
-        rows.forEach(row => {
+        rows.forEach((row, idx) => {
             let tr = document.createElement('tr');
+            let tdNo = document.createElement('td');
+            tdNo.className = 'no-col';
+            tdNo.textContent = idx + 1;
+            tr.appendChild(tdNo);
+
             expectedCols.forEach(col => {
                 let val = getPnrVal(row, col.name, col.idx);
                 let td = document.createElement('td');
@@ -2111,14 +2125,12 @@
         const tbody = table.querySelector('tbody');
         tbody.innerHTML = '';
 
-        // Kunci daftar toko dari MASTER_STORES
         let targetStores = getTargetStoresList(selectedStoreFilter, selectedHo);
         let storeMap = {};
         targetStores.forEach(st => {
             storeMap[st.toLowerCase()] = { store: st, trainers: new Set(), headcount: 0, actualHours: 0 };
         });
 
-        // Hitung headcount & trainer dari RAW yang sesuai master
         globalData.raw.forEach(r => {
             let rKeys = Object.keys(r);
             if (rKeys.length >= 3) {
@@ -2146,7 +2158,6 @@
             }
         });
 
-        // Akumulasi jam dari PNR ke toko master
         filteredPnrRows.forEach(row => {
             let pnrStore = getStoreName(row, 'PNR');
             let hours = parseFloat(getPnrVal(row, 'Hours', 18)) || 0;
@@ -2173,7 +2184,7 @@
         document.getElementById('pnr-store-count').innerText = `${storeArray.length} Store`;
 
         const fragment = document.createDocumentFragment();
-        storeArray.forEach(item => {
+        storeArray.forEach((item, idx) => {
             let headcount = item.headcount > 0 ? item.headcount : 6;
             let targetHours = 3 + ((headcount - 1) * 1.5);
             let pct = targetHours > 0 ? ((item.actualHours / targetHours) * 100).toFixed(0) : 0;
@@ -2181,6 +2192,7 @@
 
             let tr = document.createElement('tr');
             tr.innerHTML = `
+                <td class="no-col">${idx + 1}</td>
                 <td class="store-col">${item.store}</td>
                 <td class="text-start">${trainerListStr}</td>
                 <td>${headcount}</td>
@@ -2199,10 +2211,15 @@
         thead.innerHTML = ''; tbody.innerHTML = '';
         if (!rows || rows.length === 0) { tbody.innerHTML = `<tr><td colspan="10" class="text-center text-muted py-3">Tidak ada data ditemukan.</td></tr>`; return; }
         const headers = Object.keys(rows[0]);
-        thead.innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+        thead.innerHTML = '<tr><th class="no-col">No</th>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
         const fragment = document.createDocumentFragment();
-        rows.forEach(row => {
+        rows.forEach((row, idx) => {
             let tr = document.createElement('tr');
+            let tdNo = document.createElement('td');
+            tdNo.className = 'no-col';
+            tdNo.textContent = idx + 1;
+            tr.appendChild(tdNo);
+
             headers.forEach(h => { let td = document.createElement('td'); td.textContent = row[h] !== undefined ? row[h] : ''; tr.appendChild(td); });
             fragment.appendChild(tr);
         });
