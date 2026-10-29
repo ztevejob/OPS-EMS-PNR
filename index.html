@@ -10,9 +10,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Chart.js Plugin Datalabels (Menampilkan Angka di Chart) -->
+    <!-- Chart.js Plugin Datalabels -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
-    <!-- SheetJS CDN (Multi-Sheet Excel Export) -->
+    <!-- SheetJS CDN -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         :root {
@@ -35,7 +35,7 @@
         .card-stat:hover { transform: translateY(-2px); }
         .dashboard-container { background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
         
-        /* Optimalisasi Scroll & Tabel Mobile */
+        /* Table Scroll */
         .table-responsive { 
             max-height: 450px; 
             overflow-y: auto; 
@@ -47,7 +47,7 @@
         table th { position: sticky; top: 0; z-index: 2; background-color: #212529; color: #ffffff; text-align: center; vertical-align: middle; white-space: nowrap; }
         table td { text-align: center; vertical-align: middle; white-space: nowrap; font-size: 0.88rem; }
         
-        /* Fixed Header & Store Column */
+        /* Fixed Store Column */
         table td.store-col, table th.store-col { text-align: left; position: sticky; left: 0; z-index: 3; }
         table td.store-col { background-color: #ffffff !important; color: #212529 !important; font-weight: 600; }
         table th.store-col { background-color: #e9ecef !important; color: #212529 !important; font-weight: bold; border-bottom: 2px solid #dee2e6; z-index: 4; }
@@ -59,18 +59,15 @@
         .cell-active { background-color: #d1e7dd; color: #0f5132; font-weight: bold; }
         .cell-inactive { background-color: #f8d7da; color: #842029; }
         
-        /* Mobile Touch Target Optimizations */
         .chart-scroll-container { position: relative; height: 380px; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         .chart-inner-wrapper { position: relative; height: 100%; min-width: 100%; }
         .clickable-card { cursor: pointer; }
 
-        /* Badge Trend MoM */
         .mom-badge { font-size: 0.78rem; font-weight: 600; padding: 4px 8px; border-radius: 6px; display: inline-flex; align-items: center; gap: 4px; }
         .mom-up { background-color: #d1e7dd; color: #0f5132; }
         .mom-down { background-color: #f8d7da; color: #842029; }
         .mom-neutral { background-color: #e2e3e5; color: #41464b; }
 
-        /* Profile Card Styling */
         .profile-card-table { 
             width: 100% !important; 
             margin: 0 auto; 
@@ -152,7 +149,6 @@
         <h1 class="h2 mb-0 fw-bold">Real-Time Dashboard</h1>
         <div class="d-flex flex-wrap gap-2 align-items-center">
             
-            <!-- Tombol Export Excel Multi-Sheet -->
             <button class="btn btn-sm btn-outline-success fw-bold shadow-sm" onclick="exportActiveTabExcel()">
                 <i class="fa-solid fa-file-excel me-1"></i> Export Excel (<span id="export-tab-label">OPS</span>)
             </button>
@@ -179,9 +175,10 @@
             
             <div class="dashboard-container mb-3 py-3">
                 <div class="row g-2 align-items-center">
-                    <div class="col-6 col-md-4"><label class="form-label small fw-bold text-muted mb-1">Filter Bulan:</label><select id="filter-month-ops" class="form-select form-select-sm" onchange="applyFilters('ops')"><option value="">Semua Bulan</option></select></div>
-                    <div class="col-6 col-md-4"><label class="form-label small fw-bold text-muted mb-1">Filter Toko:</label><select id="filter-store-ops" class="form-select form-select-sm" onchange="applyFilters('ops')"><option value="">Semua Toko</option></select></div>
-                    <div class="col-12 col-md-4"><label class="form-label small fw-bold text-muted mb-1">Pencarian:</label><input type="text" id="search-ops" class="form-control form-select-sm" placeholder="Cari Toko / Presenter..." onkeyup="applyFilters('ops')"></div>
+                    <div class="col-6 col-md-3"><label class="form-label small fw-bold text-muted mb-1">Filter Month:</label><select id="filter-month-ops" class="form-select form-select-sm" onchange="applyFilters('ops')"><option value="">Semua Bulan</option></select></div>
+                    <div class="col-6 col-md-3"><label class="form-label small fw-bold text-muted mb-1">Filter Trainer HO:</label><select id="filter-trainer-ho-ops" class="form-select form-select-sm" onchange="applyFilters('ops')"><option value="">Semua Trainer HO</option></select></div>
+                    <div class="col-6 col-md-3"><label class="form-label small fw-bold text-muted mb-1">Filter Toko:</label><select id="filter-store-ops" class="form-select form-select-sm" onchange="applyFilters('ops')"><option value="">Semua Toko</option></select></div>
+                    <div class="col-6 col-md-3"><label class="form-label small fw-bold text-muted mb-1">Pencarian:</label><input type="text" id="search-ops" class="form-control form-select-sm" placeholder="Cari Toko / Presenter..." onkeyup="applyFilters('ops')"></div>
                 </div>
             </div>
 
@@ -270,9 +267,10 @@
             
             <div class="dashboard-container mb-3 py-3">
                 <div class="row g-2 align-items-center">
-                    <div class="col-6 col-md-4"><label class="form-label small fw-bold text-muted mb-1">Filter Bulan:</label><select id="filter-month-ems" class="form-select form-select-sm" onchange="applyFilters('ems')"><option value="">Semua Bulan</option></select></div>
-                    <div class="col-6 col-md-4"><label class="form-label small fw-bold text-muted mb-1">Filter Toko:</label><select id="filter-store-ems" class="form-select form-select-sm" onchange="applyFilters('ems')"><option value="">Semua Toko</option></select></div>
-                    <div class="col-12 col-md-4"><label class="form-label small fw-bold text-muted mb-1">Pencarian:</label><input type="text" id="search-ems" class="form-control form-select-sm" placeholder="Cari Toko..." onkeyup="applyFilters('ems')"></div>
+                    <div class="col-6 col-md-3"><label class="form-label small fw-bold text-muted mb-1">Filter Month:</label><select id="filter-month-ems" class="form-select form-select-sm" onchange="applyFilters('ems')"><option value="">Semua Bulan</option></select></div>
+                    <div class="col-6 col-md-3"><label class="form-label small fw-bold text-muted mb-1">Filter Trainer HO:</label><select id="filter-trainer-ho-ems" class="form-select form-select-sm" onchange="applyFilters('ems')"><option value="">Semua Trainer HO</option></select></div>
+                    <div class="col-6 col-md-3"><label class="form-label small fw-bold text-muted mb-1">Filter Toko:</label><select id="filter-store-ems" class="form-select form-select-sm" onchange="applyFilters('ems')"><option value="">Semua Toko</option></select></div>
+                    <div class="col-6 col-md-3"><label class="form-label small fw-bold text-muted mb-1">Pencarian:</label><input type="text" id="search-ems" class="form-control form-select-sm" placeholder="Cari Toko..." onkeyup="applyFilters('ems')"></div>
                 </div>
             </div>
             
@@ -362,11 +360,12 @@
             
             <div class="dashboard-container mb-3 py-3">
                 <div class="row g-2 align-items-center">
-                    <div class="col-6 col-md-2"><label class="form-label small fw-bold text-muted mb-1">Filter Tahun:</label><select id="filter-year-PNR" class="form-select form-select-sm" onchange="applyFilters('PNR')"><option value="">Semua Tahun</option></select></div>
-                    <div class="col-6 col-md-2"><label class="form-label small fw-bold text-muted mb-1">Filter Bulan:</label><select id="filter-month-PNR" class="form-select form-select-sm" onchange="applyFilters('PNR')"><option value="">Semua Bulan</option></select></div>
+                    <div class="col-6 col-md-2"><label class="form-label small fw-bold text-muted mb-1">Filter Year:</label><select id="filter-year-PNR" class="form-select form-select-sm" onchange="applyFilters('PNR')"><option value="">Semua Tahun</option></select></div>
+                    <div class="col-6 col-md-2"><label class="form-label small fw-bold text-muted mb-1">Filter Month:</label><select id="filter-month-PNR" class="form-select form-select-sm" onchange="applyFilters('PNR')"><option value="">Semua Bulan</option></select></div>
+                    <div class="col-6 col-md-3"><label class="form-label small fw-bold text-muted mb-1">Filter Trainer HO:</label><select id="filter-trainer-ho-PNR" class="form-select form-select-sm" onchange="applyFilters('PNR')"><option value="">Semua Trainer HO</option></select></div>
                     <div class="col-6 col-md-3"><label class="form-label small fw-bold text-muted mb-1">Filter Toko:</label><select id="filter-store-PNR" class="form-select form-select-sm" onchange="applyFilters('PNR')"><option value="">Semua Toko</option></select></div>
                     <div class="col-6 col-md-2"><label class="form-label small fw-bold text-muted mb-1">Filter Status:</label><select id="filter-status-PNR" class="form-select form-select-sm" onchange="applyFilters('PNR')"><option value="">Semua Status</option></select></div>
-                    <div class="col-12 col-md-3"><label class="form-label small fw-bold text-muted mb-1">Pencarian:</label><input type="text" id="search-PNR" class="form-control form-select-sm" placeholder="Cari Lokasi / Training..." onkeyup="applyFilters('PNR')"></div>
+                    <div class="col-12 mt-2"><label class="form-label small fw-bold text-muted mb-1">Pencarian:</label><input type="text" id="search-PNR" class="form-control form-select-sm" placeholder="Cari Lokasi / Training / Trainer..." onkeyup="applyFilters('PNR')"></div>
                 </div>
             </div>
 
@@ -383,7 +382,6 @@
                 <div class="col"><div class="card card-stat p-2 bg-white border-start border-info border-3"><h6 class="text-muted small mb-1" style="font-size:0.75rem;">Other Roleplay</h6><h5 class="fw-bold text-info mb-0" id="summary-pnr-other-roleplay">0</h5></div></div>
             </div>
 
-            <!-- Dashboard Container Chart PNR Combo -->
             <div class="dashboard-container">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                     <div>
@@ -460,8 +458,8 @@
                                 <th>Total Staff Trained</th>
                                 <th>Month</th>
                                 <th>Date</th>
-                                <th>Topik Mandatory</th>
-                                <th>Topik Other</th>
+                                <th>Mandatory</th>
+                                <th>Other</th>
                                 <th>Status</th>
                                 <th>Participant name</th>
                                 <th>Any Comment</th>
@@ -474,7 +472,7 @@
             </div>
         </div>
 
-        <!-- 4. PROFILE TRAINER CONTENT (Optimized Horizontal Bar Progress Gauges) -->
+        <!-- 4. PROFILE TRAINER CONTENT -->
         <div class="tab-pane fade" id="profile-content" role="tabpanel">
             <div class="dashboard-container py-3">
                 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2 border-bottom pb-2">
@@ -490,7 +488,6 @@
                 </div>
 
                 <div class="row g-3">
-                    <!-- Kartu Profil Trainer & Metric Box -->
                     <div class="col-12 col-lg-5">
                         <div class="card h-100 border-0 shadow-sm p-2 bg-light">
                             <div class="table-responsive mb-2">
@@ -510,6 +507,7 @@
                                         </tr>
                                         <tr><th>Store</th><td id="profile-store">-</td></tr>
                                         <tr><th>Type Store</th><td id="profile-type-store">-</td></tr>
+                                        <tr><th>Trainer HO</th><td id="profile-trainer-ho">-</td></tr>
                                         <tr><th>NIK</th><td id="profile-nik">-</td></tr>
                                         <tr><th>Work Experience</th><td id="profile-experience">-</td></tr>
                                         <tr><th>Total Employee</th><td id="profile-total-employee" class="fw-bold text-primary">0</td></tr>
@@ -552,7 +550,6 @@
                         </div>
                     </div>
 
-                    <!-- Kartu Horizontal Bar Progress Gauges Kinerja -->
                     <div class="col-12 col-lg-7">
                         <div class="card h-100 border-0 shadow-sm p-3 bg-white d-flex flex-column justify-content-between">
                             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -560,10 +557,7 @@
                                 <span class="badge bg-light text-dark border" style="font-size:0.7rem;">Progress Gauge (%)</span>
                             </div>
                             
-                            <!-- Horizontal Bar Gauge List -->
                             <div class="d-flex flex-column gap-3 my-auto py-2">
-                                
-                                <!-- 1. Open Studio Bar Gauge -->
                                 <div>
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="fw-bold text-dark small"><i class="fa-solid fa-door-open me-1 text-warning"></i> Open Studio</span>
@@ -574,7 +568,6 @@
                                     </div>
                                 </div>
 
-                                <!-- 2. EMS Bar Gauge -->
                                 <div>
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="fw-bold text-dark small"><i class="fa-solid fa-laptop-code me-1 text-primary"></i> EMS</span>
@@ -585,7 +578,6 @@
                                     </div>
                                 </div>
 
-                                <!-- 3. PNR Hours Bar Gauge -->
                                 <div>
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <span class="fw-bold text-dark small"><i class="fa-solid fa-clock me-1 text-info"></i> PNR Hours</span>
@@ -595,7 +587,6 @@
                                         <div id="gaugePNR-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: 0%; border-radius: 8px;"></div>
                                     </div>
                                 </div>
-
                             </div>
                             
                             <div class="d-flex justify-content-between align-items-center text-muted small mt-3 pt-2 border-top" style="font-size:0.72rem;">
@@ -612,7 +603,6 @@
     </div>
 </div>
 
-<!-- Dock Bawah Ponsel -->
 <div class="d-lg-none fixed-bottom py-2 px-2 shadow-lg" style="z-index: 1050;">
     <div class="d-flex justify-content-around align-items-center text-center">
         <button class="btn text-white btn-sm d-flex flex-column align-items-center p-1 border-0" onclick="switchMobileTab('ops', this)" id="dock-ops"><i class="fa-solid fa-clipboard-list fa-lg mb-1 text-primary"></i><span style="font-size: 0.68rem; font-weight: bold;">OPS</span></button>
@@ -638,7 +628,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Register Chart.js Datalabels Plugin
     Chart.register(ChartDataLabels);
 
     const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzAAm8dsSyuTA2paIJ-i-EO9phCsRrqTWWGsgxIL6kqN7OeUKe-Uxmzd5dpkn15PDBO/exec';
@@ -686,6 +675,7 @@
     ];
 
     let globalData = { raw: [], ops: [], ems: [], PNR: [] };
+    let storeToHoMap = {}; 
     let lastFilteredOpsRows = [];
     let opsChartInstance = null, opsTopicChartInstance = null, emsChartInstance = null, PNRChartInstance = null;
     let opsChartMode = 'ops-top15';
@@ -698,7 +688,6 @@
         document.getElementById('export-tab-label').innerText = tab.toUpperCase();
     }
 
-    /* ---------------- EXPORT EXCEL MULTI-SHEET DINAMIS ---------------- */
     function exportActiveTabExcel() {
         if (typeof XLSX === 'undefined') {
             alert('Library Excel sedang dimuat, silakan coba beberapa detik lagi.');
@@ -963,6 +952,8 @@
                 globalData.ems = getSheetData(data, 'EMS');
                 globalData.PNR = getSheetData(data, 'PNR');
 
+                initStoreToHoMap();
+
                 initDropdowns('ops', globalData.ops);
                 initDropdowns('ems', globalData.ems);
                 initDropdowns('PNR', globalData.PNR);
@@ -1000,6 +991,35 @@
             });
     }
 
+    function initStoreToHoMap() {
+        storeToHoMap = {};
+        if (!globalData.raw || globalData.raw.length === 0) return;
+        globalData.raw.forEach(row => {
+            let keys = Object.keys(row);
+            let storeKey = keys.find(k => /^store$/i.test(k.trim()) || /toko|lokasi/i.test(k.trim()));
+            let hoKey = keys.find(k => /trainer ho|trainerho/i.test(k.trim()));
+            let store = storeKey ? String(row[storeKey] || '').trim() : (keys.length >= 2 ? String(row[keys[1]] || '').trim() : '');
+            let ho = hoKey ? String(row[hoKey] || '').trim() : '';
+
+            if (store && ho && ho !== '-') {
+                storeToHoMap[store.toLowerCase()] = ho;
+            }
+        });
+    }
+
+    function getTrainerHoByStore(storeName) {
+        if (!storeName || storeName === 'Unknown Store') return '';
+        let lower = storeName.toLowerCase().trim();
+        if (storeToHoMap[lower]) return storeToHoMap[lower];
+
+        for (let sKey in storeToHoMap) {
+            if (lower.includes(sKey) || sKey.includes(lower)) {
+                return storeToHoMap[sKey];
+            }
+        }
+        return '';
+    }
+
     function initProfileTrainers() {
         let trainerMap = new Map();
         globalData.raw.forEach(row => {
@@ -1011,7 +1031,7 @@
             if (trainerColKey && row[trainerColKey]) {
                 name = String(row[trainerColKey]).trim();
             } else if (keys.length >= 3) {
-                let roleKey = keys.find(k => /role|position|title|jabatan/i.test(k.trim()));
+                let roleKey = keys.find(k => /role|position|positions|title|jabatan/i.test(k.trim()));
                 if (roleKey && String(row[roleKey]).toLowerCase().includes('trainer')) {
                     name = String(row[keys[2]] || '').trim();
                 }
@@ -1092,9 +1112,13 @@
 
     function getPnrVal(row, colName, indexFallback) {
         let keys = Object.keys(row);
-        let found = keys.find(k => k.trim().toLowerCase() === colName.toLowerCase() || k.trim().toLowerCase().replace(/[\s_]/g, '') === colName.toLowerCase().replace(/[\s_]/g, ''));
+        let targetNorm = colName.toLowerCase().replace(/[\s_"\n\r\(\)\/]/g, '');
+        let found = keys.find(k => {
+            let kNorm = k.toLowerCase().replace(/[\s_"\n\r\(\)\/]/g, '');
+            return kNorm === targetNorm || kNorm.includes(targetNorm);
+        });
         if (found !== undefined && row[found] !== undefined) return row[found];
-        if (keys.length > indexFallback && row[keys[indexFallback]] !== undefined) return row[keys[indexFallback]];
+        if (indexFallback !== undefined && keys.length > indexFallback && row[keys[indexFallback]] !== undefined) return row[keys[indexFallback]];
         return '';
     }
 
@@ -1147,6 +1171,7 @@
         if (!selectedName) {
             document.getElementById('profile-store').innerText = '-';
             document.getElementById('profile-type-store').innerText = '-';
+            document.getElementById('profile-trainer-ho').innerText = '-';
             document.getElementById('profile-nik').innerText = '-';
             document.getElementById('profile-experience').innerText = '-';
             document.getElementById('profile-total-employee').innerText = '0';
@@ -1174,10 +1199,18 @@
         if (foundRow) {
             let keys = Object.keys(foundRow);
             let store = String(foundRow[keys[1]] || '-').trim();
+            
             let nikKey = keys.find(k => /nik|id/i.test(k.trim()));
             let nik = nikKey ? String(foundRow[nikKey] || '-') : (keys.length >= 4 ? String(foundRow[keys[3]] || '-') : '-');
-            let typeStore = /flagship/i.test(store) ? 'Flagship' : 'Store';
-            let workExp = '2 Tahun 7 Bulan';
+            
+            let typeStoreKey = keys.find(k => /type store|tipe toko|store type/i.test(k.trim()));
+            let typeStore = typeStoreKey ? String(foundRow[typeStoreKey] || '-').trim() : (/flagship/i.test(store) ? 'Flagship' : 'Store');
+
+            let trainerHoKey = keys.find(k => /trainer ho|trainerho/i.test(k.trim()));
+            let trainerHo = trainerHoKey ? String(foundRow[trainerHoKey] || '-').trim() : (getTrainerHoByStore(store) || '-');
+
+            let expKey = keys.find(k => /work experience|pengalaman/i.test(k.trim()));
+            let workExp = expKey ? String(foundRow[expKey] || '-').trim() : '2 Tahun 7 Bulan';
 
             let storeHeadcount = globalData.raw.filter(r => {
                 let rKeys = Object.keys(r);
@@ -1187,6 +1220,7 @@
 
             document.getElementById('profile-store').innerText = store;
             document.getElementById('profile-type-store').innerText = typeStore;
+            document.getElementById('profile-trainer-ho').innerText = trainerHo;
             document.getElementById('profile-nik').innerText = nik;
             document.getElementById('profile-experience').innerText = workExp;
             document.getElementById('profile-total-employee').innerText = storeHeadcount;
@@ -1294,6 +1328,10 @@
             let s = storeKey ? row[storeKey] : (row['Store'] || row[keys[1]] || '');
             if (s) return String(s).trim();
         }
+        if (sheetId === 'PNR') {
+            let locVal = getPnrVal(row, 'Location of training', 2);
+            if (locVal) return String(locVal).trim();
+        }
         let keys = Object.keys(row);
         let found = keys.find(k => /toko|store|lokasi|location|name|nama/i.test(k.trim()));
         if (found && row[found]) return String(row[found]).trim();
@@ -1304,14 +1342,27 @@
         const yearSelect = document.getElementById(`filter-year-${sheetId}`);
         const monthSelect = document.getElementById(`filter-month-${sheetId}`);
         const storeSelect = document.getElementById(`filter-store-${sheetId}`);
+        const hoSelect = document.getElementById(`filter-trainer-ho-${sheetId}`);
         const statusSelect = document.getElementById(`filter-status-${sheetId}`);
         
         const currentYear = yearSelect ? yearSelect.value : '';
         const currentMonth = monthSelect ? monthSelect.value : '';
         const currentStore = storeSelect ? storeSelect.value : '';
+        const currentHo = hoSelect ? hoSelect.value : '';
         const currentStatus = statusSelect ? statusSelect.value : '';
 
-        let years = new Set(), months = new Set(), stores = new Set(sheetId === 'ops' ? MASTER_STORES : []), statuses = new Set();
+        let years = new Set(), months = new Set(), stores = new Set(sheetId === 'ops' ? MASTER_STORES : []), statuses = new Set(), hoSet = new Set();
+
+        if (globalData.raw && globalData.raw.length > 0) {
+            globalData.raw.forEach(r => {
+                let keys = Object.keys(r);
+                let hoKey = keys.find(k => /trainer ho|trainerho/i.test(k.trim()));
+                if (hoKey && r[hoKey]) {
+                    let hoName = String(r[hoKey]).trim();
+                    if (hoName && hoName !== '-') hoSet.add(hoName);
+                }
+            });
+        }
 
         rows.forEach(row => {
             let ym = { year: null, month: null };
@@ -1356,6 +1407,12 @@
             monthSelect.value = sortedMonths.includes(currentMonth) ? currentMonth : "";
         }
 
+        if (hoSelect) {
+            let sortedHo = Array.from(hoSet).sort();
+            hoSelect.innerHTML = '<option value="">Semua Trainer HO</option>' + sortedHo.map(h => `<option value="${h}">${h}</option>`).join('');
+            hoSelect.value = sortedHo.includes(currentHo) ? currentHo : "";
+        }
+
         if (storeSelect) {
             let sortedStores = Array.from(stores).sort();
             storeSelect.innerHTML = '<option value="">Semua Toko</option>' + sortedStores.map(s => `<option value="${s}">${s}</option>`).join('');
@@ -1374,12 +1431,17 @@
         const searchInput = document.getElementById(`search-${sheetId}`).value.toLowerCase();
         const yearSelect = document.getElementById(`filter-year-${sheetId}`) ? document.getElementById(`filter-year-${sheetId}`).value : '';
         const monthSelect = document.getElementById(`filter-month-${sheetId}`).value;
+        const hoSelect = document.getElementById(`filter-trainer-ho-${sheetId}`).value;
         const storeSelect = document.getElementById(`filter-store-${sheetId}`).value;
         const statusSelect = document.getElementById(`filter-status-${sheetId}`) ? document.getElementById(`filter-status-${sheetId}`).value : '';
 
         let filtered = rows.filter(row => {
+            let storeName = getStoreName(row, sheetId);
+            let rowHo = getTrainerHoByStore(storeName);
+
             let matchSearch = searchInput ? Object.values(row).some(val => String(val).toLowerCase().includes(searchInput)) : true;
-            let matchStore = storeSelect ? (getStoreName(row, sheetId) === storeSelect) : true;
+            let matchStore = storeSelect ? (storeName === storeSelect) : true;
+            let matchHo = hoSelect ? (rowHo.toLowerCase() === hoSelect.toLowerCase()) : true;
             let matchYear = true, matchMonth = true, matchStatus = true;
 
             if (sheetId === 'PNR') {
@@ -1407,29 +1469,29 @@
                 if (yearSelect && ym.year !== yearSelect) matchYear = false;
                 if (monthSelect && ym.year && ym.month && `${ym.year}-${ym.month}` !== monthSelect) matchMonth = false;
             }
-            return matchSearch && matchStore && matchYear && matchMonth && matchStatus;
+            return matchSearch && matchStore && matchHo && matchYear && matchMonth && matchStatus;
         });
 
         if (sheetId === 'ops') {
             lastFilteredOpsRows = filtered;
-            renderOpsMomTable(monthSelect, storeSelect, searchInput);
+            renderOpsMomTable(monthSelect, storeSelect, hoSelect, searchInput);
             renderGroupedOpsTable(filtered, monthSelect);
-            renderStaffCalendarMatrix(globalData.ops, monthSelect, storeSelect, searchInput);
-            renderOpsWeeklyMatrix(filtered, monthSelect, storeSelect, searchInput);
-            calculateOpsSubmissionSummary(filtered);
+            renderStaffCalendarMatrix(globalData.ops, monthSelect, storeSelect, hoSelect, searchInput);
+            renderOpsWeeklyMatrix(filtered, monthSelect, storeSelect, hoSelect, searchInput);
+            calculateOpsSubmissionSummary(filtered, hoSelect);
         } else if (sheetId === 'ems') {
-            renderEmsMomTable(monthSelect, storeSelect, searchInput);
-            renderEmsCalendarMatrix(globalData.ems, monthSelect, storeSelect, searchInput);
-            renderEmsWeeklyMatrix(filtered, monthSelect, storeSelect, searchInput);
+            renderEmsMomTable(monthSelect, storeSelect, hoSelect, searchInput);
+            renderEmsCalendarMatrix(globalData.ems, monthSelect, storeSelect, hoSelect, searchInput);
+            renderEmsWeeklyMatrix(filtered, monthSelect, storeSelect, hoSelect, searchInput);
         } else if (sheetId === 'PNR') {
-            renderPnrMomTable(monthSelect, storeSelect, searchInput);
+            renderPnrMomTable(monthSelect, storeSelect, hoSelect, searchInput);
             renderPnrTable(filtered);
-            renderPnrStoreSummaryTable(filtered, storeSelect);
+            renderPnrStoreSummaryTable(filtered, storeSelect, hoSelect);
         } else {
             renderTable(sheetId, filtered);
         }
 
-        calculateSummary(filtered, sheetId, storeSelect);
+        calculateSummary(filtered, sheetId, storeSelect, hoSelect);
         renderCharts(filtered, sheetId);
     }
 
@@ -1456,9 +1518,21 @@
         }
     }
 
-    /* ---------------- TABEL TERPISAH: MoM GENERATOR ---------------- */
+    function getTargetStoresList(selectedStore, selectedHo) {
+        let stores = MASTER_STORES;
+        if (selectedHo) {
+            stores = stores.filter(s => {
+                let ho = getTrainerHoByStore(s);
+                return ho.toLowerCase() === selectedHo.toLowerCase();
+            });
+        }
+        if (selectedStore) {
+            stores = stores.filter(s => s.toLowerCase() === selectedStore.toLowerCase());
+        }
+        return stores;
+    }
 
-    function renderOpsMomTable(selectedMonth, selectedStore, searchInput) {
+    function renderOpsMomTable(selectedMonth, selectedStore, selectedHo, searchInput) {
         const table = document.getElementById('table-ops-mom');
         if (!table) return;
         const tbody = table.querySelector('tbody');
@@ -1484,8 +1558,7 @@
             if (prevMonth && monthVal === prevMonth) prevMap[store] = (prevMap[store] || 0) + finalSess;
         });
 
-        let stores = MASTER_STORES;
-        if (selectedStore) stores = stores.filter(s => s.toLowerCase() === selectedStore.toLowerCase());
+        let stores = getTargetStoresList(selectedStore, selectedHo);
         if (searchInput) stores = stores.filter(s => s.toLowerCase().includes(searchInput));
 
         document.getElementById('ops-mom-count').innerText = `${stores.length} Store`;
@@ -1514,7 +1587,7 @@
         tbody.appendChild(fragment);
     }
 
-    function renderEmsMomTable(selectedMonth, selectedStore, searchInput) {
+    function renderEmsMomTable(selectedMonth, selectedStore, selectedHo, searchInput) {
         const table = document.getElementById('table-ems-mom');
         if (!table) return;
         const tbody = table.querySelector('tbody');
@@ -1536,8 +1609,7 @@
             if (prevMonth && monthVal === prevMonth) prevMap[store] = (prevMap[store] || 0) + 1;
         });
 
-        let stores = MASTER_STORES;
-        if (selectedStore) stores = stores.filter(s => s.toLowerCase() === selectedStore.toLowerCase());
+        let stores = getTargetStoresList(selectedStore, selectedHo);
         if (searchInput) stores = stores.filter(s => s.toLowerCase().includes(searchInput));
 
         document.getElementById('ems-mom-count').innerText = `${stores.length} Store`;
@@ -1566,7 +1638,7 @@
         tbody.appendChild(fragment);
     }
 
-    function renderPnrMomTable(selectedMonth, selectedStore, searchInput) {
+    function renderPnrMomTable(selectedMonth, selectedStore, selectedHo, searchInput) {
         const table = document.getElementById('table-pnr-mom');
         if (!table) return;
         const tbody = table.querySelector('tbody');
@@ -1593,8 +1665,7 @@
             }
         });
 
-        let stores = MASTER_STORES;
-        if (selectedStore) stores = stores.filter(s => s.toLowerCase() === selectedStore.toLowerCase());
+        let stores = getTargetStoresList(selectedStore, selectedHo);
         if (searchInput) stores = stores.filter(s => s.toLowerCase().includes(searchInput));
 
         document.getElementById('pnr-mom-count').innerText = `${stores.length} Store`;
@@ -1623,22 +1694,33 @@
         tbody.appendChild(fragment);
     }
 
-    function calculateOpsSubmissionSummary(filteredRows) {
+    function calculateOpsSubmissionSummary(filteredRows, selectedHo) {
+        let targetMaster = MASTER_STORES;
+        if (selectedHo) {
+            targetMaster = targetMaster.filter(st => getTrainerHoByStore(st).toLowerCase() === selectedHo.toLowerCase());
+        }
+
         let submittedStoresSet = new Set();
         filteredRows.forEach(row => { let s = getStoreName(row, 'ops'); if (s && s !== 'Unknown Store') submittedStoresSet.add(s); });
         let submittedCount = 0;
-        MASTER_STORES.forEach(store => {
+        targetMaster.forEach(store => {
             if (Array.from(submittedStoresSet).some(sub => sub.toLowerCase().includes(store.toLowerCase()) || store.toLowerCase().includes(sub.toLowerCase()))) submittedCount++;
         });
         document.getElementById('summary-submitted-stores').innerText = submittedCount;
-        document.getElementById('summary-unsubmitted-stores').innerText = Math.max(0, MASTER_STORES.length - submittedCount);
+        document.getElementById('summary-unsubmitted-stores').innerText = Math.max(0, targetMaster.length - submittedCount);
     }
 
     function showUnsubmittedModal() {
+        let selectedHo = document.getElementById('filter-trainer-ho-ops') ? document.getElementById('filter-trainer-ho-ops').value : '';
+        let targetMaster = MASTER_STORES;
+        if (selectedHo) {
+            targetMaster = targetMaster.filter(st => getTrainerHoByStore(st).toLowerCase() === selectedHo.toLowerCase());
+        }
+
         let submittedStoresSet = new Set();
         lastFilteredOpsRows.forEach(row => { let s = getStoreName(row, 'ops'); if (s) submittedStoresSet.add(s.toLowerCase()); });
         let unsubmittedListHtml = '', unsubmittedCount = 0;
-        MASTER_STORES.forEach(store => {
+        targetMaster.forEach(store => {
             if (!Array.from(submittedStoresSet).some(sub => sub.includes(store.toLowerCase()) || store.toLowerCase().includes(sub))) {
                 unsubmittedCount++;
                 unsubmittedListHtml += `<li class="list-group-item d-flex justify-content-between align-items-center"><span class="fw-semibold">${store}</span><span class="badge bg-danger rounded-pill">Belum Submit</span></li>`;
@@ -1675,7 +1757,7 @@
         tbody.appendChild(fragment);
     }
 
-    function renderOpsWeeklyMatrix(filteredRows, selectedMonth, selectedStore, searchInput) {
+    function renderOpsWeeklyMatrix(filteredRows, selectedMonth, selectedStore, selectedHo, searchInput) {
         const table = document.getElementById('table-ops-weekly');
         if (!table) return;
         const thead = table.querySelector('thead'), tbody = table.querySelector('tbody');
@@ -1698,7 +1780,6 @@
         filteredRows.forEach(row => {
             let store = getStoreName(row, 'ops');
             if (!store || store === 'Unknown Store') return;
-            if (selectedStore && store !== selectedStore) return;
 
             let dateVal = String(getOpsVal(row, 'Tanggal ( Hari, Bulan, Tahun ) Hari ini', 3)).trim();
             let dayNum = parseDateToDay(dateVal) || 1;
@@ -1718,6 +1799,8 @@
         });
 
         let storeArray = Object.values(storeMap);
+        if (selectedHo) storeArray = storeArray.filter(i => getTrainerHoByStore(i.store).toLowerCase() === selectedHo.toLowerCase());
+        if (selectedStore) storeArray = storeArray.filter(i => i.store.toLowerCase() === selectedStore.toLowerCase());
         if (searchInput) storeArray = storeArray.filter(i => i.store.toLowerCase().includes(searchInput));
         storeArray.sort((a, b) => a.store.localeCompare(b.store));
 
@@ -1742,7 +1825,7 @@
         tbody.appendChild(fragment);
     }
 
-    function renderStaffCalendarMatrix(allOpsRows, selectedMonth, selectedStore, searchInput) {
+    function renderStaffCalendarMatrix(allOpsRows, selectedMonth, selectedStore, selectedHo, searchInput) {
         const table = document.getElementById('table-staff-matrix');
         const thead = table.querySelector('thead'), tbody = table.querySelector('tbody');
         thead.innerHTML = ''; tbody.innerHTML = '';
@@ -1762,7 +1845,6 @@
                 let email = emailKey ? String(rawRow[emailKey] || '').trim().toLowerCase() : '';
                 
                 if (store && presenter) {
-                    if (selectedStore && store !== selectedStore) return;
                     let staffObj = { store: store, presenter: presenter, email: email, days: {}, totalSesi: 0 };
                     if (email) staffMap[email] = staffObj;
                     staffByNameMap[`${store}_${presenter}`.toLowerCase().replace(/\s+/g, '')] = staffObj;
@@ -1793,6 +1875,7 @@
         });
 
         let staffList = Array.from(new Set(Object.values(staffByNameMap)));
+        if (selectedHo) staffList = staffList.filter(i => getTrainerHoByStore(i.store).toLowerCase() === selectedHo.toLowerCase());
         if (selectedStore) staffList = staffList.filter(i => i.store.toLowerCase() === selectedStore.toLowerCase());
         if (searchInput) staffList = staffList.filter(i => i.store.toLowerCase().includes(searchInput) || i.presenter.toLowerCase().includes(searchInput));
         staffList.sort((a, b) => a.store.localeCompare(b.store) || a.presenter.localeCompare(b.presenter));
@@ -1811,7 +1894,7 @@
         tbody.appendChild(fragment);
     }
 
-    function renderEmsCalendarMatrix(allEmsRows, selectedMonth, selectedStore, searchInput) {
+    function renderEmsCalendarMatrix(allEmsRows, selectedMonth, selectedStore, selectedHo, searchInput) {
         const table = document.getElementById('table-ems-matrix');
         const thead = table.querySelector('thead'), tbody = table.querySelector('tbody');
         thead.innerHTML = ''; tbody.innerHTML = '';
@@ -1852,6 +1935,7 @@
         });
 
         let staffArray = Object.values(staffMap);
+        if (selectedHo) staffArray = staffArray.filter(i => getTrainerHoByStore(i.store).toLowerCase() === selectedHo.toLowerCase());
         if (selectedStore) staffArray = staffArray.filter(i => i.store.toLowerCase() === selectedStore.toLowerCase());
         if (searchInput) staffArray = staffArray.filter(i => i.store.toLowerCase().includes(searchInput) || i.presenter.toLowerCase().includes(searchInput));
         staffArray.sort((a, b) => a.store.localeCompare(b.store));
@@ -1900,7 +1984,7 @@
         return null;
     }
 
-    function renderEmsWeeklyMatrix(filteredRows, selectedMonth, selectedStore, searchInput) {
+    function renderEmsWeeklyMatrix(filteredRows, selectedMonth, selectedStore, selectedHo, searchInput) {
         const table = document.getElementById('table-ems-weekly');
         const thead = table.querySelector('thead'), tbody = table.querySelector('tbody');
         thead.innerHTML = ''; tbody.innerHTML = '';
@@ -1922,7 +2006,6 @@
         filteredRows.forEach(row => {
             let store = getStoreName(row, 'ems');
             if (!store || store === 'Unknown Store') return;
-            if (selectedStore && store !== selectedStore) return;
 
             let keys = Object.keys(row);
             let dateKey = keys.find(k => /^date$|tanggal/i.test(k.trim()));
@@ -1939,6 +2022,8 @@
         });
 
         let storeArray = Object.values(storeMap);
+        if (selectedHo) storeArray = storeArray.filter(i => getTrainerHoByStore(i.store).toLowerCase() === selectedHo.toLowerCase());
+        if (selectedStore) storeArray = storeArray.filter(i => i.store.toLowerCase() === selectedStore.toLowerCase());
         if (searchInput) storeArray = storeArray.filter(i => i.store.toLowerCase().includes(searchInput));
         storeArray.sort((a, b) => a.store.localeCompare(b.store));
 
@@ -1988,7 +2073,7 @@
             { name: 'Modules', idx: 6, wrap: false }, { name: 'Type of Training', idx: 9, wrap: false },
             { name: 'Total Session', idx: 10, wrap: false }, { name: 'Total Staff Trained', idx: 11, wrap: false },
             { name: 'Month', idx: 12, wrap: false }, { name: 'Date', idx: 13, wrap: false },
-            { name: 'Topik Mandatory', idx: 7, wrap: false }, { name: 'Topik Other', idx: 8, wrap: false },
+            { name: 'Mandatory', idx: 7, wrap: false }, { name: 'Other', idx: 8, wrap: false },
             { name: 'Status', idx: 14, wrap: false }, { name: 'Participant name', idx: 4, wrap: true },
             { name: 'Any Comment', idx: 17, wrap: true }, { name: 'Hours', idx: 18, wrap: false }
         ];
@@ -2007,25 +2092,36 @@
         tbody.appendChild(fragment);
     }
 
-    function renderPnrStoreSummaryTable(filteredPnrRows, selectedStoreFilter) {
+    function renderPnrStoreSummaryTable(filteredPnrRows, selectedStoreFilter, selectedHo) {
         const table = document.getElementById('table-pnr-store-summary');
         if (!table) return;
         const tbody = table.querySelector('tbody');
         tbody.innerHTML = '';
 
         let storeMap = {};
+        
         globalData.raw.forEach(r => {
             let rKeys = Object.keys(r);
             if (rKeys.length >= 3) {
                 let store = String(r[rKeys[1]] || '').trim();
-                let name = String(r[rKeys[2]] || '').trim();
                 if (store) {
                     let normKey = store.toLowerCase().replace(/\s+/g, ' ');
                     if (!storeMap[normKey]) storeMap[normKey] = { store: store, trainers: new Set(), headcount: 0, actualHours: 0 };
                     storeMap[normKey].headcount++;
 
                     let trainerColKey = rKeys.find(k => /store trainer|trainer name/i.test(k.trim()));
-                    if (trainerColKey && r[trainerColKey]) storeMap[normKey].trainers.add(String(r[trainerColKey]).trim());
+                    if (trainerColKey && r[trainerColKey]) {
+                        String(r[trainerColKey]).split(',').forEach(t => {
+                            let cleanT = t.trim();
+                            if (cleanT && cleanT !== '-') storeMap[normKey].trainers.add(cleanT);
+                        });
+                    } else {
+                        let roleKey = rKeys.find(k => /position|positions|role|jabatan/i.test(k.trim()));
+                        if (roleKey && String(r[roleKey]).toLowerCase().includes('trainer')) {
+                            let staffName = String(r[rKeys[2]] || '').trim();
+                            if (staffName && staffName !== '-') storeMap[normKey].trainers.add(staffName);
+                        }
+                    }
                 }
             }
         });
@@ -2033,14 +2129,24 @@
         filteredPnrRows.forEach(row => {
             let store = getStoreName(row, 'PNR');
             let hours = parseFloat(getPnrVal(row, 'Hours', 18)) || 0;
+            let trainerNamePnr = String(getPnrVal(row, 'Trainer Name', 3)).trim();
+
             if (store && store !== 'Unknown Store') {
                 let normKey = store.toLowerCase().replace(/\s+/g, ' ');
                 if (!storeMap[normKey]) storeMap[normKey] = { store: store, trainers: new Set(), headcount: 0, actualHours: 0 };
                 storeMap[normKey].actualHours += hours;
+
+                if (trainerNamePnr && trainerNamePnr !== '-' && trainerNamePnr !== 'undefined') {
+                    trainerNamePnr.split(',').forEach(tn => {
+                        let cleanName = tn.trim();
+                        if (cleanName && cleanName !== '-') storeMap[normKey].trainers.add(cleanName);
+                    });
+                }
             }
         });
 
         let storeArray = Object.values(storeMap);
+        if (selectedHo) storeArray = storeArray.filter(i => getTrainerHoByStore(i.store).toLowerCase() === selectedHo.toLowerCase());
         if (selectedStoreFilter) storeArray = storeArray.filter(i => i.store.toLowerCase() === selectedStoreFilter.toLowerCase());
         storeArray.sort((a, b) => a.store.localeCompare(b.store));
 
@@ -2051,11 +2157,12 @@
             let headcount = item.headcount > 0 ? item.headcount : 6;
             let targetHours = 3 + ((headcount - 1) * 1.5);
             let pct = targetHours > 0 ? ((item.actualHours / targetHours) * 100).toFixed(0) : 0;
+            let trainerListStr = Array.from(item.trainers).join(', ') || '-';
 
             let tr = document.createElement('tr');
             tr.innerHTML = `
                 <td class="store-col">${item.store}</td>
-                <td class="text-start">${Array.from(item.trainers).join(', ')}</td>
+                <td class="text-start">${trainerListStr}</td>
                 <td>${headcount}</td>
                 <td>${targetHours.toFixed(1)} Hours</td>
                 <td class="fw-bold text-warning">${item.actualHours.toFixed(1)} Hours</td>
@@ -2082,7 +2189,7 @@
         tbody.appendChild(fragment);
     }
 
-    function calculateSummary(rows, sheetId, selectedStoreFilter = '') {
+    function calculateSummary(rows, sheetId, selectedStoreFilter = '', selectedHoFilter = '') {
         try {
             if (sheetId === 'ops') {
                 let totalOpsPartisipan = 0, totalOpsSessions = 0, totalOpsUnits = 0;
@@ -2115,38 +2222,41 @@
                 rows.forEach(row => {
                     totalSessions += parseFloat(getPnrVal(row, 'Total Session', 10)) || 0;
                     totalHours += parseFloat(getPnrVal(row, 'Hours', 18)) || 0;
-                    let mandatoryVal = getPnrVal(row, 'Topik Mandatory', 7);
+                    let mandatoryVal = getPnrVal(row, 'Mandatory', 7);
                     if (mandatoryVal && String(mandatoryVal).trim() !== '' && String(mandatoryVal).trim() !== '-') totalMandatory++;
                     let typeVal = String(getPnrVal(row, 'Type of Training', 9)).toLowerCase();
-                    let otherVal = getPnrVal(row, 'Topik Other', 8);
+                    let otherVal = getPnrVal(row, 'Other', 8);
                     if (otherVal && String(otherVal).trim() !== '' && String(otherVal).trim() !== '-') {
                         if (typeVal.includes('roleplay')) totalOtherRoleplay++;
                         else totalOtherTraining++;
                     }
                 });
 
-                let targetHours = 11;
-                if (selectedStoreFilter) {
+                let targetMaster = getTargetStoresList(selectedStoreFilter, selectedHoFilter);
+                let totalTargetHours = 0;
+
+                targetMaster.forEach(st => {
                     let storeHeadcount = globalData.raw.filter(r => {
                         let rKeys = Object.keys(r);
-                        return rKeys.length >= 2 && String(r[rKeys[1]] || '').trim().toLowerCase() === selectedStoreFilter.toLowerCase();
+                        return rKeys.length >= 2 && String(r[rKeys[1]] || '').trim().toLowerCase() === st.toLowerCase();
                     }).length;
                     if (storeHeadcount === 0) storeHeadcount = 6;
-                    targetHours = 3 + ((storeHeadcount - 1) * 1.5);
-                }
+                    totalTargetHours += 3 + ((storeHeadcount - 1) * 1.5);
+                });
+
+                if (targetMaster.length === 0) totalTargetHours = 11;
 
                 document.getElementById('summary-pnr-sessions').innerText = totalSessions;
                 document.getElementById('summary-pnr-mandatory').innerText = totalMandatory;
                 document.getElementById('summary-pnr-other-training').innerText = totalOtherTraining;
                 document.getElementById('summary-pnr-other-roleplay').innerText = totalOtherRoleplay;
                 document.getElementById('summary-pnr-hours').innerText = totalHours.toFixed(1) + 'h';
-                document.getElementById('summary-pnr-target-hours').innerText = targetHours.toFixed(1) + 'h';
-                document.getElementById('summary-pnr-achievement').innerText = targetHours > 0 ? ((totalHours / targetHours) * 100).toFixed(1) + '%' : '0%';
+                document.getElementById('summary-pnr-target-hours').innerText = totalTargetHours.toFixed(1) + 'h';
+                document.getElementById('summary-pnr-achievement').innerText = totalTargetHours > 0 ? ((totalHours / totalTargetHours) * 100).toFixed(1) + '%' : '0%';
             }
         } catch (e) { console.error(e); }
     }
 
-    /* ---------------- RENDER CHARTS DENGAN DATALABELS & GRADIENT ---------------- */
     function renderCharts(rows, sheetId) {
         if (sheetId === 'ops') {
             let storeTotals = {}, topicCounts = {};
@@ -2298,6 +2408,10 @@
                 }
             });
         } else if (sheetId === 'PNR') {
+            let selectedStoreFilter = document.getElementById('filter-store-PNR') ? document.getElementById('filter-store-PNR').value : '';
+            let selectedHoFilter = document.getElementById('filter-trainer-ho-PNR') ? document.getElementById('filter-trainer-ho-PNR').value : '';
+            let targetStores = getTargetStoresList(selectedStoreFilter, selectedHoFilter);
+
             let storeHoursMap = {};
             rows.forEach(row => {
                 let store = getStoreName(row, 'PNR');
@@ -2308,7 +2422,7 @@
                 }
             });
 
-            let pnrList = MASTER_STORES.map(store => {
+            let pnrList = targetStores.map(store => {
                 let storeHeadcount = globalData.raw.filter(r => {
                     let rKeys = Object.keys(r);
                     return rKeys.length >= 2 && String(r[rKeys[1]] || '').trim().toLowerCase() === store.toLowerCase();
